@@ -1,0 +1,5 @@
+rootProject.name = 'cms'
+include 'sdk'
+include 'plugins:hello-plugin'
+findProject(':plugins:hello-plugin')?.name = 'hello-plugin'
+
