@@ -1,6 +1,6 @@
-package com.hanami.plugin;
+package com.hanami.sdk.plugin;
 
-import com.hanami.api.Hanami;
+import com.hanami.sdk.api.Hanami;
 
 public interface ExtentionPlugin {
 

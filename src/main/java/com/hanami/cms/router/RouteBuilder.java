@@ -1,6 +1,6 @@
 package com.hanami.cms.router;
 
-import com.hanami.router.HttpMethod;
+import com.hanami.sdk.router.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -39,7 +39,7 @@ public class RouteBuilder {
 
         Logger logger = LoggerFactory.getLogger(RouteBuilder.class);
 
-        logger.info("The has is " + hashed);
+        logger.info("The hash is " + hashed);
 
         RouterFunction routes = RouterFunctions.route(RequestPredicates.GET("/" + hashed), serverRequest -> {
             return ServerResponse.ok().body(BodyInserters.fromObject("Hello hash is : " + hashed));

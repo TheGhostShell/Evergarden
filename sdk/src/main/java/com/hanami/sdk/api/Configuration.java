@@ -1,4 +1,4 @@
-package com.hanami.api;
+package com.hanami.sdk.api;
 
 public class Configuration {
 
