@@ -1,4 +1,4 @@
-package com.hanami.sdk.cms;
+package com.hanami.cms;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;

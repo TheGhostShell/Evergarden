@@ -1,9 +1,8 @@
 .gradle
-/build/
+**/build/
 !gradle/wrapper/gradle-wrapper.jar
-!/plugins/.gitkeep
-/plugins
-/bin
+!plugins/.gitkeep
+bin
 
 ### STS ###
 .apt_generated
@@ -19,7 +18,6 @@
 *.iws
 *.iml
 *.ipr
-/out/
 **/out
 
 ### NetBeans ###
@@ -29,3 +27,4 @@
 /nbdist/
 /.nb-gradle/
 
+/plugins/hello-plugin/
