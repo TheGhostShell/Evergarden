@@ -1,7 +1,6 @@
 package com.hanami.sdk.api;
 
 import com.google.common.eventbus.EventBus;
-import com.hanami.sdk.router.Route;
 
 import java.util.ArrayList;
 
@@ -20,9 +19,9 @@ public class Hanami {
         configurations.add(configuration);
     }
     
-    public void addRoute(Route route) {
-    
-    }
+//    public void addRoute(Route route) {
+//
+//    }
     
     public void addListener(Object object){
         eventBus.register(object);
