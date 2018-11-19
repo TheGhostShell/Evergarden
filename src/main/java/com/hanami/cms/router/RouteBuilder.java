@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.*;
-import reactor.core.publisher.Mono;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -18,9 +17,9 @@ import java.util.Map;
 
 public class RouteBuilder {
 
-    HashMap<HttpMethod, HashMap<String, HandlerFunction<ServerResponse>>> routeAggregator = new HashMap<>();
+    private HashMap<HttpMethod, HashMap<String, HandlerFunction<ServerResponse>>> routeAggregator = new HashMap<>();
 
-    String hash;
+    private String hash;
 
     public RouteBuilder add(HttpMethod method, String path, HandlerFunction<ServerResponse> handler) {
 
