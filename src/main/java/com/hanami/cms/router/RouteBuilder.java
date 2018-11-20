@@ -57,8 +57,9 @@ public class RouteBuilder {
             Object obj = new RequestPredicates() {
             };
 
-            routes = RouterFunctions.route((RequestPredicate) method.invoke(obj, path), callback)
-                                    .and(routes);
+            routes = RouterFunctions
+                .route((RequestPredicate) method.invoke(obj, path), callback)
+                .and(routes);
         }
 
         return routes;

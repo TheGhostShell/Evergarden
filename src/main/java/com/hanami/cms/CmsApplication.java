@@ -7,6 +7,10 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class CmsApplication {
 
 	public static void main(String[] args) {
+		Runnable run = () -> System.out.println("running");
+		
+		(new Thread(run)).start();
+		
 		SpringApplication.run(CmsApplication.class, args);
 	}
 }
