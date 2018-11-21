@@ -1,6 +1,7 @@
 package com.hanami.cms.router;
 
 import com.hanami.sdk.router.HttpMethod;
+import com.hanami.sdk.router.Route;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -23,5 +24,13 @@ public class RouteLoader {
 		});
 		
 		return builder.build();
+	}
+
+	private Route generatePluginRoute() {
+
+
+		Route route = new Route("/tibou", HttpMethod.get, handler);
+
+		return route;
 	}
 }

@@ -1,31 +1,28 @@
 package com.hanami.sdk.router;
 
-public class Route implements MonoliteRouteInterface{
+import java.util.function.Function;
 
-    private String path;
-    private HttpMethod method;
-    private HandlerFunction handler;
-    
-    public Route(String path, HttpMethod method, HandlerFunction handler) {
-        this.path = path;
-        this.method = method;
-        this.handler = handler;
-    }
+public class Route implements MonolithRouteInterface {
 
-    public String getPath() {
-        return path;
-    }
+	private String                                  path;
+	private HttpMethod                              method;
+	private Function<ServerRequest, ServerResponse> handler;
 
-    public HttpMethod getMethod() {
-        return method;
-    }
+	public Route(String path, HttpMethod method, Function<ServerRequest, ServerResponse> handler) {
+		this.path = path;
+		this.method = method;
+		this.handler = handler;
+	}
 
-    @Override
-    public Mono<ServerResponse> getHandler(ServerRequest request) {
-        return null;
-    }
+	public String getPath() {
+		return path;
+	}
 
-    public HandlerFunction getHandler() {
-        return handler;
-    }
+	public HttpMethod getMethod() {
+		return method;
+	}
+
+	public Function<ServerRequest, ServerResponse> getHandler() {
+		return handler;
+	}
 }

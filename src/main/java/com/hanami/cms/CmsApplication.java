@@ -10,14 +10,14 @@ public class CmsApplication {
 
 	public static void main(String[] args) {
 		Runnable run = () -> System.out.println("running");
-		
+
+		run.run();
+
 		Function<String, String> hello = (String name) -> {
 			return "Hello " + name;
 		};
 		
-		System.out.println(hello("john"));
-		
-		(new Thread(run)).start();
+		System.out.println(hello.apply("John"));
 		
 		SpringApplication.run(CmsApplication.class, args);
 	}
