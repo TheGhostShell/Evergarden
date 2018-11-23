@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class EventBusFactory {
-	
+
 	@Bean
 	@Scope("Singleton")
 	public EventBus getEventBusInstance()

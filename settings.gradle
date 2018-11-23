@@ -1,5 +1,5 @@
-rootProject.name = 'cms'
+rootProject.name = 'hanami-cms'
 include 'sdk'
-include 'plugins:hello-plugin'
-findProject(':plugins:hello-plugin')?.name = 'hello-plugin'
+//include 'plugins:hello-plugin'
+//findProject(':plugins:hello-plugin')?.name = 'hello-plugin'
 
