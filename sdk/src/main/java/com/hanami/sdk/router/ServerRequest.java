@@ -9,4 +9,8 @@ public class ServerRequest {
 	public ServerRequest(Path path) {
 		this.path = path;
 	}
+	
+	public Path getPath() {
+		return path;
+	}
 }
