@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 /**
- * Convert hanami.sdk.router.HandlerFunction to generic Spring handler
+ * Convert hanami.sdk.router.Handler to generic Spring handler
  */
 public class HandlerConverter {
 	
@@ -18,32 +18,46 @@ public class HandlerConverter {
 	}
 	
 	public Mono<ServerResponse> toServerResponse(ServerRequest request) {
-		//com.hanami.sdk.router.HandlerFunction handler = route.getHandler();
 		
-		com.hanami.sdk.router.ServerRequest sdkRequest = new com.hanami.sdk.router.ServerRequest(new Path(request.path()));
+		Request sdkRequest = new Request(
+			new Header(),
+			new Path(request.path()),
+			new QueryParameters(),
+			new Body("no data")
+		);
 		
-		com.hanami.sdk.router.ServerResponse sdkResponse = route.getHandler().apply(sdkRequest);
+		Response sdkResponse = route.getHandler().apply(sdkRequest);
 		
-		return ServerResponse.ok().body(BodyInserters.fromObject(sdkResponse.getFake()));
+		return ServerResponse.ok().body(BodyInserters.fromObject(sdkResponse));
 	}
 	
 	public org.springframework.web.reactive.function.server.HandlerFunction toHandlerFunction() {
 		return (ServerRequest request) -> {
-			com.hanami.sdk.router.ServerRequest sdkRequest = new com.hanami.sdk.router.ServerRequest(new Path(request.path()));
+			Request sdkRequest = new Request(
+				new Header(),
+				new Path(request.path()),
+				new QueryParameters(),
+				new Body("no data")
+			);
 			
-			com.hanami.sdk.router.ServerResponse sdkResponse = route.getHandler().apply(sdkRequest);
+			Response sdkResponse = route.getHandler().apply(sdkRequest);
 			
-			return ServerResponse.ok().body(BodyInserters.fromObject(sdkResponse.getFake()));
+			return ServerResponse.ok().body(BodyInserters.fromObject(sdkResponse.getBody().getJson()));
 		};
 	}
 	
 	public static org.springframework.web.reactive.function.server.HandlerFunction toHandlerFunction(Route route) {
 		return (ServerRequest request) -> {
-			com.hanami.sdk.router.ServerRequest sdkRequest = new com.hanami.sdk.router.ServerRequest(new Path(request.path()));
+			Request sdkRequest = new Request(
+				new Header(),
+				new Path(request.path()),
+				new QueryParameters(),
+				new Body(request.path())
+			);
 			
-			com.hanami.sdk.router.ServerResponse sdkResponse = route.getHandler().apply(sdkRequest);
+			Response sdkResponse = route.getHandler().apply(sdkRequest);
 			
-			return ServerResponse.ok().body(BodyInserters.fromObject(sdkResponse.getFake()));
+			return ServerResponse.ok().body(BodyInserters.fromObject(sdkResponse.getBody().getJson()));
 		};
 	}
 }
