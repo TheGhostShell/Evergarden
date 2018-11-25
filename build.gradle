@@ -25,6 +25,10 @@ repositories {
 dependencies {
 	//dependencies
 	compile 'org.xeustechnologies:jcl-core:2.8'
+	
+	//data db
+	compile("org.springframework.boot:spring-boot-starter-data-jpa")
+	compile("com.h2database:h2")
 
 	// sub module dependencies
 	compile project(':sdk')
