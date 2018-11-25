@@ -4,12 +4,12 @@ import java.util.function.Function;
 
 public interface MonolithRouteInterface {
 
-    Function<ServerRequest, ServerResponse> handler = null;
+    Function<Request, Response> handler = null;
 
     String getPath();
 
     HttpMethod getMethod();
 
-    Function<ServerRequest, ServerResponse> getHandler();
+    Function<Request, Response> getHandler();
 
 }

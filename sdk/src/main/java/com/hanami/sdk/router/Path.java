@@ -7,7 +7,8 @@ public class Path {
 		this.path = path;
 	}
 	
-	public String getPath() {
+	@Override
+	public String toString() {
 		return path;
 	}
 }

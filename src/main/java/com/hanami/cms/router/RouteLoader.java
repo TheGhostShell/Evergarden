@@ -1,8 +1,6 @@
 package com.hanami.cms.router;
 
-import com.hanami.sdk.router.HandlerFunction;
-import com.hanami.sdk.router.HttpMethod;
-import com.hanami.sdk.router.Route;
+import com.hanami.sdk.router.*;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.reactive.function.BodyInserters;
@@ -20,8 +18,12 @@ public class RouteLoader {
 	public RouterFunction loadRoute() throws NoSuchMethodException, NoSuchAlgorithmException, IllegalAccessException, InvocationTargetException {
 		RouteBuilder builder = new RouteBuilder();
 		
-		HandlerFunction handler = (com.hanami.sdk.router.ServerRequest request)->{
-			return new com.hanami.sdk.router.ServerResponse(request.getPath().getPath());
+		Handler handler = (Request request)->{
+			return new Response(
+				new Header(),
+				new Body("personal data"),
+				new StatusCode()
+			);
 		};
 		
 		Route route = new Route("/tibou", HttpMethod.get, handler);
