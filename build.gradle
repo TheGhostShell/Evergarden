@@ -11,6 +11,7 @@ buildscript {
 }
 
 apply plugin: 'java'
+apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
 
@@ -34,8 +35,11 @@ dependencies {
 	compile 'org.xeustechnologies:jcl-core:2.8'
 	
 	//data db
-	compile("org.springframework.boot:spring-boot-starter-data-jpa")
-	compile("com.h2database:h2")
+	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+	compile("com.h2database:h2") // or developmentOnly
+
+	//some dependency to h2 console
+	//implementation('org.springframework.boot:spring-boot-starter-web') //or runtime only ?
     
     //dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
@@ -44,11 +48,24 @@ dependencies {
 	compile project(':sdk')
 	
 	//spring web-flux
-	compile 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.springframework.boot:spring-boot-starter-webflux'
 	
 	testImplementation('org.springframework.boot:spring-boot-starter-test')
 	testImplementation('io.projectreactor:reactor-test')
 
 	//junit test
 	testCompile group: 'junit', name: 'junit', version: '4.12'
+	
+	//integrate spring shell or crash
+	//integrate flyway for database migration version control
 }
+
+//	        			from spring initializr
+
+//implementation('org.springframework.boot:spring-boot-starter-data-jpa')
+//implementation('org.springframework.boot:spring-boot-starter-web')
+//implementation('org.springframework.boot:spring-boot-starter-webflux')
+//runtimeOnly('org.springframework.boot:spring-boot-devtools')
+//runtimeOnly('com.h2database:h2')
+//testImplementation('org.springframework.boot:spring-boot-starter-test')
+//testImplementation('io.projectreactor:reactor-test')

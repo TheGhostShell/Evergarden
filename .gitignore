@@ -3,6 +3,8 @@
 !gradle/wrapper/gradle-wrapper.jar
 !plugins/.gitkeep
 plugins/
+*.db
+h2/
 
 ### STS ###
 .apt_generated
