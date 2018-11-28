@@ -4,11 +4,11 @@ import javax.persistence.*;
 
 @Entity
 @Table
-public class Post {
+public class Post implements com.hanami.cms.entity.publisher.mapping.Post {
 	
 	@Id
 	@GeneratedValue
-	private Integer id;
+	private int id;
 	
 	@Column
 	private String title;
@@ -25,7 +25,7 @@ public class Post {
 		this.author = author;
 	}
 	
-	public Integer getId() {
+	public int getId() {
 		return id;
 	}
 	

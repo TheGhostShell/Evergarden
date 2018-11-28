@@ -33,13 +33,16 @@ configurations {
 dependencies {
 	//dependencies
 	compile 'org.xeustechnologies:jcl-core:2.8'
-	
+
+    //rxjava-jdbc
+	compile 'com.github.davidmoten:rxjava2-jdbc:0.1-RC42'
+
+	// Reactor Adapter (RxJava2, Akka Actors scheduler and more)
+	compile "io.projectreactor.addons:reactor-adapter:3.2.0.RELEASE"
+
 	//data db
 	implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 	compile("com.h2database:h2") // or developmentOnly
-
-	//some dependency to h2 console
-	//implementation('org.springframework.boot:spring-boot-starter-web') //or runtime only ?
     
     //dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
