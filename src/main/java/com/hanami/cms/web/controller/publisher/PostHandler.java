@@ -11,12 +11,10 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
-import java.util.NoSuchElementException;
-
 @Component
 public class PostHandler {
 
-    private Logger logger;
+    private Logger         logger;
     private PostRepository repository;
 
     @Autowired
@@ -26,43 +24,27 @@ public class PostHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        
+
         Flux<Post> posts = repository.fetchAll();
-        
+
         return ServerResponse.ok().body(posts, Post.class);
     }
-    
+
     public Mono<ServerResponse> read(ServerRequest request) {
-        
+
         int id = Integer.parseInt(request.pathVariable("id"));
-        
-        logger.info("Read request with id:"+ id);
-        
-        try {
-            repository
-				.fetchById(id)
-				.subscribe(System.out::print);
-    
-    
-            
-//            Mono<ServerResponse> response =  post
-//				.filter(post1 -> post1.getId() == 0)
-//				.publish((postMono -> {return ServerResponse.notFound().build();}));
-            
-            
-//            post
-//				.filter(post1 -> post1.getId() > 0)
-//				.subscribe(System.out::println);
-            
-            
+
+        return repository.fetchById(id)
+                .onErrorReturn(Post.empty())
+                .flatMap(PostHandler::handleEntityOrNotFound);
+
+    }
+
+    private static Mono<ServerResponse> handleEntityOrNotFound(com.hanami.cms.entity.publisher.mapping.Post post) {
+        if (post.getId() != 0) {
+            return ServerResponse.ok().body(BodyInserters.fromObject(post));
+        } else {
             return ServerResponse.notFound().build();
-            
-//            return ServerResponse
-//				.ok()
-//				.body(post, com.hanami.cms.entity.publisher.mapping.Post.class)
-//				.onErrorReturn(ServerResponse.notFound().build().block());
-        } catch (NoSuchElementException exception) {
-            return  ServerResponse.notFound().build();
         }
     }
 }
