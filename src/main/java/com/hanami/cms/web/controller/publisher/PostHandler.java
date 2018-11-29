@@ -39,11 +39,28 @@ public class PostHandler {
         logger.info("Read request with id:"+ id);
         
         try {
-            Mono<com.hanami.cms.entity.publisher.mapping.Post> post = repository.fetchById(id);
+            repository
+				.fetchById(id)
+				.subscribe(System.out::print);
+    
+    
             
-            return ServerResponse.ok().body(post, com.hanami.cms.entity.publisher.mapping.Post.class)
-                .onErrorMap()
-                .switchIfEmpty(ServerResponse.notFound().build());
+//            Mono<ServerResponse> response =  post
+//				.filter(post1 -> post1.getId() == 0)
+//				.publish((postMono -> {return ServerResponse.notFound().build();}));
+            
+            
+//            post
+//				.filter(post1 -> post1.getId() > 0)
+//				.subscribe(System.out::println);
+            
+            
+            return ServerResponse.notFound().build();
+            
+//            return ServerResponse
+//				.ok()
+//				.body(post, com.hanami.cms.entity.publisher.mapping.Post.class)
+//				.onErrorReturn(ServerResponse.notFound().build().block());
         } catch (NoSuchElementException exception) {
             return  ServerResponse.notFound().build();
         }
