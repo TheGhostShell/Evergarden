@@ -1,4 +1,4 @@
-package com.hanami.cms.eventbus;
+package com.hanami.cms.config.eventbus;
 
 import com.google.common.eventbus.EventBus;
 import org.springframework.context.annotation.Bean;

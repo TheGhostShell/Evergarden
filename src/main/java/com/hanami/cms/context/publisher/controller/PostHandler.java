@@ -1,7 +1,9 @@
-package com.hanami.cms.web.controller.publisher;
+package com.hanami.cms.context.publisher.controller;
 
-import com.hanami.cms.entity.publisher.Post;
-import com.hanami.cms.infrastructure.publisher.PostRepository;
+import com.hanami.cms.context.publisher.entity.Post;
+import com.hanami.cms.context.publisher.entity.PostMappingInterface;
+import com.hanami.cms.context.publisher.infrastructure.PostRepository;
+import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -24,23 +26,37 @@ public class PostHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
+        repository.create(new Post("new post", "my best post ever", "johnweetaker"));
+	
+		Flux<PostMappingInterface> posts = repository.fetchAll();
+        
 
-        Flux<Post> posts = repository.fetchAll();
-
-        return ServerResponse.ok().body(posts, Post.class);
+        return ServerResponse.ok().body(posts, PostMappingInterface.class);
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {
-
         int id = Integer.parseInt(request.pathVariable("id"));
 
         return repository.fetchById(id)
                 .onErrorReturn(Post.empty())
                 .flatMap(PostHandler::handleEntityOrNotFound);
-
     }
+    
+    public Mono<ServerResponse> show(ServerRequest request) {
+    	Flux<PostMappingInterface> posts = repository.fetchAll();
+    	return ServerResponse.ok().body(posts, PostMappingInterface.class);
+	}
+    
+    public Mono<ServerResponse> update(ServerRequest request) {
+    	return  null;
+	}
+	
+	public Mono<ServerResponse> delete(ServerRequest request) {
+		int id = Integer.parseInt(request.pathVariable("id"));
+    	return null;
+	}
 
-    private static Mono<ServerResponse> handleEntityOrNotFound(com.hanami.cms.entity.publisher.mapping.Post post) {
+    private static Mono<ServerResponse> handleEntityOrNotFound(PostMappingInterface post) {
         if (post.getId() != 0) {
             return ServerResponse.ok().body(BodyInserters.fromObject(post));
         } else {

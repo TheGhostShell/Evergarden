@@ -1,10 +1,10 @@
-package com.hanami.cms.entity.publisher;
+package com.hanami.cms.context.publisher.entity;
 
 import javax.persistence.*;
 
 @Entity
 @Table
-public class Post implements com.hanami.cms.entity.publisher.mapping.Post {
+public class Post implements PostMappingInterface {
 
     @Id
     @GeneratedValue

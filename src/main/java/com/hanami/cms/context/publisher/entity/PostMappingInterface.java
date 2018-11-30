@@ -1,8 +1,8 @@
-package com.hanami.cms.entity.publisher.mapping;
+package com.hanami.cms.context.publisher.entity;
 
 import org.davidmoten.rx.jdbc.annotations.Column;
 
-public interface Post {
+public interface PostMappingInterface {
 	
 	@Column("id")
 	int getId();

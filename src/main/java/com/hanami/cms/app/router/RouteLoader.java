@@ -1,15 +1,4 @@
-package com.hanami.cms.router;
-
-import com.hanami.sdk.router.*;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import org.springframework.web.reactive.function.BodyInserters;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerRequest;
-import org.springframework.web.reactive.function.server.ServerResponse;
-
-import java.lang.reflect.InvocationTargetException;
-import java.security.NoSuchAlgorithmException;
+package com.hanami.cms.app.router;
 
 //@Configuration
 public class RouteLoader {

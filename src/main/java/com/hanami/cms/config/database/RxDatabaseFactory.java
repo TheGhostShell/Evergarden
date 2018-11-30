@@ -1,4 +1,4 @@
-package com.hanami.cms.infrastructure.container;
+package com.hanami.cms.config.database;
 
 import org.davidmoten.rx.jdbc.ConnectionProvider;
 import org.davidmoten.rx.jdbc.Database;

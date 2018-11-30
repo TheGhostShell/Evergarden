@@ -1,14 +1,11 @@
-package com.hanami.cms.router.listener;
+package com.hanami.cms.app.router.listener;
 
-import com.hanami.cms.router.RouteBuilder;
+import com.hanami.cms.app.router.RouteBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
-import org.springframework.web.reactive.function.server.RouterFunction;
-import org.springframework.web.reactive.function.server.ServerResponse;
-
 
 @Component
 public class ApplicationContextListener {

@@ -1,4 +1,4 @@
-package com.hanami.cms.web.controller.publisher;
+package com.hanami.cms.context.publisher.controller;
 
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
@@ -17,6 +17,9 @@ public class PostRouter {
         logger.info("Try to build internal route    "+env.getProperty("v1s") + "/post");
         return RouterFunctions
             .route(RequestPredicates.POST(env.getProperty("v1s") + "/post"), handler::create)
-            .andRoute(RequestPredicates.GET(env.getProperty("v1") + "/post/{id}"), handler::read);
+            .andRoute(RequestPredicates.GET(env.getProperty("v1") + "/post/{id}"), handler::read)
+            .andRoute(RequestPredicates.GET(env.getProperty("v1") + "/post"), handler::show)
+            .andRoute(RequestPredicates.PATCH(env.getProperty("v1") + "/post"), handler::update)
+            .andRoute(RequestPredicates.DELETE(env.getProperty("v1s") + "/post"), handler::delete);
     }
 }

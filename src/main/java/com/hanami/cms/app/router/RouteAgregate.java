@@ -1,4 +1,4 @@
-package com.hanami.cms.router;
+package com.hanami.cms.app.router;
 
 import com.hanami.sdk.router.HttpMethod;
 import org.springframework.web.reactive.function.server.HandlerFunction;

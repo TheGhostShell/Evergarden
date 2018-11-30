@@ -1,4 +1,4 @@
-package com.hanami.cms.logger;
+package com.hanami.cms.config.logger;
 
 import org.slf4j.Logger;
 import org.springframework.beans.factory.InjectionPoint;

@@ -1,4 +1,4 @@
-package com.hanami.cms.plugin;
+package com.hanami.cms.app.plugin;
 
 import com.google.common.eventbus.EventBus;
 import com.hanami.sdk.api.Hanami;
