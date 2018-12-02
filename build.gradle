@@ -47,6 +47,8 @@ dependencies {
     //dev
     developmentOnly("org.springframework.boot:spring-boot-devtools")
 
+	compile 'org.projectlombok:lombok:1.18.4'
+
     // sub module dependencies
 	compile project(':sdk')
 	

@@ -2,16 +2,19 @@ package com.hanami.cms.context.publisher.controller;
 
 import com.hanami.cms.context.publisher.entity.Post;
 import com.hanami.cms.context.publisher.entity.PostMappingInterface;
+import com.hanami.cms.context.publisher.entity.UpdatedPost;
 import com.hanami.cms.context.publisher.infrastructure.PostRepository;
-import io.reactivex.Flowable;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.util.Optional;
 
 @Component
 public class PostHandler {
@@ -27,9 +30,8 @@ public class PostHandler {
 
     public Mono<ServerResponse> create(ServerRequest request) {
         repository.create(new Post("new post", "my best post ever", "johnweetaker"));
-	
-		Flux<PostMappingInterface> posts = repository.fetchAll();
-        
+
+        Flux<PostMappingInterface> posts = repository.fetchAll();
 
         return ServerResponse.ok().body(posts, PostMappingInterface.class);
     }
@@ -41,20 +43,25 @@ public class PostHandler {
                 .onErrorReturn(Post.empty())
                 .flatMap(PostHandler::handleEntityOrNotFound);
     }
-    
+
     public Mono<ServerResponse> show(ServerRequest request) {
-    	Flux<PostMappingInterface> posts = repository.fetchAll();
-    	return ServerResponse.ok().body(posts, PostMappingInterface.class);
-	}
-    
+        Flux<PostMappingInterface> posts = repository.fetchAll();
+        return ServerResponse.ok().body(posts, PostMappingInterface.class);
+    }
+
     public Mono<ServerResponse> update(ServerRequest request) {
-    	return  null;
-	}
-	
-	public Mono<ServerResponse> delete(ServerRequest request) {
-		int id = Integer.parseInt(request.pathVariable("id"));
-    	return null;
-	}
+        return request.body(BodyExtractors.toMono(UpdatedPost.class))
+                .flatMap(updatedPost -> repository.update(updatedPost))
+                .onErrorReturn(Post.empty())
+                .flatMap(PostHandler::handleEntityOrNotFound);
+    }
+
+    public Mono<ServerResponse> delete(ServerRequest request) {
+        int id = Integer.parseInt(request.pathVariable("id"));
+
+        return repository.delete(id)
+                .flatMap(deletedPost -> ServerResponse.ok().build());
+    }
 
     private static Mono<ServerResponse> handleEntityOrNotFound(PostMappingInterface post) {
         if (post.getId() != 0) {
