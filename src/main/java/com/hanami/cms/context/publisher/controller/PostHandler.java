@@ -29,11 +29,14 @@ public class PostHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        repository.create(new Post("new post", "my best post ever", "johnweetaker"));
 
-        Flux<PostMappingInterface> posts = repository.fetchAll();
+        return request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(updatedPost -> {
 
-        return ServerResponse.ok().body(posts, PostMappingInterface.class);
+            Mono<PostMappingInterface> post = repository
+                    .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
+
+            return ServerResponse.ok().body(post, PostMappingInterface.class);
+        });
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {

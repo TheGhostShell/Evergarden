@@ -23,8 +23,7 @@ public class PostRouter {
             .andRoute(RequestPredicates.GET(env.getProperty("v1") + "/post/{id}"), handler::read)
             .andRoute(RequestPredicates.GET(env.getProperty("v1") + "/post"), handler::show)
             .andRoute(RequestPredicates.PATCH(env.getProperty("v1s") + "/post")
-                            .and(RequestPredicates.contentType(MediaType.APPLICATION_JSON)),
-                    handler::update)
+                            .and(RequestPredicates.contentType(MediaType.APPLICATION_JSON)), handler::update)
             .andRoute(RequestPredicates.DELETE(env.getProperty("v1s") + "/post"), handler::delete);
     }
 }

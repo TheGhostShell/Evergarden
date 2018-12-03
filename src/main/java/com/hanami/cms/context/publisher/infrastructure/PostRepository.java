@@ -45,7 +45,7 @@ public class PostRepository {
 
     public Mono<PostMappingInterface> create(PostMappingInterface post) {
 
-        String createSql = "INSERT INTO POST (AUTHOR, BODY, TITLE) VALUES ( :author , :body , :title )";
+        String createSql = "INSERT INTO post (AUTHOR, BODY, TITLE) VALUES ( :author , :body , :title )";
 
         Flowable<Integer> isCreated = database.update(createSql)
                 .parameter("author", post.getAuthor())
@@ -62,14 +62,12 @@ public class PostRepository {
     }
 
     public Mono<PostMappingInterface> update(PostMappingInterface post) {
-        String updateSql = "UPDATE POST SET title = :title, author = :author, body = :body WHERE id = :id";
-
-        logger.info("updated " + post.getAuthor() + post.getBody() + post.getId() + post.getTitle());
+        String updateSql = "UPDATE post SET title = :title, author = :author, body = :body WHERE id = :id";
 
         Flowable<Integer> isUpdated = database
                 .update(updateSql)
                 .parameter("title", post.getTitle())
-                .parameter("author", post.getBody())
+                .parameter("author", post.getAuthor())
                 .parameter("body", post.getBody())
                 .parameter("id", post.getId())
                 .counts();
