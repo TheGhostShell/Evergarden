@@ -63,6 +63,8 @@ dependencies {
 	
 	//integrate spring shell or crash
 	//integrate flyway for database migration version control
+	// Use neo4j to manage taxonomy system
+	// Use elastic search to provide a search system embedded engine https://github.com/allegro/embedded-elasticsearch
 }
 
 //	        			from spring initializr
