@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hanami.cms.context.admin.entity.jwt;
+package com.hanami.cms.context.admin.domain.jwt;
 
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -34,27 +34,24 @@ import java.util.stream.Stream;
  * This converter takes a SignedJWT and extracts all information
  * contained to build an Authentication Object
  * The signed JWT has already been verified.
- *
  */
 public class UsernamePasswordAuthenticationBearer {
 
     public static Mono<Authentication> create(SignedJWT signedJWTMono) {
-        SignedJWT signedJWT = signedJWTMono;
-        String subject;
-        String auths;
-        List authorities;
 
         try {
-            subject = signedJWT.getJWTClaimsSet().getSubject();
-            auths = (String) signedJWT.getJWTClaimsSet().getClaim("roles");
+            String subject = signedJWTMono.getJWTClaimsSet().getSubject();
+
+            String auths = (String) signedJWTMono.getJWTClaimsSet().getClaim("roles");
+
+            List authorities = Stream.of(auths.split(","))
+                    .map(a -> new SimpleGrantedAuthority(a))
+                    .collect(Collectors.toList());
+
+            return Mono.justOrEmpty(new UsernamePasswordAuthenticationToken(subject, null, authorities));
+
         } catch (ParseException e) {
             return Mono.empty();
         }
-        authorities = Stream.of(auths.split(","))
-                .map(a -> new SimpleGrantedAuthority(a))
-                .collect(Collectors.toList());
-
-            return  Mono.justOrEmpty(new UsernamePasswordAuthenticationToken(subject, null, authorities));
-
     }
 }

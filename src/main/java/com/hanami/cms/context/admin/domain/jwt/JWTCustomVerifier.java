@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hanami.cms.context.admin.entity.jwt;
+package com.hanami.cms.context.admin.domain.jwt;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSVerifier;
@@ -46,13 +46,13 @@ public class JWTCustomVerifier {
     }
 
     public Mono<SignedJWT> check(String token) {
-        return Mono.justOrEmpty(createJWS(token))
+        return Mono
+                .justOrEmpty(createJWS(token))
                 .filter(isNotExpired)
                 .filter(validSignature);
     }
 
-    private Predicate<SignedJWT> isNotExpired = token ->
-            getExpirationDate(token).after(Date.from(Instant.now()));
+    private Predicate<SignedJWT> isNotExpired = token -> getExpirationDate(token).after(Date.from(Instant.now()));
 
     private Predicate<SignedJWT> validSignature = token -> {
         try {
@@ -83,7 +83,8 @@ public class JWTCustomVerifier {
 
     private Date getExpirationDate(SignedJWT token) {
         try {
-            return token.getJWTClaimsSet()
+            return token
+                    .getJWTClaimsSet()
                     .getExpirationTime();
         } catch (ParseException e) {
             e.printStackTrace();

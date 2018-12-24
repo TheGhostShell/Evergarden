@@ -68,16 +68,17 @@ dependencies {
 	//junit test
 	testCompile group: 'junit', name: 'junit', version: '4.12'
 	
-	//integrate spring shell or crash
-	//integrate flyway for database migration version control
+	// Integrate spring shell or crash
+	// Integrate flyway for database migration version control
 	// Use neo4j to manage taxonomy system
 	// Use elastic search to provide a search system embedded engine https://github.com/allegro/embedded-elasticsearch
+	// For caching Ehcache JSR-107 “JCache” API or see https://spring.io/guides/gs/caching/
 }
 
 //	        			from spring initializr
 
-//implementation('org.springframework.boot:spring-boot-starter-web')
-//runtimeOnly('org.springframework.boot:spring-boot-devtools')
-//runtimeOnly('com.h2database:h2')
-//testImplementation('org.springframework.boot:spring-boot-starter-test')
-//testImplementation('io.projectreactor:reactor-test')
+// implementation('org.springframework.boot:spring-boot-starter-web')
+// runtimeOnly('org.springframework.boot:spring-boot-devtools')
+// runtimeOnly('com.h2database:h2')
+// testImplementation('org.springframework.boot:spring-boot-starter-test')
+// testImplementation('io.projectreactor:reactor-test')

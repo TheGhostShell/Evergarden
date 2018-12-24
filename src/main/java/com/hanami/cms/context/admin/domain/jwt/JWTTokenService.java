@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hanami.cms.context.admin.entity.jwt;
+package com.hanami.cms.context.admin.domain.jwt;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.JWSAlgorithm;
@@ -26,7 +26,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import org.springframework.security.core.GrantedAuthority;
 
+import java.time.Instant;
 import java.time.Period;
+import java.util.Calendar;
 import java.util.Collection;
 import java.util.Date;
 import java.util.stream.Collectors;
@@ -47,24 +49,20 @@ public class JWTTokenService {
      * @param authorities A collection of granted authorities for this principal
      * @return String representing a valid token
      */
-    public static String generateToken(String subject, Object credentials, Collection<? extends GrantedAuthority> authorities) {
-        SignedJWT signedJWT;
-        JWTClaimsSet claimsSet;
-
+    public static String generateToken(String subject, Object credentials,
+                                       Collection<? extends GrantedAuthority> authorities) {
         //TODO refactor this nasty code
 
-        claimsSet = new JWTClaimsSet.Builder()
-                .subject(subject)
-                .issuer("rapha.io")
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(subject)
+                .issuer("evergarden.shell")
                 .expirationTime(new Date(getExpiration()))
-                .claim("roles", authorities
-                        .stream()
+                .claim("roles", authorities.stream()
                         .map(GrantedAuthority.class::cast)
                         .map(GrantedAuthority::getAuthority)
                         .collect(Collectors.joining(",")))
                 .build();
 
-        signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
 
         try {
             signedJWT.sign(new JWTCustomSigner().getSigner());
@@ -81,9 +79,30 @@ public class JWTTokenService {
      *
      * @return Time representation 24 from now
      */
-    private static long getExpiration(){
+    private static long getExpiration() {
         return new Date().toInstant()
                 .plus(Period.ofDays(1))
                 .toEpochMilli();
+    }
+
+    public static String generateGuestToken(String subject) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(Date.from(Instant.now()));
+        cal.add(Calendar.MINUTE, 5);
+
+        JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(subject)
+                .issuer("evergarden.shell")
+                .expirationTime(cal.getTime())
+                .claim("roles", "ROLE_GUEST")
+                .build();
+
+        SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);
+
+        try {
+            signedJWT.sign(new JWTCustomSigner().getSigner());
+        } catch (JOSEException e) {
+            // TODO generate default token for guest with 1 year validity
+        }
+        return signedJWT.serialize();
     }
 }

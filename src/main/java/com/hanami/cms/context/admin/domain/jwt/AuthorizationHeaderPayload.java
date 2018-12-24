@@ -17,7 +17,7 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hanami.cms.context.admin.entity.jwt;
+package com.hanami.cms.context.admin.domain.jwt;
 
 import org.springframework.http.HttpHeaders;
 import org.springframework.web.server.ServerWebExchange;
@@ -25,6 +25,11 @@ import reactor.core.publisher.Mono;
 
 public class AuthorizationHeaderPayload {
 
+    /**
+     * Extract Authorization header if exist
+     * @param serverWebExchange ServerWebExchange
+     * @return Mono<String>
+     */
     public static Mono<String> extract(ServerWebExchange serverWebExchange) {
         return Mono.justOrEmpty(serverWebExchange.getRequest()
                 .getHeaders()

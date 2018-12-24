@@ -17,17 +17,27 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hanami.cms.context.admin.entity.jwt;
+package com.hanami.cms.context.admin.domain.jwt;
+
+import com.nimbusds.jose.JWSSigner;
+import com.nimbusds.jose.KeyLengthException;
+import com.nimbusds.jose.crypto.MACSigner;
 
 /**
- * A a static class that abstracts a secret provider
- * Later this one can be changed with a better approach
- *
+ *  Creates a JWTSigner using a simple secret string
  */
-public class JWTSecrets {
+public class JWTCustomSigner {
+    private JWSSigner signer;
 
-  /**
-   * A default secret for development purposes.
-   */
-  public final static  String DEFAULT_SECRET = "qwertyuiopasdfghjklzxcvbnmqwerty";
+    public JWTCustomSigner() {
+        try {
+            this.signer = new MACSigner(JWTSecrets.DEFAULT_SECRET);
+        } catch (KeyLengthException e) {
+            this.signer = null;
+        }
+    }
+
+    public JWSSigner getSigner() {
+        return this.signer;
+    }
 }

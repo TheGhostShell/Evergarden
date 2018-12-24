@@ -17,11 +17,11 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
  * SOFTWARE.
  */
-package com.hanami.cms.context.admin.entity.bearer;
+package com.hanami.cms.context.admin.domain.bearer;
 
-import com.hanami.cms.context.admin.entity.jwt.AuthorizationHeaderPayload;
-import com.hanami.cms.context.admin.entity.jwt.JWTCustomVerifier;
-import com.hanami.cms.context.admin.entity.jwt.UsernamePasswordAuthenticationBearer;
+import com.hanami.cms.context.admin.domain.jwt.AuthorizationHeaderPayload;
+import com.hanami.cms.context.admin.domain.jwt.JWTCustomVerifier;
+import com.hanami.cms.context.admin.domain.jwt.UsernamePasswordAuthenticationBearer;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -36,11 +36,14 @@ import java.util.function.Predicate;
  */
 public class ServerHttpBearerAuthenticationConverter implements Function<ServerWebExchange, Mono<Authentication>> {
 
-    private static final String BEARER = "Bearer ";
-    private static final Predicate<String> matchBearerLength = authValue -> authValue.length() > BEARER.length();
-    private static final Function<String,Mono<String>> isolateBearerValue = authValue -> Mono.justOrEmpty(authValue.substring(BEARER.length()));
+    private static final String                         BEARER             = "Bearer ";
+    private static final Predicate<String>              matchBearerLength  =
+            authValue -> authValue.length() > BEARER.length();
+    private static final Function<String, Mono<String>> isolateBearerValue =
+            authValue -> Mono.justOrEmpty(authValue.substring(BEARER.length()));
 
     private JWTCustomVerifier jwtVerifier = new JWTCustomVerifier();
+
     /**
      * Apply this function to the current WebExchange, an Authentication object
      * is returned when completed.
@@ -50,11 +53,13 @@ public class ServerHttpBearerAuthenticationConverter implements Function<ServerW
      */
     @Override
     public Mono<Authentication> apply(ServerWebExchange serverWebExchange) {
-        return Mono.justOrEmpty(serverWebExchange)
+        return Mono
+                .justOrEmpty(serverWebExchange)
                 .flatMap(AuthorizationHeaderPayload::extract)
-                   .filter(matchBearerLength)
+                .filter(matchBearerLength)
                 .flatMap(isolateBearerValue)
                 .flatMap(jwtVerifier::check)
-                .flatMap(UsernamePasswordAuthenticationBearer::create).log();
+                .flatMap(UsernamePasswordAuthenticationBearer::create)
+                .log();
     }
 }

@@ -1,6 +1,6 @@
-package com.hanami.cms.context.admin.entity.basic;
+package com.hanami.cms.context.admin.domain.basic;
 
-import com.hanami.cms.context.admin.entity.jwt.JWTTokenService;
+import com.hanami.cms.context.admin.domain.jwt.JWTTokenService;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.server.WebFilterExchange;

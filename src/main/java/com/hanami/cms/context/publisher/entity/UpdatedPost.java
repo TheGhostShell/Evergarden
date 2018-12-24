@@ -3,8 +3,6 @@ package com.hanami.cms.context.publisher.entity;
 import lombok.*;
 
 @Data
-@ToString
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class UpdatedPost implements PostMappingInterface {

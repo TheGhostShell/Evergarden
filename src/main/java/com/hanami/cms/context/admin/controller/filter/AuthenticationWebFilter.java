@@ -1,4 +1,4 @@
-package com.hanami.cms.context.admin.entity.filter;
+package com.hanami.cms.context.admin.controller.filter;
 
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
