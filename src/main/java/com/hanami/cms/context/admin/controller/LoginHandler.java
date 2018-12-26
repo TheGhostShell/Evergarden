@@ -3,6 +3,7 @@ package com.hanami.cms.context.admin.controller;
 import com.hanami.cms.context.admin.domain.jwt.JWTTokenService;
 import com.hanami.cms.context.admin.entity.Guest;
 import com.hanami.cms.context.admin.entity.GuestMappingInterface;
+import com.hanami.cms.context.admin.entity.Token;
 import com.hanami.cms.context.admin.entity.User;
 import com.hanami.cms.context.admin.infrastructure.UserRepository;
 import org.springframework.security.core.GrantedAuthority;
@@ -37,7 +38,7 @@ public class LoginHandler {
 
         String token = JWTTokenService.generateToken("violet", "pass", authorities);
 
-        return ServerResponse.ok().body(BodyInserters.fromObject("Welcome user "+token));
+        return ServerResponse.ok().body(BodyInserters.fromObject(new Token(token)));
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {

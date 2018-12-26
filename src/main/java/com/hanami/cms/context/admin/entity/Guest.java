@@ -6,9 +6,10 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class Guest implements GuestMappingInterface {
-    private String token;
 
     private String subject;
+
+    private String token;
 
     @Override
     public String getToken() {
