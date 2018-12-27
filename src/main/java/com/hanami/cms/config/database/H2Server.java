@@ -12,7 +12,9 @@ public class H2Server {
 	
 	@Bean(initMethod = "start", destroyMethod = "stop")
 	public Server h2ServerConfiguration(Logger logger) throws SQLException {
-		logger.info("server started for h2 db");
-		return  Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
+		
+		logger.debug("Starting h2 server database");
+		
+		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
 	}
 }

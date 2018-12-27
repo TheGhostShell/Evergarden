@@ -7,6 +7,7 @@ import org.davidmoten.rx.jdbc.pool.Pools;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.env.Environment;
 
 import java.sql.SQLException;
 
@@ -14,13 +15,18 @@ import java.sql.SQLException;
 public class RxDatabaseFactory {
 	
 	@Bean
-	public Database getInstance(Logger logger) throws SQLException {
+	public Database getInstance(Logger logger, Environment env) throws SQLException {
 		
-		logger.info("Starting non blocking connection with jdbc with max pool size is: " + (Runtime.getRuntime().availableProcessors() * 4));
+		logger.debug("Starting non blocking connection with jdbc with max pool size of : "
+			+ (Runtime.getRuntime().availableProcessors() * 4));
 		
 		NonBlockingConnectionPool pool = Pools.nonBlocking()
 			.maxPoolSize(Runtime.getRuntime().availableProcessors() * 4)
-			.connectionProvider(ConnectionProvider.from("jdbc:h2:file:/home/john/Documents/project/jvm/hanami-cms/h2", "user", "user"))
+			.connectionProvider(ConnectionProvider.from(
+				env.getProperty("spring.datasource.url"),
+				env.getProperty("spring.datasource.username"),
+				env.getProperty("spring.datasource.password")
+			))
 			.build();
 		
 		return Database.from(pool);

@@ -41,7 +41,7 @@ dependencies {
 	compile "io.projectreactor.addons:reactor-adapter:3.2.0.RELEASE"
 
 	//data db
-	compile("com.h2database:h2") // or developmentOnly
+	compile("com.h2database:h2:1.4.197") // or developmentOnly
 
 	// jwt lib
 	compile 'com.auth0:java-jwt:3.4.1'
