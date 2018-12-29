@@ -1,15 +1,16 @@
 package com.hanami.cms.context.admin.application.config;
 
 import com.hanami.cms.context.admin.application.basic.BasicAuthenticationSuccessHandler;
-import com.hanami.cms.context.admin.application.bearer.BearerTokenReactiveAuthenticationManager;
+import com.hanami.cms.context.admin.application.bearer.EvergardenAuthenticationManager;
+import com.hanami.cms.context.admin.application.bearer.SecurityContextRepository;
 import com.hanami.cms.context.admin.application.bearer.ServerHttpBearerAuthenticationConverter;
 import com.hanami.cms.context.admin.infrastructure.persistence.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UserDetailsRepositoryReactiveAuthenticationManager;
-import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.config.web.server.ServerHttpSecurity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService;
@@ -27,11 +28,17 @@ import java.util.function.Function;
 @Configuration
 public class SecurityConfig {
 	
-	UserRepository userRepository;
+	private UserRepository userRepository;
+	
+	private EvergardenAuthenticationManager authenticationManager;
+	
+	private SecurityContextRepository securityContextRepository;
 	
 	@Autowired
-	public SecurityConfig(UserRepository userRepository) {
+	public SecurityConfig(UserRepository userRepository, EvergardenAuthenticationManager authenticationManager, SecurityContextRepository securityContextRepository) {
 		this.userRepository = userRepository;
+		this.authenticationManager = authenticationManager;
+		this.securityContextRepository = securityContextRepository;
 	}
 	
 	/**
@@ -64,10 +71,23 @@ public class SecurityConfig {
 			//.and().authorizeExchange().pathMatchers("/v1/private/**").authenticated()
 			.and().authorizeExchange().pathMatchers("/v1/guest").permitAll()
 			.and().authorizeExchange().pathMatchers("/v1/**").hasRole("GUEST")
-			.and().addFilterAt(bearerAuthenticationFilter(), SecurityWebFiltersOrder.AUTHENTICATION).csrf().disable()
+			.and().authenticationManager(authenticationManager)
+			.securityContextRepository(securityContextRepository)
+			.csrf().disable()
 			.authorizeExchange()
 			.pathMatchers("/**")
 			.permitAll();
+		
+		/*http.csrf().disable()
+			.formLogin().disable()
+			.httpBasic().disable()
+			.authenticationManager(authenticationManager)
+			.securityContextRepository(securityContextRepository)
+			.authorizeExchange()
+			.pathMatchers(HttpMethod.OPTIONS).permitAll()
+			.pathMatchers("/login").permitAll()
+			.anyExchange().authenticated()
+			.and().build();*/
 		
 		return http.build();
 	}
@@ -99,8 +119,8 @@ public class SecurityConfig {
 	 *
 	 * @return bearerAuthenticationFilter that will authorize requests containing a JWT
 	 */
-	private AuthenticationWebFilter bearerAuthenticationFilter() {
-		ReactiveAuthenticationManager authManager = new BearerTokenReactiveAuthenticationManager();
+	/*private AuthenticationWebFilter bearerAuthenticationFilter() {
+		ReactiveAuthenticationManager authManager = new EvergardenAuthenticationManager();
 		AuthenticationWebFilter bearerAuthenticationFilter =
 			new AuthenticationWebFilter(authManager);
 		Function<ServerWebExchange, Mono<Authentication>> bearerConverter =
@@ -110,5 +130,5 @@ public class SecurityConfig {
 		bearerAuthenticationFilter.setRequiresAuthenticationMatcher(ServerWebExchangeMatchers.pathMatchers("/v1/**"));
 		
 		return bearerAuthenticationFilter;
-	}
+	}*/
 }

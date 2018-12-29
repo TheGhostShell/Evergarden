@@ -56,17 +56,18 @@ public class UserRepository {
 	}
 	
 	public Mono<UserMappingInterface> create(UserMappingInterface user) {
-		String sql = "INSERT IGNORE INTO user (email, password, firstname, lastname, role, activated) " +
-			"VALUES(:email, :password, :firstname, :lastname, :role, :activated) ";
+		String sql = "INSERT IGNORE INTO user (email, password, firstname, lastname, role, activated, salt) " +
+			"VALUES(:email, :password, :firstname, :lastname, :role, :activated, :salt) ";
 		
 		Flowable<Integer> record = database
 			.update(sql)
 			.parameter("email", user.getEmail())
 			.parameter("password", user.getPassword())
-			.parameter("firstname", user.getFirstname())
-			.parameter("lastname", user.getLastname())
+			.parameter("firstname", user.getFirstName())
+			.parameter("lastname", user.getLastName())
 			.parameter("activated", user.isActivated())
 			.parameter("role", user.getRole().toString())
+			.parameter("salt", user.getSalt())
 			.returnGeneratedKeys()
 			.getAs(Integer.class);
 		

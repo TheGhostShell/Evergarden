@@ -19,8 +19,15 @@
  */
 package com.hanami.cms.context.admin.application.bearer;
 
+import com.hanami.cms.context.admin.application.jwt.JWTCustomSigner;
+import com.hanami.cms.context.admin.application.jwt.JWTCustomVerifier;
+import com.nimbusds.jwt.SignedJWT;
+import org.slf4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
 /**
@@ -30,8 +37,16 @@ import reactor.core.publisher.Mono;
  * implementation to follow a standard.
  * Invalid tokens are filtered one previous step
  */
-public class BearerTokenReactiveAuthenticationManager implements ReactiveAuthenticationManager {
-
+@Component
+public class EvergardenAuthenticationManager implements ReactiveAuthenticationManager {
+    
+    Logger logger;
+    
+    @Autowired
+    public EvergardenAuthenticationManager(Logger logger) {
+        this.logger = logger;
+    }
+    
     /**
      * Successfully authenticate an Authentication object
      *
@@ -40,6 +55,14 @@ public class BearerTokenReactiveAuthenticationManager implements ReactiveAuthent
      */
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        return Mono.just(authentication);
+        
+        String authToken = authentication.getCredentials().toString();
+        JWTCustomVerifier jwtCustomVerifier = new JWTCustomVerifier();
+        
+        Mono<SignedJWT> jwtCustomSignerMono = jwtCustomVerifier.check(authToken);
+        
+        Authentication au = new UsernamePasswordAuthenticationToken("","");
+        
+        return Mono.just(au);
     }
 }

@@ -13,11 +13,14 @@ public interface UserMappingInterface {
 	@Column("password")
 	String getPassword();
 	
+	@Column("salt")
+	String getSalt();
+	
 	@Column("firstname")
-	String getFirstname();
+	String getFirstName();
 	
 	@Column("lastname")
-	String getLastname();
+	String getLastName();
 	
 	@Column("role")
 	Role getRole();
