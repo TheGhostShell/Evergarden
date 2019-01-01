@@ -2,6 +2,8 @@ package com.hanami.cms.context.admin.domain.entity;
 
 import org.davidmoten.rx.jdbc.annotations.Column;
 
+import java.util.List;
+
 public interface UserMappingInterface {
 	
 	@Column("id")
@@ -21,10 +23,11 @@ public interface UserMappingInterface {
 	
 	@Column("lastname")
 	String getLastName();
-	
-	@Column("role")
-	Role getRole();
+
+	List<RoleEnume> getRoles();
 	
 	@Column("activated")
 	boolean isActivated();
+
+	User addRole(RoleEnume role);
 }

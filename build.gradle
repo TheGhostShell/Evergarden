@@ -35,7 +35,7 @@ dependencies {
 	compile 'org.xeustechnologies:jcl-core:2.8'
 
     //rxjava-jdbc
-	compile 'com.github.davidmoten:rxjava2-jdbc:0.1-RC42'
+	compile 'com.github.davidmoten:rxjava2-jdbc:0.2.1'
 
 	// Reactor Adapter (RxJava2, Akka Actors scheduler and more)
 	compile "io.projectreactor.addons:reactor-adapter:3.2.0.RELEASE"

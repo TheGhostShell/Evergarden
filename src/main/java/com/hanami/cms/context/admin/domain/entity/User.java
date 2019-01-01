@@ -1,10 +1,14 @@
 package com.hanami.cms.context.admin.domain.entity;
 
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import javax.persistence.*;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Entity
 @Table
@@ -29,8 +33,8 @@ public class User implements UserMappingInterface, UserDetails {
 	@Column(nullable = false)
 	private boolean activated = true;
 	
-	@Column
-	private Role role;
+	@ElementCollection
+	private List<RoleEnume> roles = new ArrayList<>();
 	
 	@Column(nullable = false)
 	private String salt;
@@ -39,7 +43,7 @@ public class User implements UserMappingInterface, UserDetails {
 	private EncodedCredential encodedCredential;
 	
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		return this.roles.stream().map(authority -> new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList());
 	}
 	
 	public boolean isAccountNonExpired() {
@@ -55,16 +59,18 @@ public class User implements UserMappingInterface, UserDetails {
 	}
 	
 	public boolean isEnabled() {
-		return false;
+		return true;
 	}
 	
 	// Setter
 	
-	public void setEncodedCredential(EncodedCredential encodedCredential) {
+	public User setEncodedCredential(EncodedCredential encodedCredential) {
 		password = encodedCredential.getEncodedPassword();
 		salt = encodedCredential.getSalt();
 		
 		this.encodedCredential = encodedCredential;
+
+		return this;
 	}
 	
 	public User setEmail(String email) {
@@ -87,11 +93,16 @@ public class User implements UserMappingInterface, UserDetails {
 		return this;
 	}
 	
-	public User setRole(Role role) {
-		this.role = role;
+	public User addRole(RoleEnume role) {
+		this.roles.add(role);
 		return this;
 	}
-	
+
+	public User setId(int id) {
+		this.id = id;
+		return this;
+	}
+
 	// Getter
 	
 	@Override
@@ -119,8 +130,8 @@ public class User implements UserMappingInterface, UserDetails {
 	}
 	
 	@Override
-	public Role getRole() {
-		return role;
+	public List<RoleEnume> getRoles() {
+		return roles;
 	}
 	
 	@Override

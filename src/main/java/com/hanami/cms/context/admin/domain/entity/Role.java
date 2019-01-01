@@ -1,15 +1,14 @@
 package com.hanami.cms.context.admin.domain.entity;
 
-public enum Role {
-	MASTER_ADMIN("ROLE_MASTER_ADMIN");
-	
-	private String role;
-	
-	Role(String role) {
-		this.role = role;
-	}
-	
-	public String toString() {
-		return role;
-	}
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@AllArgsConstructor
+public class Role {
+
+    @Getter
+    private int userId;
+
+    @Getter
+    private String role;
 }
