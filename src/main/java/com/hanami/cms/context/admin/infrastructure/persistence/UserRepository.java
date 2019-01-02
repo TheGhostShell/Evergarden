@@ -1,6 +1,5 @@
 package com.hanami.cms.context.admin.infrastructure.persistence;
 
-import com.hanami.cms.context.admin.application.jwt.EvergardenEncoder;
 import com.hanami.cms.context.admin.domain.entity.*;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -21,7 +20,6 @@ public class UserRepository {
 
     @Autowired
     public UserRepository(Database database, Logger logger) {
-
         this.database = database;
         this.logger = logger;
     }
@@ -44,19 +42,19 @@ public class UserRepository {
                 .parameter("id", id)
                 .autoMap(UserMappingInterface.class)
                 .firstOrError()
-                .doOnError(throwable -> logger.info("no user "+ throwable ));
+                .doOnError(throwable -> logger.error("no user "+ throwable ));
 
         return RxJava2Adapter.singleToMono(singleUser);
     }
 
     public Mono<Role> createRole(RoleEnume role, int userId) {
         String createUserRoleSql = "INSERT INTO user_roles (user_id, role) VALUES(:userId, :role)";
-        logger.info("creating inserting role");
+
         database.update(createUserRoleSql)
                 .parameter("role", role.toString())
                 .parameter("userId", userId)
                 .counts()
-                .doOnError(throwable -> logger.info("no data to insert user roles"+throwable))
+                .doOnError(throwable -> logger.error("Error to insert role "+throwable))
                 .subscribe();
 
         return findRoleByCriteria(role.toString(), userId);
@@ -84,8 +82,6 @@ public class UserRepository {
         String createUserSql = "INSERT INTO user (email, password, firstname, lastname, activated, salt) " +
 				"VALUES(:email, :password, :firstname, :lastname, :activated, :salt) ";
 
-        logger.info("Trying to create an admin");
-
         Flowable<Integer> record = database.update(createUserSql)
                 .parameter("email", user.getEmail())
                 .parameter("password", user.getPassword())
@@ -95,47 +91,14 @@ public class UserRepository {
                 .parameter("salt", user.getSalt())
                 .returnGeneratedKeys()
                 .getAs(Integer.class);
-//                .transacted()
-//                .counts()
-//                .flatMap(integerTx -> {
-//
-//                    if (integerTx.isValue()) {
-//                        logger.info("try to create role "+ integerTx.value().intValue());
-//                        Flux<RoleEnume> flux = Flux.fromStream(user.getRoles().stream());
-//                        logger.info("stream covert to flux " +user.getRoles().get(0).toString());
-//                        flux.flatMap(role -> {
-//                                    logger.info("inset "+role.toString());
-//                                    return createRole(role, integerTx.value());
-//                                }
-//
-//
-////                            integerTx.update(createUserRoleSql)
-////                                    .parameter("userId", integerTx.value().intValue())
-////                                    .parameter("role", role.toString())
-////                                    .valuesOnly()
-////                                    .counts()
-//                        ).doOnError(throwable -> {
-//                            logger.error("shit something bad appends");
-//                        }).subscribe();
-//                    }
-//                    logger.info("what is the value after used integerx " + integerTx.value());
-//                    return Observable.just(integerTx.value()).toFlowable(BackpressureStrategy.BUFFER);
-//                }).doOnError(throwable -> {
-//                    logger.info("where is the null pointer ");
-//                    Arrays.stream(throwable.getStackTrace()).flatMap(stackTraceElement -> {
-//                        //logger.info(stackTraceElement.getMethodName());
-//                        return null;
-//                    }).count();
-//                });
 
-        Single<UserMappingInterface> singleUser = record
-                .flatMap(userId -> {
+        Single<UserMappingInterface> singleUser = record.flatMap(userId -> {
+
             Flux<RoleEnume> flux = Flux.fromStream(user.getRoles().stream());
-            logger.info("stream covert to flux " + user.getRoles().get(0).toString());
-            flux.map(role -> {
-                logger.info("inset " + role.toString());
-                return createRole(role, userId);
-            }).subscribe();
+
+            flux.map(role -> createRole(role, userId))
+                    .subscribe();
+
             return findById(userId);
         }).firstOrError();
 
