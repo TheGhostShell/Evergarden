@@ -23,6 +23,9 @@ public interface UserMappingInterface {
 	
 	@Column("lastname")
 	String getLastName();
+	
+	@Column("pseudo")
+	String getPseudo();
 
 	List<RoleEnume> getRoles();
 	

@@ -38,26 +38,33 @@ public class PostHandler {
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {
+        
         int id = Integer.parseInt(request.pathVariable("id"));
 
-        return repository.fetchById(id)
-                .onErrorReturn(Post.empty())
-                .flatMap(PostHandler::handleEntityOrNotFound);
+        return repository
+            .fetchById(id)
+            .onErrorReturn(Post.empty())
+            .flatMap(PostHandler::handleEntityOrNotFound);
     }
 
     public Mono<ServerResponse> show(ServerRequest request) {
+        
         Flux<PostMappingInterface> posts = repository.fetchAll();
+        
         return ServerResponse.ok().body(posts, PostMappingInterface.class);
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-        return request.body(BodyExtractors.toMono(UpdatedPost.class))
-                .flatMap(updatedPost -> repository.update(updatedPost))
-                .onErrorReturn(Post.empty())
-                .flatMap(PostHandler::handleEntityOrNotFound);
+        
+        return request
+            .body(BodyExtractors.toMono(UpdatedPost.class))
+            .flatMap(updatedPost -> repository.update(updatedPost))
+            .onErrorReturn(Post.empty())
+            .flatMap(PostHandler::handleEntityOrNotFound);
     }
 
     public Mono<ServerResponse> delete(ServerRequest request) {
+        
         int id = Integer.parseInt(request.pathVariable("id"));
 
         return repository.delete(id)

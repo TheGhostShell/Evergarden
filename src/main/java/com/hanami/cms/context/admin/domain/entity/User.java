@@ -30,6 +30,9 @@ public class User implements UserMappingInterface, UserDetails {
 	@Column
 	private String lastname;
 	
+	@Column
+	private String pseudo;
+	
 	@Column(nullable = false)
 	private boolean activated = true;
 	
@@ -122,6 +125,11 @@ public class User implements UserMappingInterface, UserDetails {
 	@Override
 	public String getLastName() {
 		return lastname;
+	}
+	
+	@Override
+	public String getPseudo() {
+		return pseudo;
 	}
 	
 	@Override

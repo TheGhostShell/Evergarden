@@ -3,6 +3,7 @@ package com.hanami.cms.context.admin.infrastructure.controller;
 import com.hanami.cms.context.admin.application.jwt.JWTTokenService;
 import com.hanami.cms.context.admin.domain.entity.*;
 import com.hanami.cms.context.admin.infrastructure.persistence.UserRepository;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -16,6 +17,7 @@ import reactor.core.publisher.Mono;
 import java.util.ArrayList;
 
 @Component
+@Log4j2
 public class LoginHandler {
 
     private UserRepository userRepository;
@@ -41,6 +43,15 @@ public class LoginHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
+        
+        request.bodyToMono(String.class).map(s -> {
+        	log.info(s);
+        	return s;
+			}
+		).subscribe();
+//        User user = new User();
+//        user.setFirstname();
+//        user.setLastname();
 
         return null;
     }
