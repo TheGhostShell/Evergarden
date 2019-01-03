@@ -21,14 +21,19 @@ package com.hanami.cms.context.admin.application.bearer;
 
 import com.hanami.cms.context.admin.application.jwt.JWTCustomSigner;
 import com.hanami.cms.context.admin.application.jwt.JWTCustomVerifier;
+import com.hanami.cms.context.admin.domain.entity.RoleEnume;
 import com.nimbusds.jwt.SignedJWT;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * An authentication manager intended to authenticate a JWT exchange
@@ -60,8 +65,15 @@ public class EvergardenAuthenticationManager implements ReactiveAuthenticationMa
         JWTCustomVerifier jwtCustomVerifier = new JWTCustomVerifier();
         
         Mono<SignedJWT> jwtCustomSignerMono = jwtCustomVerifier.check(authToken);
-        
-        Authentication au = new UsernamePasswordAuthenticationToken("","");
+
+        List<SimpleGrantedAuthority> roles = new ArrayList<>();
+
+        roles.add(new SimpleGrantedAuthority(RoleEnume.MASTER_ADMIN.toString()));
+        roles.add(new SimpleGrantedAuthority(RoleEnume.GUEST.toString()));
+        roles.add(new SimpleGrantedAuthority(RoleEnume.ADMIN.toString()));
+        roles.add(new SimpleGrantedAuthority(RoleEnume.USER.toString()));
+
+        Authentication au = new UsernamePasswordAuthenticationToken("violet",null, roles);
         
         return Mono.just(au);
     }

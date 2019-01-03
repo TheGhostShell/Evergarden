@@ -33,6 +33,9 @@ configurations {
 dependencies {
 	//dependencies
 	compile 'org.xeustechnologies:jcl-core:2.8'
+	
+	//dsl-json parser
+	compile 'com.dslplatform:dsl-json-java8:1.8.4'
 
     //rxjava-jdbc
 	compile 'com.github.davidmoten:rxjava2-jdbc:0.2.1'

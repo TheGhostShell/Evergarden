@@ -11,7 +11,7 @@ import javax.persistence.*;
 public class Post implements PostMappingInterface {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
 
     @Column
