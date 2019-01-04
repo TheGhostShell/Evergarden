@@ -1,5 +1,7 @@
 package com.hanami.cms.context.admin.infrastructure.controller;
 
+import com.dslplatform.json.DslJson;
+import com.dslplatform.json.runtime.Settings;
 import com.hanami.cms.context.admin.application.jwt.JWTTokenService;
 import com.hanami.cms.context.admin.domain.entity.*;
 import com.hanami.cms.context.admin.infrastructure.persistence.UserRepository;
@@ -55,7 +57,10 @@ public class LoginHandler {
 //            return null;
 //        }).subscribe();
 
-        request.exchange().getRequest().getBody().map(DataBuffer::asByteBuffer).map()
+        request.exchange().getRequest().getBody().map(DataBuffer::asByteBuffer).map(byteBuffer -> {
+            DslJson<Object> dslJson = new DslJson<>(Settings.withRuntime().includeServiceLoader());
+            dslJson.deserialize()
+        });
 
         return request.body(BodyExtractors.toMono(String.class)).flatMap(updatedPost -> {
             System.out.println("fuck all this " + updatedPost);
