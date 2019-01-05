@@ -10,7 +10,7 @@ import org.springframework.context.annotation.Scope;
 public class LoggerFactory {
 	
 	@Bean
-	@Scope("prototype")
+	@Scope("singleton")
 	public Logger logger(InjectionPoint injectionPoint) throws NullPointerException {
 		
 		return org.slf4j.LoggerFactory.getLogger(injectionPoint.getMethodParameter().getContainingClass());

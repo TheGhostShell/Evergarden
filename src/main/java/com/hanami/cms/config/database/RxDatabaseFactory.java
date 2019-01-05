@@ -7,6 +7,7 @@ import org.davidmoten.rx.jdbc.pool.Pools;
 import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import org.springframework.core.env.Environment;
 
 import java.sql.SQLException;
@@ -15,6 +16,7 @@ import java.sql.SQLException;
 public class RxDatabaseFactory {
 	
 	@Bean
+	@Scope("singleton")
 	public Database getInstance(Logger logger, Environment env) throws SQLException {
 		
 		logger.debug("Starting non blocking connection with jdbc with max pool size of : "

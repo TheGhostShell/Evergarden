@@ -1,13 +1,10 @@
 package com.hanami.cms.context.admin.infrastructure.controller;
 
-import com.dslplatform.json.DslJson;
-import com.dslplatform.json.runtime.Settings;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hanami.cms.context.admin.application.jwt.JWTTokenService;
 import com.hanami.cms.context.admin.domain.entity.*;
 import com.hanami.cms.context.admin.infrastructure.persistence.UserRepository;
-import com.hanami.cms.context.publisher.domain.entity.PostMappingInterface;
-import com.hanami.cms.context.publisher.domain.entity.UpdatedPost;
-import lombok.extern.log4j.Log4j2;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.buffer.DataBuffer;
@@ -20,7 +17,10 @@ import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.Map;
 
 @Component
 public class LoginHandler {
@@ -28,11 +28,14 @@ public class LoginHandler {
     private UserRepository userRepository;
 
     private Logger logger;
+    
+    private ObjectMapper objectMapper;
 
     @Autowired
-    public LoginHandler(UserRepository userRepository, Logger logger) {
+    public LoginHandler(UserRepository userRepository, Logger logger, ObjectMapper objectMapper) {
         this.userRepository = userRepository;
         this.logger = logger;
+        this.objectMapper = objectMapper;
     }
 
     public Mono<ServerResponse> login(ServerRequest request) {
@@ -51,40 +54,74 @@ public class LoginHandler {
 
     public Mono<ServerResponse> create(ServerRequest request) {
         logger.info("start private user");
-//        request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(s -> {
-//            System.out.println("inside");
-//            logger.info(s.toString());
-//            return null;
-//        }).subscribe();
 
-        request.exchange().getRequest().getBody().map(DataBuffer::asByteBuffer).map(byteBuffer -> {
-            DslJson<Object> dslJson = new DslJson<>(Settings.withRuntime().includeServiceLoader());
-            dslJson.deserialize()
+        Mono<DataBuffer> dataBufferMono = request
+            .bodyToMono(DataBuffer.class)
+            .map(dataBuffer -> {
+                try {
+                    JsonNode jsonNode = objectMapper.readTree(dataBuffer.asInputStream());
+                    System.out.println(jsonNode.get("user").get("list").get(1).asText());
+                    Iterator<JsonNode> it = jsonNode.get("user").get("list").elements();
+                    while (it.hasNext()) {
+                        System.out.println(it.next().asText());
+                    }
+                    System.out.println(jsonNode.get("user").get("list").elements().hasNext());
+                    Iterator<Map.Entry<String, JsonNode>> itF = jsonNode.get("user").get("basicObj").fields();
+                    while (itF.hasNext()) {
+                        Map.Entry<String, JsonNode> me = itF.next();
+                        System.out.println(me.getKey() + "  -  " + me.getValue().asText());
+                    }
+                    System.out.println(jsonNode.get("user").get("basicObj").isArray());
+                    System.out.println(jsonNode.get("user").get("basicObj").isObject());                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+                return dataBuffer;
+            });
+        
+        return dataBufferMono.flatMap(dataBuffer -> {
+            return ServerResponse.ok().build();
         });
-
-        return request.body(BodyExtractors.toMono(String.class)).flatMap(updatedPost -> {
-            System.out.println("fuck all this " + updatedPost);
-
-            Mono<PostMappingInterface> post =  Mono.empty();
-
+        
+//        return request
+//            .body(BodyExtractors.toMono(DataBuffer.class))
+//            .flatMap(dataBuffer -> {
+//            try {
+//                JsonNode jsonNode = new ObjectMapper().readTree(dataBuffer.asInputStream());
+//                Iterator<JsonNode> it = jsonNode.get("user").get("list").elements();
+//                while (it.hasNext()) {
+//                    System.out.println(it.next().asText());
+//                }
+//                System.out.println(jsonNode.get("user").get("list").elements().hasNext());
+//                Iterator<Map.Entry<String, JsonNode>> itF = jsonNode.get("user").get("basicObj").fields();
+//                while (itF.hasNext()) {
+//                    Map.Entry<String, JsonNode> me = itF.next();
+//                    System.out.println(me.getKey() + "  -  " + me.getValue().asText());
+//                }
+//                System.out.println(jsonNode.get("user").get("basicObj").isArray());
+//                System.out.println(jsonNode.get("user").get("basicObj").isObject());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//
+//            return ServerResponse.ok().build();
+//        });
+        
+        /*flatMap(jsonString -> {
+        
+            try {
+                JsonNode jsonNode = new ObjectMapper().readTree(jsonString.asInputStream());
+                System.out.println(jsonNode.get("age").asInt());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            logger.info(" block ?");
+            // Mono<PostMappingInterface> post =  Mono.empty();
+        
             //            Mono<PostMappingInterface> post = repository
             //                    .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
-
-            return ServerResponse.ok().body(post, PostMappingInterface.class);
-        });
-        //request.exchange().getRequest().getBody().map(dataBuffer -> )
-//        request.bodyToMono(String.class).map(s -> {
-//        	logger.info(s);
-//        	return s;
-//			}
-//		)
-//                .doOnError(throwable -> logger.error("error bad"+throwable))
-//                .subscribe(s -> System.out.println("finish"+s));
-//        User user = new User();
-//        user.setFirstname();
-//        user.setLastname();
-
-        //return ServerResponse.ok().build();
+        
+            return ServerResponse.ok().build();
+        });*/
     }
 
     /**
