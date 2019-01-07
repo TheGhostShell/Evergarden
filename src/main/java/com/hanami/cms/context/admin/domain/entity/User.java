@@ -37,7 +37,7 @@ public class User implements UserMappingInterface, UserDetails {
 	private boolean activated = true;
 	
 	@ElementCollection
-	private List<RoleEnume> roles = new ArrayList<>();
+	private Collection<Role> roles = new ArrayList<>();
 	
 	@Column(nullable = false)
 	private String salt;
@@ -46,7 +46,10 @@ public class User implements UserMappingInterface, UserDetails {
 	private EncodedCredential encodedCredential;
 	
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return this.roles.stream().map(authority -> new SimpleGrantedAuthority(authority.name())).collect(Collectors.toList());
+		return this.roles
+                .stream()
+                .map(authority -> new SimpleGrantedAuthority(authority.getRoleValue()))
+                .collect(Collectors.toList());
 	}
 	
 	public boolean isAccountNonExpired() {
@@ -96,7 +99,7 @@ public class User implements UserMappingInterface, UserDetails {
 		return this;
 	}
 	
-	public User addRole(RoleEnume role) {
+	public User addRole(Role role) {
 		this.roles.add(role);
 		return this;
 	}
@@ -106,7 +109,12 @@ public class User implements UserMappingInterface, UserDetails {
 		return this;
 	}
 
-	// Getter
+    public User setPseudo(String pseudo) {
+        this.pseudo = pseudo;
+        return this;
+    }
+
+    // Getter
 	
 	@Override
 	public int getId() {
@@ -138,7 +146,7 @@ public class User implements UserMappingInterface, UserDetails {
 	}
 	
 	@Override
-	public List<RoleEnume> getRoles() {
+	public Collection<Role> getRoles() {
 		return roles;
 	}
 	

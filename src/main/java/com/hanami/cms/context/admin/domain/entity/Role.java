@@ -1,14 +1,30 @@
 package com.hanami.cms.context.admin.domain.entity;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
+import javax.persistence.*;
 
-@AllArgsConstructor
+@Entity
+@Table
 public class Role {
 
-    @Getter
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(unique = true, nullable = false)
+    private String role;
+
     private int userId;
 
-    @Getter
-    private String role;
+    // Setter
+
+    public Role setRole(String role) {
+        this.role = "ROLE_" + role.toUpperCase();
+        return this;
+    }
+
+    // Getter
+
+    public String getRoleValue() {
+        return role;
+    }
 }
