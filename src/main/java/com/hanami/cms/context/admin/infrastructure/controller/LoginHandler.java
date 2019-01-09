@@ -87,7 +87,7 @@ public class LoginHandler {
                         Iterator<JsonNode> it = jsonNode.get("user").get("roles").elements();
 
                         while (it.hasNext()) {
-                            user.addRole()
+                            user.addRole(new Role(it.next().asText()));
                         }
 
                         return userRepository.create(user)

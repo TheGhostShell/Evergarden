@@ -1,7 +1,8 @@
 package com.hanami.cms.context.admin.application.config;
 
 import com.hanami.cms.context.admin.application.jwt.EvergardenEncoder;
-import com.hanami.cms.context.admin.domain.entity.RoleEnume;
+import com.hanami.cms.context.admin.domain.entity.Role;
+import com.hanami.cms.context.admin.domain.entity.RoleEnum;
 import com.hanami.cms.context.admin.domain.entity.User;
 import com.hanami.cms.context.admin.domain.entity.UserMappingInterface;
 import com.hanami.cms.context.admin.infrastructure.persistence.UserRepository;
@@ -30,10 +31,10 @@ public class DefaultAdminConfig {
     @Bean
     public void createDefaultAdmin() {
 
-        userRepository.findByRole(RoleEnume.MASTER_ADMIN)
+        userRepository.findByRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()))
                 .doOnError(throwable -> {
 
-                    logger.info("No master admin found auto generate default admin "+throwable.toString());
+                    logger.warn("No master admin found auto generate default admin "+throwable.toString());
 
                     createMasterAdmin()
                             .doOnError(throwable1 -> logger.error("Failed to create master admin "
@@ -55,7 +56,7 @@ public class DefaultAdminConfig {
 
                     user.setEmail("violet@mail.com");
                     user.setActivated(true);
-                    user.addRole(RoleEnume.MASTER_ADMIN);
+                    user.addRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()));
                     user.setFirstname("Violet");
                     user.setLastname("Evergarden");
                     user.setEncodedCredential(encoder.getEncodedCredentials());

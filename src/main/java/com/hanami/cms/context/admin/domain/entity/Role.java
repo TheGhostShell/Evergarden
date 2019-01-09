@@ -13,7 +13,20 @@ public class Role {
     @Column(unique = true, nullable = false)
     private String role;
 
-    private int userId;
+    public Role(String role) {
+        setRole(role);
+    }
+
+    // Factory
+
+    public static Role createFromRawValue(String role) {
+        return new Role("").setRoleFromRawValue(role);
+    }
+
+    private Role setRoleFromRawValue(String role) {
+        this.role = role;
+        return this;
+    }
 
     // Setter
 
@@ -22,9 +35,18 @@ public class Role {
         return this;
     }
 
+    public Role setId(int id) {
+        this.id = id;
+        return this;
+    }
+
     // Getter
 
     public String getRoleValue() {
         return role;
+    }
+
+    public int getId() {
+        return id;
     }
 }

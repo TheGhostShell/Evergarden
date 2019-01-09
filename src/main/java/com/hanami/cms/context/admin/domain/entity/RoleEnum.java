@@ -5,13 +5,13 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 
 @Embeddable
-public enum RoleEnume {
+public enum RoleEnum {
 	@Enumerated(EnumType.STRING)
 	MASTER_ADMIN("ROLE_MASTER_ADMIN"), GUEST("ROLE_GUEST"), ADMIN("ROLE_ADMIN"), USER("ROLE_USER");
 
 	private String role;
 
-	RoleEnume(String role) {
+	RoleEnum(String role) {
 		this.role = role;
 	}
 	

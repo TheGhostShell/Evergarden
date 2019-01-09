@@ -7,7 +7,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.stream.Collectors;
 
 @Entity
@@ -36,7 +35,7 @@ public class User implements UserMappingInterface, UserDetails {
 	@Column(nullable = false)
 	private boolean activated = true;
 	
-	@ElementCollection
+	@ManyToMany
 	private Collection<Role> roles = new ArrayList<>();
 	
 	@Column(nullable = false)

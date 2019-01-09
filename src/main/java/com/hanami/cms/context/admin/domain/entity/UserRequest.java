@@ -14,7 +14,7 @@ public class UserRequest {
 	
 	private boolean activated;
 	
-	private List<RoleEnume> roles;
+	private List<RoleEnum> roles;
 	
 	private String salt;
 	
