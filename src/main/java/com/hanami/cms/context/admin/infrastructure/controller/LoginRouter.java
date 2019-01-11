@@ -16,6 +16,7 @@ public class LoginRouter {
         return RouterFunctions.route(RequestPredicates.POST("/login"), handler::login)
                 .andRoute(RequestPredicates.GET("/"), handler::login)
                 .andRoute(RequestPredicates.POST(env.getProperty("v1") + "/guest"), handler::guest)
-                .andRoute(RequestPredicates.POST(env.getProperty("v1s") + "/user"), handler::create);
+                .andRoute(RequestPredicates.POST(env.getProperty("v1s") + "/user"), handler::create)
+                .andRoute(RequestPredicates.GET(env.getProperty("v1s") + "/user/{id}"), handler::read);
     }
 }

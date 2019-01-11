@@ -122,4 +122,12 @@ public class LoginHandler {
                             .body(Mono.just(guest), Guest.class);
                 });
     }
+    
+    public Mono<ServerResponse> read(ServerRequest request) {
+        
+        
+        Mono<UserMappingInterface> userMono = userRepository.findById(new Integer(request.pathVariable("id")));
+        
+        return ServerResponse.ok().body(userMono, UserMappingInterface.class);
+    }
 }

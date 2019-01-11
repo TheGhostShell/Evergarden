@@ -31,7 +31,7 @@ public class DefaultAdminConfig {
     @Bean
     public void createDefaultAdmin() {
 
-        userRepository.findByRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()))
+        userRepository.findFirstByRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()))
                 .doOnError(throwable -> {
 
                     logger.warn("No master admin found auto generate default admin "+throwable.toString());

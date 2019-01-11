@@ -35,12 +35,19 @@ public class UserRepository {
         return RxJava2Adapter.singleToMono(singleUser);
     }
 
+    //todo refactor
     public Mono<UserMappingInterface> findById(int id) {
-        String sql = "SELECT * FROM user WHERE id = :id";
+        String sql = "SELECT U.ID, U.EMAIL, GROUP_CONCAT(DISTINCT CONCAT(R.ROLE, '')) AS ROLE FROM USER U\n" +
+            "INNER JOIN USER_ROLES UR on U.ID = UR.USER_ID\n" +
+            "INNER JOIN ROLE R on UR.ROLES_ID = R.ID;";
 
         Single<UserMappingInterface> singleUser = database.select(sql)
                 .parameter("id", id)
-                .autoMap(UserMappingInterface.class)
+                .get(rs -> {
+                    User u = new User();
+                    
+                    return (UserMappingInterface) u;
+                })
                 .firstOrError()
                 .doOnError(throwable -> logger.error("no user " + throwable));
 
@@ -52,40 +59,38 @@ public class UserRepository {
         String createUserRoleSql = "INSERT INTO user_roles (user_id, roles_id) VALUES(:userId, :roleId)";
 
         return createRole(role)
+                .doOnError(throwable -> logger.error(throwable.toString()))
                 .flatMap(role1 -> {
                     database.update(createUserRoleSql)
                             .parameter("roleId", role1.getId())
                             .parameter("userId", userId)
                             .returnGeneratedKeys()
                             .getAs(Integer.class)
-                            .doOnError(throwable -> logger.error("Error to associate role to user " + throwable))
+                            .doOnError(throwable -> logger.error(throwable.toString()))
                             .subscribe();
 
                     return Mono.just(role1);
                 });
-
-        //return findRoleByCriteria(role.toString(), userId);
     }
 
     public Mono<Role> createRole(Role role) {
         String createRole = "INSERT INTO role (role) VALUES(:role)";
 
         return findRole(role)
-                .doOnError(throwable -> {
-                    logger.error("Try to create role: " + role.getRoleValue()+ " in table role");
+            .doOnError(throwable -> {
                     database.update(createRole)
                             .parameter("role", role.getRoleValue())
                             .returnGeneratedKeys()
                             .getAs(Integer.class)
-                            .doOnError(throwable1 -> logger.error("Can't insert role into Role table" + throwable1))
+                            .doOnError(throwable1 -> logger.error(throwable1.toString()))
                             .subscribe();
                 })
-                .flatMap(role1 -> findRole(role));
+            .onErrorResume(throwable -> findRole(role));
     }
 
     public Mono<Role> findRole(Role role) {
-        String findRole = "SELECT * FROM role WHERE role = :role";
-
+        String findRole = "SELECT * FROM role r WHERE r.role = :role";
+        
         Single<Role> singleRole = database.select(findRole)
                 .parameter("role", role.getRoleValue())
                 .get(rs -> {
@@ -145,7 +150,7 @@ public class UserRepository {
     }
 
     //Todo refactor
-    public Mono<UserMappingInterface> findByRole(Role role) {
+    public Mono<UserMappingInterface> findFirstByRole(Role role) {
         String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.password, u.salt, u.activated, r.role " +
                 "FROM user u " +
                 "INNER JOIN  user_roles ur ON u.id = ur.user_id " +
