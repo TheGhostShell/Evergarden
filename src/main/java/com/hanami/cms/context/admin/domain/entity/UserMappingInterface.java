@@ -3,7 +3,6 @@ package com.hanami.cms.context.admin.domain.entity;
 import org.davidmoten.rx.jdbc.annotations.Column;
 
 import java.util.Collection;
-import java.util.List;
 
 public interface UserMappingInterface {
 	

@@ -22,7 +22,12 @@ public class Role {
     public static Role createFromRawValue(String role) {
         return new Role("").setRoleFromRawValue(role);
     }
-
+    
+    public static Role createFromRawValue(int id, String role) {
+        return new Role("").setRoleFromRawValue(role).setId(id);
+    }
+    
+    
     private Role setRoleFromRawValue(String role) {
         this.role = role;
         return this;
