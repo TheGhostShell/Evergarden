@@ -66,8 +66,8 @@ public class DefaultAdminConfig {
                             .doOnError(throwable -> logger.error("Failed to insert data on user table "
                                     + throwable.toString())
                             )
-                            .subscribe(userMappingInterface -> {
-                                if (userMappingInterface.getId() > 0) {
+                            .subscribe(userId -> {
+                                if (userId > 0) {
                                     logger.info("Successfully created master admin");
                                 }
                             });

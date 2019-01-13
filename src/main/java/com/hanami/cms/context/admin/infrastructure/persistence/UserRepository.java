@@ -1,9 +1,11 @@
 package com.hanami.cms.context.admin.infrastructure.persistence;
 
+import com.hanami.cms.context.admin.application.jwt.EvergardenEncoder;
 import com.hanami.cms.context.admin.domain.entity.*;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
 import org.davidmoten.rx.jdbc.Database;
+import org.davidmoten.rx.jdbc.SelectBuilder;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,15 +13,20 @@ import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.util.Arrays;
+
 @Component
 public class UserRepository {
+
+    private EvergardenEncoder encoder;
 
     private Database database;
 
     private Logger logger;
 
     @Autowired
-    public UserRepository(Database database, Logger logger) {
+    public UserRepository(EvergardenEncoder encoder, Database database, Logger logger) {
+        this.encoder = encoder;
         this.database = database;
         this.logger = logger;
     }
@@ -35,23 +42,77 @@ public class UserRepository {
         return RxJava2Adapter.singleToMono(singleUser);
     }
 
+    public Flux<UserMappingInterface> fetchAll() {
+        String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.pseudo, u.activated, u.salt, u.password, " +
+                "GROUP_CONCAT(DISTINCT CONCAT(r.id, ':', r.role)) AS concat_role " +
+                "FROM user u " +
+                "LEFT JOIN user_roles ur on u.id = ur.user_id " +
+                "LEFT JOIN  role r on ur.roles_id = r.id " +
+                "GROUP BY u.id ";
+
+        SelectBuilder builder = database.select(sql);
+
+        Flowable<UserMappingInterface> flowUser = userMap(builder);
+
+        return Flux.from(flowUser);
+    }
+
     //todo refactor
     public Mono<UserMappingInterface> findById(int id) {
-        String sql = "SELECT U.ID, U.EMAIL, GROUP_CONCAT(DISTINCT CONCAT(R.ROLE, '')) AS ROLE FROM USER U\n" +
-            "INNER JOIN USER_ROLES UR on U.ID = UR.USER_ID\n" +
-            "INNER JOIN ROLE R on UR.ROLES_ID = R.ID;";
+        
+        logger.info("try to find this id "+ id);
+        
+        String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.pseudo, u.activated, u.salt, u.password, " +
+            "GROUP_CONCAT(DISTINCT CONCAT(r.id, ':', r.role)) AS concat_role " +
+            "FROM user u " +
+            "INNER JOIN user_roles ur on u.id = ur.user_id " +
+            "INNER JOIN role r on ur.roles_id = r.id " +
+            "WHERE u.id = :id";
 
-        Single<UserMappingInterface> singleUser = database.select(sql)
-                .parameter("id", id)
-                .get(rs -> {
-                    User u = new User();
-                    
-                    return (UserMappingInterface) u;
-                })
-                .firstOrError()
-                .doOnError(throwable -> logger.error("no user " + throwable));
+        SelectBuilder builder =  database.select(sql)
+                .parameter("id", id);
+
+        Single<UserMappingInterface> singleUser = userMap(builder)
+                .doOnError(throwable -> logger.error(throwable.toString()))
+                .firstOrError();
 
         return RxJava2Adapter.singleToMono(singleUser);
+    }
+
+    private Flowable<UserMappingInterface> userMap(SelectBuilder builder) {
+        return builder
+                .get(rs -> {
+                    User u = new User();
+
+                    String roles = rs.getString("concat_role");
+
+                    logger.warn("the value is null fuck !! "+roles);
+
+                    if(roles != null && !roles.equals(":")){
+                        logger.warn("inside the deep association");
+                        Arrays.stream(roles.split(","))
+                                .map(s -> {
+                                    logger.warn(s);
+                                    String[] role = s.split(":");
+
+                                    u.addRole(Role.createFromRawValue(new Integer(role[0]), role[1]));
+
+                                    return s;
+
+                                }).count();
+                    }
+
+                    u.setFirstname(rs.getString("firstname"))
+                            .setLastname(rs.getString("lastname"))
+                            .setPseudo(rs.getString("pseudo"))
+                            .setEmail(rs.getString("email"))
+                            .setId(rs.getInt("id"))
+                            .setEncodedCredential(
+                                    new EncodedCredential(rs.getString("salt"), rs.getString("password"))
+                            );
+                    logger.warn("id is " + u.getId());
+                    return (UserMappingInterface) u;
+                });
     }
 
     //Todo refactor
@@ -120,9 +181,9 @@ public class UserRepository {
 //    }
 
 
-    public Mono<UserMappingInterface> create(UserMappingInterface user) {
-        String createUserSql = "INSERT INTO user (email, password, firstname, lastname, activated, salt) " +
-                "VALUES (:email, :password, :firstname, :lastname, :activated, :salt) ";
+    public Mono<Integer> create(UserMappingInterface user) {
+        String createUserSql = "INSERT INTO user (email, password, firstname, lastname, activated, salt, pseudo) " +
+                "VALUES (:email, :password, :firstname, :lastname, :activated, :salt, :pseudo) ";
 
         Flowable<Integer> record = database.update(createUserSql)
                 .parameter("email", user.getEmail())
@@ -131,22 +192,23 @@ public class UserRepository {
                 .parameter("lastname", user.getLastName())
                 .parameter("activated", user.isActivated())
                 .parameter("salt", user.getSalt())
+                .parameter("pseudo", user.getPseudo())
                 .returnGeneratedKeys()
                 .getAs(Integer.class);
 
-        Single<UserMappingInterface> singleUser = record.map(userId -> {
+        Single<Integer> singleInteger = record.map(userId -> {
 
             Flux<Role> flux = Flux.fromStream(user.getRoles()
                     .stream());
 
             flux.map(role -> createUserRole(role, userId).subscribe())
                     .subscribe();
-
+            
             return userId;
+            
+        }).firstOrError();
 
-        }).flatMap(integer -> findById(integer)).firstOrError();
-
-        return RxJava2Adapter.singleToMono(singleUser);
+        return RxJava2Adapter.singleToMono(singleInteger);
     }
 
     //Todo refactor
@@ -172,6 +234,29 @@ public class UserRepository {
                     return (UserMappingInterface) user;
                 })
                 .firstOrError();
+
+        return RxJava2Adapter.singleToMono(singleUser);
+    }
+
+    public Mono<UserMappingInterface> update(UpdatedUser user) {
+        String sqlUpdate = "UPDATE user SET activated = :activated, email = :email, firstname = :firstname, " +
+                "lastname = :lastname, password = :password, salt = :salt, pseudo = :pseudo " +
+                "WHERE id = :id ";
+
+        encoder.encode(user.getPassword());
+
+        Flowable<Integer> isUpdated = database.update(sqlUpdate)
+                .parameter("email", user.getEmail())
+                .parameter("firstname", user.getFirstname())
+                .parameter("lastname", user.getLastname())
+                .parameter("pseudo", user.getPseudo())
+                .parameter("activated", user.isActivated())
+                .parameter("password", encoder.getEncodedCredentials().getEncodedPassword())
+                .parameter("salt", encoder.getEncodedCredentials().getSalt())
+                .parameter("id", user.getId())
+                .counts();
+
+        Single<UserMappingInterface> singleUser = isUpdated.flatMap(integer -> findById(integer)).firstOrError();
 
         return RxJava2Adapter.singleToMono(singleUser);
     }
