@@ -17,6 +17,8 @@ public class LoginRouter {
                 .andRoute(RequestPredicates.GET("/"), handler::login)
                 .andRoute(RequestPredicates.POST(env.getProperty("v1") + "/guest"), handler::guest)
                 .andRoute(RequestPredicates.POST(env.getProperty("v1s") + "/user"), handler::create)
-                .andRoute(RequestPredicates.GET(env.getProperty("v1s") + "/user/{id}"), handler::read);
+                .andRoute(RequestPredicates.GET(env.getProperty("v1s") + "/user/{id}"), handler::read)
+                .andRoute(RequestPredicates.PUT(env.getProperty("v1s") + "/user"), handler::update)
+                .andRoute(RequestPredicates.GET(env.getProperty("v1s") + "/user"), handler::show);
     }
 }

@@ -33,13 +33,11 @@ public class PostHandler {
 //            return s;
 //        }) .doOnError(throwable -> logger.error("error bad "+throwable)).subscribe();
 
-        return request.body(BodyExtractors.toMono(String.class)).flatMap(updatedPost -> {
+        return request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(updatedPost -> {
             System.out.println("fuck all this" + updatedPost);
 
-            Mono<PostMappingInterface> post = Mono.empty();
-
-//            Mono<PostMappingInterface> post = repository
-//                    .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
+            Mono<PostMappingInterface> post = repository
+                    .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
 
             return ServerResponse.ok().body(post, PostMappingInterface.class);
         });
