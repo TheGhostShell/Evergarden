@@ -14,6 +14,7 @@ apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 apply plugin: 'io.spring.dependency-management'
+apply plugin: 'org.sonarqube:2.6'
 
 group = 'com.hanami.cms'
 version = '0.0.1-SNAPSHOT'
