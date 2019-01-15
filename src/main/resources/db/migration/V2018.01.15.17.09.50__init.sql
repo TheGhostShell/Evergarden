@@ -1,0 +1,6 @@
+CREATE TABLE evergarden_post (
+ id BIGINT NOT NULL AUTO_INCREMENT,
+ title VARCHAR(255) NOT NULL,
+ author VARCHAR(255) NOT NULL,
+ body CLOB
+);

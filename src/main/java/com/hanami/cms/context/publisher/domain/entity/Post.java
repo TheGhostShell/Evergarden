@@ -6,7 +6,7 @@ import lombok.Data;
 import javax.persistence.*;
 
 @Entity
-@Table
+@Table(name = "EVERGARDEN_POST")
 @Data
 public class Post implements PostMappingInterface {
 
