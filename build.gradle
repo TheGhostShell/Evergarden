@@ -67,9 +67,11 @@ dependencies {
 
 	//junit test
 	testCompile group: 'junit', name: 'junit', version: '4.12'
+
+	// Integrate flyway for database migration version control
+	compile "org.flywaydb:flyway-core:5.2.4"
 	
 	// Integrate spring shell or crash
-	// Integrate flyway for database migration version control
 	// Use neo4j to manage taxonomy system
 	// Use elastic search to provide a search system embedded engine https://github.com/allegro/embedded-elasticsearch
 	// For caching Ehcache JSR-107 “JCache” API or see https://spring.io/guides/gs/caching/
