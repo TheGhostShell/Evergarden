@@ -46,7 +46,7 @@ public class PostRepositoryTest {
 	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/createPost.sql")
 	@Sql(executionPhase = Sql.ExecutionPhase.AFTER_TEST_METHOD, scripts = "/db/script/drop.sql")
 	public void fetchById() {
-		StepVerifier.create(postRepository.fetchById(1))
+		StepVerifier.create(postRepository.fetchById(1L))
 			.expectNextMatches(post -> {
 				Assert.assertEquals("john", post.getAuthor());
 				Assert.assertEquals("<b>This is a wonderfull book I ever read</b>", post.getBody());
@@ -67,17 +67,17 @@ public class PostRepositoryTest {
 			"Batou-Ranger"
 		);
 		postRepository.create(newPost).map(postMappingInterface -> {
-			StepVerifier.create(postRepository.fetchById(4))
+			StepVerifier.create(postRepository.fetchById(4L))
 				.expectNextMatches(post -> {
-					Assert.assertEquals("Batou-Ranger", post.getAuthor());
-					Assert.assertEquals("Violet it's a flower name", post.getBody());
-					Assert.assertEquals("Violet", post.getTitle());
+					assertEquals("Batou-Ranger", post.getAuthor());
+					assertEquals("Violet it's a flower name", post.getBody());
+					assertEquals("Violet", post.getTitle());
 					return true;
 				})
 				.verifyComplete();
-			
+			assertEquals(4L,  postMappingInterface.getId().longValue());
 			return postMappingInterface;
-		});
+		}).block();
 	}
 	
 	@Test
@@ -91,11 +91,11 @@ public class PostRepositoryTest {
 		upPost.setAuthor("Lorem");
 		upPost.setBody("Ip");
 		upPost.setTitle("Sum");
-		upPost.setId(3);
+		upPost.setId(3L);
 		
 		postRepository.update(upPost).block();
 		
-		StepVerifier.create(postRepository.fetchById(3))
+		StepVerifier.create(postRepository.fetchById(3L))
 			.expectNextMatches(post -> {
 				Assert.assertEquals("Lorem", post.getAuthor());
 				Assert.assertEquals("Ip", post.getBody());

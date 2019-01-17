@@ -40,7 +40,7 @@ public class PostHandler {
 
     public Mono<ServerResponse> read(ServerRequest request) {
         
-        int id = Integer.parseInt(request.pathVariable("id"));
+        Long id = Long.parseLong(request.pathVariable("id"));
 
         return repository
             .fetchById(id)

@@ -5,7 +5,7 @@ import org.davidmoten.rx.jdbc.annotations.Column;
 public interface PostMappingInterface {
 	
 	@Column("id")
-	int getId();
+	Long getId();
 	
 	@Column("title")
 	String getTitle();

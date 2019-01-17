@@ -7,12 +7,12 @@ import lombok.*;
 @AllArgsConstructor
 public class UpdatedPost implements PostMappingInterface {
 
-    private int    id;
+    private Long    id;
     private String title;
     private String author;
     private String body;
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
