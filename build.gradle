@@ -33,6 +33,13 @@ configurations {
     }
 }
 
+test {
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+	}
+}
+
 dependencies {
 	//dependencies
 	compile 'org.xeustechnologies:jcl-core:2.8'

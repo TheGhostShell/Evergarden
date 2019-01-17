@@ -66,16 +66,18 @@ public class PostRepositoryTest {
 			"Violet it's a flower name",
 			"Batou-Ranger"
 		);
-		postRepository.create(newPost).block();
-		
-		StepVerifier.create(postRepository.fetchById(4))
-			.expectNextMatches(post -> {
-				Assert.assertEquals("Batou-Ranger", post.getAuthor());
-				Assert.assertEquals("Violet it's a flower name", post.getBody());
-				Assert.assertEquals("Violet", post.getTitle());
-				return true;
-			})
-			.verifyComplete();
+		postRepository.create(newPost).map(postMappingInterface -> {
+			StepVerifier.create(postRepository.fetchById(4))
+				.expectNextMatches(post -> {
+					Assert.assertEquals("Batou-Ranger", post.getAuthor());
+					Assert.assertEquals("Violet it's a flower name", post.getBody());
+					Assert.assertEquals("Violet", post.getTitle());
+					return true;
+				})
+				.verifyComplete();
+			
+			return postMappingInterface;
+		});
 	}
 	
 	@Test

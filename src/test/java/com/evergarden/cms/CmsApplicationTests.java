@@ -47,15 +47,4 @@ public class CmsApplicationTests {
 //			.expectSubscription()
 //			.expect
 	}
-	
-	@Test
-	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/insertAdmin.sql")
-	public void testCapitalise() {
-		StepVerifier.create(postRepository.fetchById(1))
-			.expectNextMatches(postMappingInterface -> {
-				Assert.assertEquals("john", postMappingInterface.getAuthor());
-				return true;
-			})
-			.verifyComplete();
-	}
 }
