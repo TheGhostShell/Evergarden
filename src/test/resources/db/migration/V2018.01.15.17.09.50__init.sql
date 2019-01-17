@@ -1,0 +1,37 @@
+CREATE TABLE evergarden_post (
+ id BIGINT AUTO_INCREMENT,
+ title VARCHAR(255) NOT NULL,
+ author VARCHAR(255) NOT NULL,
+ body TEXT NOT NULL,
+ PRIMARY KEY (id)
+);
+
+CREATE TABLE evergarden_role (
+  id INTEGER AUTO_INCREMENT,
+  role VARCHAR(255) NOT NULL UNIQUE,
+  PRIMARY KEY (id)
+);
+
+CREATE TABLE evergarden_user (
+	id BIGINT AUTO_INCREMENT,
+	activated BOOLEAN NOT NULL,
+	email VARCHAR(255) NOT NULL UNIQUE,
+	firstname VARCHAR(255),
+	lastname VARCHAR(255),
+	password VARCHAR(255) NOT NULL,
+	pseudo VARCHAR(255),
+	salt VARCHAR(255) NOT NULL,
+	PRIMARY KEY (id)
+);
+
+CREATE TABLE evergarden_user_roles (
+	user_id INTEGER NOT NULL,
+	role_id INTEGER NOT NULL,
+	CONSTRAINT FK_USER_ROLES_USERID_USER_ID FOREIGN KEY (user_id) REFERENCES evergarden_user,
+	CONSTRAINT FK_USER_ROLES_ROLEID_ROLE_ID FOREIGN KEY (role_id) REFERENCES evergarden_role
+);
+
+
+
+
+
