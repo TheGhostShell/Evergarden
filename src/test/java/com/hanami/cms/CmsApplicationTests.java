@@ -3,6 +3,7 @@ package com.hanami.cms;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit4.SpringRunner;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
@@ -14,13 +15,13 @@ import java.time.Duration;
 @SpringBootTest
 public class CmsApplicationTests {
 
-	@Test
+	/*@Test
 	public void contextLoads() {
-	}
+	}*/
 	
 	@Test
 	public void testStepVerifier() {
-		Flux<Long> flux = Flux.interval(Duration.ofSeconds(1L)).take(10L);
+		/*Flux<Long> flux = Flux.interval(Duration.ofSeconds(1L)).take(10L);
 		
 		Duration dur = Duration.ofSeconds(1L);
 		
@@ -33,7 +34,7 @@ public class CmsApplicationTests {
 			.expectComplete()
 			.verify(Duration.ofSeconds(4L));
 		
-		System.out.println(duration.getSeconds());
+		System.out.println(duration.getSeconds());*/
 		
 //		StepVerifier.withVirtualTime(()->flux)
 //			.expectSubscription()
@@ -41,6 +42,7 @@ public class CmsApplicationTests {
 	}
 	
 	@Test
+	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/insertAdmin.sql")
 	public void testCapitalise() {
 		String username = "john".toUpperCase();
 	}

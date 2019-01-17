@@ -78,6 +78,7 @@ dependencies {
 	// Use neo4j to manage taxonomy system
 	// Use elastic search to provide a search system embedded engine https://github.com/allegro/embedded-elasticsearch
 	// For caching Ehcache JSR-107 “JCache” API or see https://spring.io/guides/gs/caching/
+	// test integration w<ith flyway https://github.com/flyway/flyway-test-extensions/wiki/Usage-flyway-spring-test
 }
 
 //	        			from spring initializr
