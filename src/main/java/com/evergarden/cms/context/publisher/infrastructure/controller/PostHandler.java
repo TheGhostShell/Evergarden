@@ -28,11 +28,6 @@ public class PostHandler {
 
     public Mono<ServerResponse> create(ServerRequest request) {
 
-//        request.bodyToMono(String.class).map(s -> {
-//            logger.info(s);
-//            return s;
-//        }) .doOnError(throwable -> logger.error("error bad "+throwable)).subscribe();
-
         return request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(updatedPost -> {
             System.out.println("fuck all this" + updatedPost);
 
@@ -41,8 +36,6 @@ public class PostHandler {
 
             return ServerResponse.ok().body(post, PostMappingInterface.class);
         });
-
-        //return ServerResponse.ok().build();
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {

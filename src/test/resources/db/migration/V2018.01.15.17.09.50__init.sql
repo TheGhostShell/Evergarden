@@ -1,4 +1,6 @@
-CREATE TABLE evergarden_post (
+CREATE SCHEMA IF NOT EXISTS PUBLIC;
+
+CREATE TABLE IF NOT EXISTS evergarden_post (
  id BIGINT AUTO_INCREMENT,
  title VARCHAR(255) NOT NULL,
  author VARCHAR(255) NOT NULL,
@@ -6,13 +8,13 @@ CREATE TABLE evergarden_post (
  PRIMARY KEY (id)
 );
 
-CREATE TABLE evergarden_role (
+CREATE TABLE IF NOT EXISTS evergarden_role (
   id INTEGER AUTO_INCREMENT,
   role VARCHAR(255) NOT NULL UNIQUE,
   PRIMARY KEY (id)
 );
 
-CREATE TABLE evergarden_user (
+CREATE TABLE IF NOT EXISTS evergarden_user (
 	id BIGINT AUTO_INCREMENT,
 	activated BOOLEAN NOT NULL,
 	email VARCHAR(255) NOT NULL UNIQUE,
@@ -24,7 +26,7 @@ CREATE TABLE evergarden_user (
 	PRIMARY KEY (id)
 );
 
-CREATE TABLE evergarden_user_roles (
+CREATE TABLE IF NOT EXISTS evergarden_user_roles (
 	user_id INTEGER NOT NULL,
 	role_id INTEGER NOT NULL,
 	CONSTRAINT FK_USER_ROLES_USERID_USER_ID FOREIGN KEY (user_id) REFERENCES evergarden_user,
