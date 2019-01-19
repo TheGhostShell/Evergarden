@@ -63,10 +63,6 @@ task codeCoverageReport(type: JacocoReport) {
 	}
 }
 
-codeCoverageReport.dependsOn {
-	subprojects*.test
-}
-
 dependencies {
 	//dependencies
 	compile 'org.xeustechnologies:jcl-core:2.8'
