@@ -1,6 +1,5 @@
 package com.evergarden.cms.context.publisher.infrastructure.controller;
 
-import com.evergarden.cms.context.publisher.domain.entity.PostMappingInterface;
 import com.evergarden.cms.context.publisher.domain.entity.UpdatedPost;
 import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
 import org.junit.jupiter.api.Test;
@@ -53,7 +52,7 @@ class PostRouterTest {
 			.accept(MediaType.APPLICATION_JSON)
 			.exchange()
 			.expectStatus().isOk()
-			.expectBody(PostMappingInterface.class)
+			.expectBody(UpdatedPost.class)
 			.isEqualTo(expectedPost);
 	}
 }
