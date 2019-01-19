@@ -2,6 +2,7 @@ package com.evergarden.cms.context.publisher.infrastructure.controller;
 
 import com.evergarden.cms.context.publisher.domain.entity.UpdatedPost;
 import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
@@ -24,11 +25,21 @@ class PostRouterTest {
 	@Autowired
 	private Environment env;
 	
-	Logger logger = LoggerFactory.getLogger(this.getClass());
-	
+	private Logger logger = LoggerFactory.getLogger(this.getClass());
+
 	@MockBean
-	PostRepository postRepository;
-	
+	private PostRepository postRepository;
+
+	private WebTestClient client;
+
+	@BeforeEach
+	void setUp() {
+		PostHandler    postHandler = new PostHandler(logger, postRepository);
+		RouterFunction router      = (new PostRouter()).postRoute(postHandler, env);
+		client = WebTestClient.bindToRouterFunction(router)
+				.build();
+	}
+
 	@Test
 	public void read() {
 		
@@ -41,12 +52,6 @@ class PostRouterTest {
 		BDDMockito.given(postRepository.fetchById(1L))
 			.willReturn(Mono.just(expectedPost));
 		
-		PostHandler postHandler = new PostHandler(logger, postRepository);
-		
-		RouterFunction router = (new PostRouter()).postRoute(postHandler, env);
-		
-		WebTestClient client = WebTestClient.bindToRouterFunction(router).build();
-		
 		client.get()
 			.uri(env.getProperty("v1") + "/post/{id}", 1)
 			.accept(MediaType.APPLICATION_JSON)
@@ -54,5 +59,26 @@ class PostRouterTest {
 			.expectStatus().isOk()
 			.expectBody(UpdatedPost.class)
 			.isEqualTo(expectedPost);
+	}
+
+	@Test
+	public void show() {
+
+		UpdatedPost expectedPost = new UpdatedPost();
+		expectedPost.setAuthor("john");
+		expectedPost.setTitle("<h1>The book ever</h1>");
+		expectedPost.setBody("<b>This is a wonderfull book I ever read</b>");
+		expectedPost.setId(1L);
+
+		BDDMockito.given(postRepository.fetchById(1L))
+				.willReturn(Mono.just(expectedPost));
+
+		client.get()
+				.uri(env.getProperty("v1") + "/post/{id}", 1)
+				.accept(MediaType.APPLICATION_JSON)
+				.exchange()
+				.expectStatus().isOk()
+				.expectBody(UpdatedPost.class)
+				.isEqualTo(expectedPost);
 	}
 }
