@@ -34,18 +34,20 @@ configurations {
     }
 }
 
-test {
-	testLogging {
-		events "passed", "skipped", "failed"
-		exceptionFormat "full"
-	}
-}
-
 jacocoTestReport {
 	reports {
 		xml.enabled true
 		html.enabled false
 	}
+}
+
+test {
+	useJUnitPlatform()
+	testLogging {
+		events "passed", "skipped", "failed"
+		exceptionFormat "full"
+	}
+	finalizedBy jacocoTestReport
 }
 
 task codeCoverageReport(type: JacocoReport) {
@@ -69,8 +71,6 @@ task codeCoverageReport(type: JacocoReport) {
 		}
 	}
 }
-
-check.dependsOn jacocoTestReport
 
 dependencies {
 	//dependencies
@@ -112,6 +112,21 @@ dependencies {
 
 	// https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
 	testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
+
+	/**
+	 * JUnit Jupiter parameter configuration.
+	 */
+	testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.2.0'
+
+	/**
+	 * JUnit Jupiter testing engine.
+	 */
+	testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.2.0'
+
+	/**
+	 * Vintage platform engine.
+	 */
+	testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.2.0'
 
 
 	// Integrate flyway for database migration version control
