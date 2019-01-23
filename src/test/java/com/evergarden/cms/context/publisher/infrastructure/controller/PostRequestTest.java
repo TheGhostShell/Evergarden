@@ -10,13 +10,17 @@ public class PostRequestTest {
 	
 	public String title;
 	
-	public PostRequestTest(Long id, String body, String author, String title) {
-		this.id = id;
+	public PostRequestTest(String body, String author, String title) {
 		this.body = body;
 		this.author = author;
 		this.title = title;
 	}
-	
+
+	public PostRequestTest setId(Long id) {
+		this.id = id;
+		return this;
+	}
+
 	public Long getId() {
 		return id;
 	}
