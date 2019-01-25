@@ -1,6 +1,6 @@
 package com.evergarden.cms.context.admin.application.config;
 
-import com.evergarden.cms.context.admin.application.jwt.EvergardenEncoder;
+import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
 import com.evergarden.cms.context.admin.domain.entity.Role;
 import com.evergarden.cms.context.admin.domain.entity.RoleEnum;
 import com.evergarden.cms.context.admin.domain.entity.User;

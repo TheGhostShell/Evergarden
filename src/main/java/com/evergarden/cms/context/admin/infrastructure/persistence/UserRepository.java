@@ -1,6 +1,6 @@
 package com.evergarden.cms.context.admin.infrastructure.persistence;
 
-import com.evergarden.cms.context.admin.application.jwt.EvergardenEncoder;
+import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
 import com.evergarden.cms.context.admin.domain.entity.*;
 import io.reactivex.Flowable;
 import io.reactivex.Single;
@@ -139,18 +139,21 @@ public class UserRepository {
 
         return findRole(role)
             .doOnError(throwable -> {
+            	logger.warn("I m not found the role so I will try to create the new role "+role.getRoleValue());
                     database.update(createRole)
                             .parameter("role", role.getRoleValue())
                             .returnGeneratedKeys()
                             .getAs(Integer.class)
                             .doOnError(throwable1 -> logger.error(throwable1.toString()))
-                            .subscribe();
+                            .blockingFirst();
                 })
             .onErrorResume(throwable -> findRole(role));
     }
 
     public Mono<Role> findRole(Role role) {
         String findRole = "SELECT * FROM evergarden_role r WHERE r.role = :role";
+        
+        logger.info("finding role "+ role.getRoleValue());
         
         Single<Role> singleRole = database.select(findRole)
                 .parameter("role", role.getRoleValue())
@@ -213,7 +216,7 @@ public class UserRepository {
 
     //Todo refactor
     public Mono<UserMappingInterface> findFirstByRole(Role role) {
-        String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.password, u.salt, u.activated, r.role " +
+        String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.pseudo, u.password, u.salt, u.activated, r.role " +
                 "FROM evergarden_user u " +
                 "INNER JOIN evergarden_user_roles ur ON u.id = ur.user_id " +
                 "INNER JOIN evergarden_role r ON r.id = ur.role_id WHERE r.role = :role ";
@@ -227,6 +230,7 @@ public class UserRepository {
                             .setLastname(rs.getString("lastname"))
                             .setFirstname(rs.getString("firstname"))
                             .setEmail(rs.getString("email"))
+                            .setPseudo(rs.getString("pseudo"))
                             .setActivated(rs.getBoolean("activated"))
                             .setEncodedCredential(new EncodedCredential(rs.getString("salt"), rs.getString("password")))
                             .addRole(Role.createFromRawValue(rs.getString("role")));

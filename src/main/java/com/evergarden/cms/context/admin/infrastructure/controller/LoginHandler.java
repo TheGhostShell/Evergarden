@@ -4,7 +4,7 @@ import com.evergarden.cms.context.admin.domain.entity.*;
 import com.evergarden.cms.context.admin.infrastructure.persistence.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.evergarden.cms.context.admin.application.jwt.EvergardenEncoder;
+import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
 import com.evergarden.cms.context.admin.application.jwt.JWTTokenService;
 import com.evergarden.cms.context.admin.infrastructure.controller.response.UserCreateResponse;
 import com.evergarden.cms.context.admin.infrastructure.controller.response.UserResponse;
@@ -48,18 +48,26 @@ public class LoginHandler {
     }
 
     public Mono<ServerResponse> login(ServerRequest request) {
+        
+        return request.body(BodyExtractors.toMono(UnAuthUser.class))
+            .flatMap(unAuthUser -> {
+                
+                userRepository.findByEmail(unAuthUser.getEmail());
+    
+                return ServerResponse.ok()
+                    .body(BodyInserters.fromObject("new Token(token)"));
+            });
 
-        Mono<UserMappingInterface> userMono = userRepository.findByEmail("violet@mail.com");
+//        Mono<UserMappingInterface> userMono = userRepository.findByEmail("violet@mail.com");
+//
+//        ArrayList<GrantedAuthority> authorities = new ArrayList();
+//        authorities.add(new SimpleGrantedAuthority("ROLE_GUEST"));
+//        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+//        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
+//
+//        String token = JWTTokenService.generateToken("violet", "pass", authorities);
 
-        ArrayList<GrantedAuthority> authorities = new ArrayList();
-        authorities.add(new SimpleGrantedAuthority("ROLE_GUEST"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        authorities.add(new SimpleGrantedAuthority("ROLE_USER"));
-
-        String token = JWTTokenService.generateToken("violet", "pass", authorities);
-
-        return ServerResponse.ok()
-                .body(BodyInserters.fromObject(new Token(token)));
+        
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {

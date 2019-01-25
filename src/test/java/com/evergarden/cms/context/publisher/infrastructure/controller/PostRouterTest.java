@@ -47,7 +47,7 @@ class PostRouterTest {
 	}
 
 	@Test
-	public void read() {
+	void read() {
 
 		UpdatedPost expectedPost = new UpdatedPost();
 		expectedPost.setAuthor("john");
@@ -68,7 +68,7 @@ class PostRouterTest {
 	}
 
 	@Test
-	public void show() {
+	void show() {
 
 		UpdatedPost expectedPost1 = new UpdatedPost();
 		expectedPost1.setAuthor("john");
@@ -103,7 +103,7 @@ class PostRouterTest {
 	}
 
 	@Test
-	public void delete() {
+	void delete() {
 
 		BDDMockito.given(postRepository.delete(1))
 			.willReturn(Mono.empty());
@@ -115,7 +115,7 @@ class PostRouterTest {
 	}
 
 	@Test
-	public void create() {
+	void create() {
 
 		Post post = new Post("Best post","Lorem ipsum","john");
 		Post postMonoResponse = new Post("Best post","Lorem ipsum","john");
@@ -143,7 +143,7 @@ class PostRouterTest {
 	}
 
 	@Test
-	public void update() {
+	void update() {
 
 		UpdatedPost post = new UpdatedPost();
 		post.setBody("Lorem ipsum");

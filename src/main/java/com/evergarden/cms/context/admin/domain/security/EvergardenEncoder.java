@@ -1,4 +1,4 @@
-package com.evergarden.cms.context.admin.application.jwt;
+package com.evergarden.cms.context.admin.domain.security;
 
 import com.evergarden.cms.context.admin.domain.entity.EncodedCredential;
 import org.slf4j.Logger;
