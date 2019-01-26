@@ -44,7 +44,6 @@ public class BasicAuthenticationSuccessHandler implements ServerAuthenticationSu
 		
 		return JWTTokenService.generateToken(
 			authentication.getName(),
-			authentication.getCredentials(),
 			authentication.getAuthorities()
 		);
 	}

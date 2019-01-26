@@ -15,10 +15,9 @@ public class LoginRouter {
 	public RouterFunction<ServerResponse> loginRoute(LoginHandler handler, Environment env) {
 		
 		String pathSecure = env.getProperty("v1s");
-		String pathPublic = env.getProperty("v1s");
+		String pathPublic = env.getProperty("v1");
 		
 		return RouterFunctions.route(RequestPredicates.POST(pathPublic + "/login"), handler::login)
-			//.andRoute(RequestPredicates.GET("/"), handler::login)
 			.andRoute(RequestPredicates.POST(pathPublic + "/guest"), handler::guest)
 			.andRoute(RequestPredicates.POST(pathSecure + "/user"), handler::create)
 			.andRoute(RequestPredicates.GET(pathSecure + "/user/{id}"), handler::read)

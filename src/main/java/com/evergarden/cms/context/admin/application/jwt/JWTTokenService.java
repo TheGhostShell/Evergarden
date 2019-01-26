@@ -45,21 +45,23 @@ public class JWTTokenService {
      * authenticated principal
      *
      * @param subject     Name of current principal
-     * @param credentials Credentials of current principal
      * @param authorities A collection of granted authorities for this principal
      * @return String representing a valid token
      */
-    public static String generateToken(String subject, Object credentials,
+    public static String generateToken(String subject,
                                        Collection<? extends GrantedAuthority> authorities) {
         //TODO refactor this nasty code
 
         JWTClaimsSet claimsSet = new JWTClaimsSet.Builder().subject(subject)
                 .issuer("evergarden.shell")
                 .expirationTime(new Date(getExpiration()))
-                .claim("roles", authorities.stream()
+                .claim(
+                    "roles",
+                    authorities.stream()
                         .map(GrantedAuthority.class::cast)
                         .map(GrantedAuthority::getAuthority)
-                        .collect(Collectors.joining(",")))
+                        .collect(Collectors.joining(","))
+                )
                 .build();
 
         SignedJWT signedJWT = new SignedJWT(new JWSHeader(JWSAlgorithm.HS256), claimsSet);

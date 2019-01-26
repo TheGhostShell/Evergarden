@@ -61,6 +61,7 @@ public class SecurityConfig {
 			.authorizeExchange().pathMatchers("/v1/private/**").hasRole("ADMIN")
 			//.and().authorizeExchange().pathMatchers("/v1/private/**").authenticated()
 			.and().authorizeExchange().pathMatchers("/v1/guest").permitAll()
+			.and().authorizeExchange().pathMatchers("/v1/login").permitAll()
 			.and().authorizeExchange().pathMatchers("/v1/**").hasRole("GUEST")
 			.and().authenticationManager(authenticationManager)
 			.securityContextRepository(securityContextRepository)

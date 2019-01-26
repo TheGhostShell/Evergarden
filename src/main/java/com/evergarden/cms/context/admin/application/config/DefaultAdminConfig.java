@@ -59,7 +59,7 @@ public class DefaultAdminConfig {
                     user.addRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()));
                     user.setFirstname("Violet");
                     user.setLastname("Evergarden");
-                    user.setEncodedCredential(encoder.getEncodedCredentials());
+                    user.setEncodedCredential(encoder.getEncodedCredential());
 
                     userRepository
                             .create(user)

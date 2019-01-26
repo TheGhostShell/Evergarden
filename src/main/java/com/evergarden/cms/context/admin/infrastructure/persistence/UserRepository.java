@@ -32,12 +32,18 @@ public class UserRepository {
     }
 
     public Mono<UserMappingInterface> findByEmail(String email) {
-        String sql = "SELECT * FROM evergarden_user WHERE email = :email";
+        // Todo test user.getRoles
+        String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.pseudo, u.activated, u.salt, u.password, " +
+            "GROUP_CONCAT(DISTINCT CONCAT(r.id, ':', r.role)) AS concat_role " +
+            "FROM evergarden_user u " +
+            "INNER JOIN evergarden_user_roles ur on u.id = ur.user_id " +
+            "INNER JOIN evergarden_role r on ur.role_id = r.id " +
+            "WHERE u.email = :email";
 
-        Single<UserMappingInterface> singleUser = database.select(sql)
-                .parameter("email", email)
-                .autoMap(UserMappingInterface.class)
-                .firstOrError();
+        SelectBuilder builder = database.select(sql)
+                .parameter("email", email);
+
+        Single<UserMappingInterface> singleUser = userMap(builder).firstOrError();
 
         return RxJava2Adapter.singleToMono(singleUser);
     }
@@ -255,8 +261,8 @@ public class UserRepository {
                 .parameter("lastname", user.getLastname())
                 .parameter("pseudo", user.getPseudo())
                 .parameter("activated", user.isActivated())
-                .parameter("password", encoder.getEncodedCredentials().getEncodedPassword())
-                .parameter("salt", encoder.getEncodedCredentials().getSalt())
+                .parameter("password", encoder.getEncodedCredential().getEncodedPassword())
+                .parameter("salt", encoder.getEncodedCredential().getSalt())
                 .parameter("id", user.getId())
                 .counts();
 
