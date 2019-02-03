@@ -1,21 +1,13 @@
 package com.evergarden.cms;
 
 import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
-import org.junit.Assert;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringRunner;
-import reactor.core.publisher.Flux;
-import reactor.core.publisher.Mono;
-import reactor.test.StepVerifier;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
-import java.time.Duration;
-
-@RunWith(SpringRunner.class)
+@ExtendWith(SpringExtension.class)
 @SpringBootTest
 public class CmsApplicationTests {
 	
@@ -46,16 +38,5 @@ public class CmsApplicationTests {
 //		StepVerifier.withVirtualTime(()->flux)
 //			.expectSubscription()
 //			.expect
-	}
-	
-	@Test
-	@Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/insertAdmin.sql")
-	public void testCapitalise() {
-		StepVerifier.create(postRepository.fetchById(1))
-			.expectNextMatches(postMappingInterface -> {
-				Assert.assertEquals("john", postMappingInterface.getAuthor());
-				return true;
-			})
-			.verifyComplete();
 	}
 }

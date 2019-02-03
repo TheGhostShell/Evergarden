@@ -7,10 +7,10 @@ import org.springframework.context.annotation.Scope;
 
 @Configuration
 public class ObjectMapperFactory {
-	
-	@Bean
-	@Scope("singleton")
-	public ObjectMapper objectMapperSingletonFactory() {
-		return new ObjectMapper();
-	}
+
+    @Bean
+    @Scope("singleton")
+    public ObjectMapper objectMapperSingletonFactory() {
+        return new ObjectMapper();
+    }
 }

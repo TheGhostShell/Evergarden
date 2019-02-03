@@ -13,7 +13,7 @@ public class Post implements PostMappingInterface {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(columnDefinition = "BIGINT")
-    private int id;
+    private Long id;
 
     @Column
     @JsonProperty("title")
@@ -33,7 +33,7 @@ public class Post implements PostMappingInterface {
         this.author = author;
     }
 
-    public int getId() {
+    public Long getId() {
         return id;
     }
 
@@ -58,7 +58,7 @@ public class Post implements PostMappingInterface {
         return new Post("", "", "");
     }
 
-    public void setId(int id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

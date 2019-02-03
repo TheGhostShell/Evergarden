@@ -10,15 +10,18 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Configuration
 public class LoginRouter {
-
-    @Bean
-    public RouterFunction<ServerResponse> loginRoute(LoginHandler handler, Environment env) {
-        return RouterFunctions.route(RequestPredicates.POST("/login"), handler::login)
-                .andRoute(RequestPredicates.GET("/"), handler::login)
-                .andRoute(RequestPredicates.POST(env.getProperty("v1") + "/guest"), handler::guest)
-                .andRoute(RequestPredicates.POST(env.getProperty("v1s") + "/user"), handler::create)
-                .andRoute(RequestPredicates.GET(env.getProperty("v1s") + "/user/{id}"), handler::read)
-                .andRoute(RequestPredicates.PUT(env.getProperty("v1s") + "/user"), handler::update)
-                .andRoute(RequestPredicates.GET(env.getProperty("v1s") + "/user"), handler::show);
-    }
+	
+	@Bean
+	public RouterFunction<ServerResponse> loginRoute(LoginHandler handler, Environment env) {
+		
+		String pathSecure = env.getProperty("v1s");
+		String pathPublic = env.getProperty("v1");
+		
+		return RouterFunctions.route(RequestPredicates.POST(pathPublic + "/login"), handler::login)
+			.andRoute(RequestPredicates.POST(pathPublic + "/guest"), handler::guest)
+			.andRoute(RequestPredicates.POST(pathSecure + "/user"), handler::create)
+			.andRoute(RequestPredicates.GET(pathSecure + "/user/{id}"), handler::read)
+			.andRoute(RequestPredicates.PUT(pathSecure + "/user"), handler::update)
+			.andRoute(RequestPredicates.GET(pathSecure + "/user"), handler::show);
+	}
 }

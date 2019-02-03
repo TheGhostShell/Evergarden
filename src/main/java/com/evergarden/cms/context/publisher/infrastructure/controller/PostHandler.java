@@ -28,26 +28,18 @@ public class PostHandler {
 
     public Mono<ServerResponse> create(ServerRequest request) {
 
-//        request.bodyToMono(String.class).map(s -> {
-//            logger.info(s);
-//            return s;
-//        }) .doOnError(throwable -> logger.error("error bad "+throwable)).subscribe();
-
         return request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(updatedPost -> {
-            System.out.println("fuck all this" + updatedPost);
 
             Mono<PostMappingInterface> post = repository
                     .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
 
             return ServerResponse.ok().body(post, PostMappingInterface.class);
         });
-
-        //return ServerResponse.ok().build();
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {
         
-        int id = Integer.parseInt(request.pathVariable("id"));
+        Long id = Long.parseLong(request.pathVariable("id"));
 
         return repository
             .fetchById(id)
@@ -63,14 +55,20 @@ public class PostHandler {
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-        
+    
+        Long id = Long.parseLong(request.pathVariable("id"));
+    
         return request
             .body(BodyExtractors.toMono(UpdatedPost.class))
-            .flatMap(updatedPost -> repository.update(updatedPost))
+            .flatMap(updatedPost -> {
+                updatedPost.setId(id);
+                return  repository.update(updatedPost);
+            })
             .onErrorReturn(Post.empty())
             .flatMap(PostHandler::handleEntityOrNotFound);
     }
-
+    
+    // TODO: 22/01/19 use long type for better code consistency
     public Mono<ServerResponse> delete(ServerRequest request) {
         
         int id = Integer.parseInt(request.pathVariable("id"));

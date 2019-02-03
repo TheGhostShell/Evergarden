@@ -1,6 +1,6 @@
 package com.evergarden.cms.context.admin.application.config;
 
-import com.evergarden.cms.context.admin.application.jwt.EvergardenEncoder;
+import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
 import com.evergarden.cms.context.admin.domain.entity.Role;
 import com.evergarden.cms.context.admin.domain.entity.RoleEnum;
 import com.evergarden.cms.context.admin.domain.entity.User;
@@ -57,9 +57,11 @@ public class DefaultAdminConfig {
                     user.setEmail("violet@mail.com");
                     user.setActivated(true);
                     user.addRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()));
+                    user.addRole(Role.createFromRawValue(RoleEnum.ADMIN.toString()));
+                    user.addRole(Role.createFromRawValue(RoleEnum.GUEST.toString()));
                     user.setFirstname("Violet");
                     user.setLastname("Evergarden");
-                    user.setEncodedCredential(encoder.getEncodedCredentials());
+                    user.setEncodedCredential(encoder.getEncodedCredential());
 
                     userRepository
                             .create(user)

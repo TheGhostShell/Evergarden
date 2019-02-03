@@ -32,7 +32,7 @@ public class PostRepository {
         return Flux.from(flowable);
     }
 
-    public Mono<PostMappingInterface> fetchById(int id) {
+    public Mono<PostMappingInterface> fetchById(Long id) {
 
         Single<PostMappingInterface> single = database
                 .select("SELECT id, title, body, author FROM evergarden_post WHERE id = :id")
@@ -55,7 +55,7 @@ public class PostRepository {
                 .getAs(Integer.class);
 
         Single<PostMappingInterface> newPost = isCreated.flatMap(id -> {
-            return this.fetchById(id.intValue());
+            return this.fetchById(id.longValue());
         }).firstOrError();
 
         return RxJava2Adapter.singleToMono(newPost);

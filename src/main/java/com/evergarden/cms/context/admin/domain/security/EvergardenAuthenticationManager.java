@@ -1,8 +1,6 @@
-package com.evergarden.cms.context.admin.application.bearer;
+package com.evergarden.cms.context.admin.domain.security;
 
-import com.evergarden.cms.context.admin.application.jwt.JWTCustomVerifier;
-import com.evergarden.cms.context.admin.domain.entity.RoleEnum;
-import com.nimbusds.jwt.SignedJWT;
+import com.evergarden.cms.context.admin.domain.security.JwtHelper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -12,7 +10,6 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import reactor.core.publisher.Mono;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -24,37 +21,40 @@ import java.util.List;
  */
 @Component
 public class EvergardenAuthenticationManager implements ReactiveAuthenticationManager {
-    
-    Logger logger;
-    
+
+    private JwtHelper jwtHelper;
+    private Logger logger;
+
     @Autowired
-    public EvergardenAuthenticationManager(Logger logger) {
+    public EvergardenAuthenticationManager(JwtHelper jwtHelper, Logger logger) {
+        this.jwtHelper = jwtHelper;
         this.logger = logger;
     }
-    
+
     /**
      * Successfully authenticate an Authentication object
      *
      * @param authentication A valid authentication object
-     * @return authentication A valid authentication object
+     * @return if authentication is successful an {@link Authentication} is returned.
+     * If authentication cannot be determined, an empty Mono is returned.
+     * If authentication fails, a Mono error is returned.
      */
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
-        
-        String            authToken         = authentication.getCredentials().toString();
-        JWTCustomVerifier jwtCustomVerifier = new JWTCustomVerifier();
-        
-        Mono<SignedJWT> jwtCustomSignerMono = jwtCustomVerifier.check(authToken);
 
-        List<SimpleGrantedAuthority> roles = new ArrayList<>();
+        String  authToken = authentication.getCredentials().toString();
+        boolean isAuth    = jwtHelper.verifyToken(authToken);
 
-        roles.add(new SimpleGrantedAuthority(RoleEnum.MASTER_ADMIN.toString()));
-        roles.add(new SimpleGrantedAuthority(RoleEnum.GUEST.toString()));
-        roles.add(new SimpleGrantedAuthority(RoleEnum.ADMIN.toString()));
-        roles.add(new SimpleGrantedAuthority(RoleEnum.USER.toString()));
+        // see https://stackoverflow.com/questions/47958622/spring-security-webflux-reactive-exception-handling
+        if (!isAuth) {
+            return Mono.empty();
+        }
 
-        Authentication au = new UsernamePasswordAuthenticationToken("violet",null, roles);
-        
-        return Mono.just(au);
+        List<SimpleGrantedAuthority> roles = jwtHelper.getRolesFromToken(authToken);
+        String                       email = jwtHelper.getEmailFromToken(authToken);
+
+        Authentication authenticated = new UsernamePasswordAuthenticationToken(email, authToken, roles);
+
+        return Mono.just(authenticated);
     }
 }

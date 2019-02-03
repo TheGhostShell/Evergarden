@@ -2,13 +2,16 @@ package com.evergarden.cms.context.admin.domain.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.Getter;
 
 @Data
 @AllArgsConstructor
-@NoArgsConstructor
-public class Token {
+public class UnAuthUser {
 
-    private String token;
+    private String email;
 
+    private String password;
+
+    public UnAuthUser() {
+    }
 }
