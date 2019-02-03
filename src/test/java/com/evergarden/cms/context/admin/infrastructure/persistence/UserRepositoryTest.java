@@ -17,7 +17,10 @@ import org.springframework.test.context.jdbc.Sql;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.NoSuchElementException;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,7 +58,11 @@ class UserRepositoryTest {
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/migration/V2018.01.15.17.09.50__init.sql")
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/createUser.sql")
     void findByEmail() {
-        // TODO missing test on getRoles() values
+
+        Collection<Role> roles = new ArrayList<>();
+        Role             role1 = (new Role("test_admin")).setId(1);
+        roles.add(role1);
+
         StepVerifier.create(userRepository.findByEmail("batou@mail.com"))
             .expectNextMatches(user -> {
                 assertEquals("batou@mail.com", user.getEmail());
@@ -65,10 +72,18 @@ class UserRepositoryTest {
                 assertEquals("password", user.getPassword());
                 assertEquals("salt", user.getSalt());
                 assertTrue(user.isActivated());
+                assertEquals(roles, user.getRoles());
 
                 return true;
             })
             .verifyComplete();
+
+        StepVerifier.create(userRepository.findByEmail("batou@mail.co"))
+            .expectErrorMatches(throwable -> {
+                assertEquals("no user with email batou@mail.co", throwable.getMessage());
+                return throwable instanceof NoSuchElementException;
+            })
+            .verify();
     }
 
     /**
@@ -81,6 +96,10 @@ class UserRepositoryTest {
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/createUser.sql")
     void fetchAll() {
 
+        Collection<Role> roles = new ArrayList<>();
+        Role             role1 = (new Role("master_admin")).setId(1);
+        roles.add(role1);
+
         StepVerifier.create(userRepository.fetchAll())
             .expectNextMatches(user -> {
                 assertEquals("violet@mail.com", user.getEmail());
@@ -90,6 +109,7 @@ class UserRepositoryTest {
                 assertNotNull(user.getPassword());
                 assertNotNull(user.getSalt());
                 assertTrue(user.isActivated());
+                assertEquals(roles, user.getRoles());
 
                 return true;
             })
@@ -103,6 +123,10 @@ class UserRepositoryTest {
     @Sql(executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD, scripts = "/db/script/createUser.sql")
     void findById() {
 
+        Collection<Role> roles = new ArrayList<>();
+        Role             role1 = (new Role("test_admin")).setId(1);
+        roles.add(role1);
+
         StepVerifier.create(userRepository.findById(1))
             .expectNextMatches(user -> {
                 assertEquals("batou@mail.com", user.getEmail());
@@ -112,6 +136,7 @@ class UserRepositoryTest {
                 assertEquals("password", user.getPassword());
                 assertEquals("salt", user.getSalt());
                 assertTrue(user.isActivated());
+                assertEquals(roles, user.getRoles());
 
                 return true;
             })

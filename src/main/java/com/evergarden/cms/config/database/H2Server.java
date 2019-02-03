@@ -9,12 +9,12 @@ import java.sql.SQLException;
 
 @Configuration
 public class H2Server {
-	
-	@Bean(initMethod = "start", destroyMethod = "stop")
-	public Server h2ServerConfiguration(Logger logger) throws SQLException {
-		
-		logger.debug("Starting h2 server database");
-		
-		return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
-	}
+
+    @Bean(initMethod = "start", destroyMethod = "stop")
+    public Server h2ServerConfiguration(Logger logger) throws SQLException {
+
+        logger.debug("Starting h2 server database");
+
+        return Server.createTcpServer("-tcp", "-tcpAllowOthers", "-tcpPort", "9092");
+    }
 }

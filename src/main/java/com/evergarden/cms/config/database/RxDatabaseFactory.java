@@ -14,23 +14,23 @@ import java.sql.SQLException;
 
 @Configuration
 public class RxDatabaseFactory {
-	
-	@Bean
-	@Scope("singleton")
-	public Database getInstance(Logger logger, Environment env) throws SQLException {
-		
-		logger.debug("Starting non blocking connection with jdbc with max pool size of : "
-			+ (Runtime.getRuntime().availableProcessors() * 4));
-		
-		NonBlockingConnectionPool pool = Pools.nonBlocking()
-			.maxPoolSize(Runtime.getRuntime().availableProcessors() * 4)
-			.connectionProvider(ConnectionProvider.from(
-				env.getProperty("spring.datasource.url"),
-				env.getProperty("spring.datasource.username"),
-				env.getProperty("spring.datasource.password")
-			))
-			.build();
-		
-		return Database.from(pool);
-	}
+
+    @Bean
+    @Scope("singleton")
+    public Database getInstance(Logger logger, Environment env) throws SQLException {
+
+        logger.debug("Starting non blocking connection with jdbc with max pool size of : "
+            + (Runtime.getRuntime().availableProcessors() * 4));
+
+        NonBlockingConnectionPool pool = Pools.nonBlocking()
+            .maxPoolSize(Runtime.getRuntime().availableProcessors() * 4)
+            .connectionProvider(ConnectionProvider.from(
+                env.getProperty("spring.datasource.url"),
+                env.getProperty("spring.datasource.username"),
+                env.getProperty("spring.datasource.password")
+            ))
+            .build();
+
+        return Database.from(pool);
+    }
 }

@@ -1,19 +1,18 @@
 package com.evergarden.cms.context.admin.infrastructure.controller;
 
 import com.evergarden.cms.context.admin.domain.entity.*;
+import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
+import com.evergarden.cms.context.admin.domain.security.JwtHelper;
+import com.evergarden.cms.context.admin.infrastructure.controller.response.UserCreateResponse;
+import com.evergarden.cms.context.admin.infrastructure.controller.response.UserResponse;
 import com.evergarden.cms.context.admin.infrastructure.persistence.UserRepository;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
-import com.evergarden.cms.context.admin.application.jwt.JWTTokenService;
-import com.evergarden.cms.context.admin.infrastructure.controller.response.UserCreateResponse;
-import com.evergarden.cms.context.admin.infrastructure.controller.response.UserResponse;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -42,14 +41,17 @@ public class LoginHandler {
 
     private Environment env;
 
+    private JwtHelper jwtHelper;
+
     @Autowired
     public LoginHandler(UserRepository userRepository, Logger logger, ObjectMapper objectMapper,
-                        EvergardenEncoder encoder, Environment env) {
+                        EvergardenEncoder encoder, Environment env, JwtHelper jwtHelper) {
         this.userRepository = userRepository;
         this.logger = logger;
         this.objectMapper = objectMapper;
         this.encoder = encoder;
         this.env = env;
+        this.jwtHelper = jwtHelper;
     }
 
     public Mono<ServerResponse> login(ServerRequest request) {
@@ -65,22 +67,28 @@ public class LoginHandler {
                         EvergardenEncoder encoder = new EvergardenEncoder(env, logger, encodedCredential);
 
                         boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
+                        logger.info("is valid pass "+ isValidPass);
                         Collection<Role> roles = user.getRoles();
                         if (isValidPass) {
-                            ArrayList<GrantedAuthority> authorities = new ArrayList();
+                            ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
                             user.getRoles().stream()
                                 .peek(role -> {
                                     authorities.add(new SimpleGrantedAuthority(role.getRoleValue()));
                                 })
                                 .count();
-
-                            String token = JWTTokenService.generateToken(user.getEmail(), authorities);
+                            logger.info("try to generate token");
+                            Token token = jwtHelper.generateToken(user.getEmail(), authorities);
+                            logger.info("token is generated with this value " + token.getToken());
 
                             return ServerResponse.ok()
-                                .body(BodyInserters.fromObject(new Token(token)));
+                                .body(BodyInserters.fromObject(token));
                         }
                         // TODO generate token if pass is valid and maybe save it in cache
 
+                        return ServerResponse.badRequest().build();
+                    })
+                    .onErrorResume(throwable -> {
+                        logger.info(throwable.toString());
                         return ServerResponse.badRequest().build();
                     });
             });
@@ -162,9 +170,12 @@ public class LoginHandler {
      * @return
      */
     public Mono<ServerResponse> guest(ServerRequest request) {
+        // TODO extract email from request if present
         return request.body(BodyExtractors.toMono(Guest.class))
             .flatMap(guest -> {
-                String token = JWTTokenService.generateGuestToken(guest.getSubject());
+                ArrayList<SimpleGrantedAuthority> authoritie = new ArrayList<>();
+                authoritie.add(new SimpleGrantedAuthority("ROLE_GUEST"));
+                String token = jwtHelper.generateToken("guest@mail.com", authoritie, 1L).getToken();
                 guest.setToken(token);
                 return ServerResponse.ok()
                     .body(Mono.just(guest), Guest.class);
@@ -196,6 +207,14 @@ public class LoginHandler {
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
+        return request
+            .body(BodyExtractors.toMono(UpdatedUser.class))
+            .flatMap(updatedUser -> userRepository.update(updatedUser))
+            .flatMap(userMappingInterface -> ServerResponse.ok().body(Mono
+                .just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class));
+    }
+
+    public Mono<ServerResponse> addRole(ServerRequest request) {
         return request
             .body(BodyExtractors.toMono(UpdatedUser.class))
             .flatMap(updatedUser -> userRepository.update(updatedUser))

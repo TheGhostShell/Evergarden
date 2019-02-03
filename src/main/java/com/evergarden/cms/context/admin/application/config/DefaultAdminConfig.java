@@ -57,6 +57,8 @@ public class DefaultAdminConfig {
                     user.setEmail("violet@mail.com");
                     user.setActivated(true);
                     user.addRole(Role.createFromRawValue(RoleEnum.MASTER_ADMIN.toString()));
+                    user.addRole(Role.createFromRawValue(RoleEnum.ADMIN.toString()));
+                    user.addRole(Role.createFromRawValue(RoleEnum.GUEST.toString()));
                     user.setFirstname("Violet");
                     user.setLastname("Evergarden");
                     user.setEncodedCredential(encoder.getEncodedCredential());
