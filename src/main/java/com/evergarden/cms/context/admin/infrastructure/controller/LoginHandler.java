@@ -170,15 +170,22 @@ public class LoginHandler {
      * @return
      */
     public Mono<ServerResponse> guest(ServerRequest request) {
-        // TODO extract email from request if present
+        // TODO extract email from request if present return error if no subject field filled
         return request.body(BodyExtractors.toMono(Guest.class))
             .flatMap(guest -> {
+                logger.warn("no log");
                 ArrayList<SimpleGrantedAuthority> authoritie = new ArrayList<>();
                 authoritie.add(new SimpleGrantedAuthority("ROLE_GUEST"));
-                String token = jwtHelper.generateToken("guest@mail.com", authoritie, 1L).getToken();
-                guest.setToken(token);
+                String subject = guest.getSubject();
+                Guest guest1 = new Guest();
+                logger.warn(subject);
+                if(guest.getSubject() == null) {
+                    subject = "unknow";
+                }
+                String token = jwtHelper.generateToken(subject, authoritie, 1L).getToken();
+                guest1.setToken(token);
                 return ServerResponse.ok()
-                    .body(Mono.just(guest), Guest.class);
+                    .body(Mono.just(guest1), Guest.class);
             });
     }
 
