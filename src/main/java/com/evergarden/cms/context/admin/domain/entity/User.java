@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "evergarden_user")
-public class User implements UserMappingInterface, UserDetails {
+public class User implements UserMappingInterface {
     
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -47,29 +47,6 @@ public class User implements UserMappingInterface, UserDetails {
     
     @Transient
     private EncodedCredential encodedCredential;
-    
-    public Collection<? extends GrantedAuthority> getAuthorities() {
-        return this.roles
-            .stream()
-            .map(authority -> new SimpleGrantedAuthority(authority.getRoleValue()))
-            .collect(Collectors.toList());
-    }
-    
-    public boolean isAccountNonExpired() {
-        return false;
-    }
-    
-    public boolean isAccountNonLocked() {
-        return false;
-    }
-    
-    public boolean isCredentialsNonExpired() {
-        return false;
-    }
-    
-    public boolean isEnabled() {
-        return true;
-    }
     
     // Setter
     
