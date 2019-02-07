@@ -35,7 +35,7 @@ class UpdatedUserTest {
         assertEquals("Batou", updatedUser.getPseudo());
         assertEquals("password", updatedUser.getPassword());
         assertTrue(updatedUser.isActivated());
-        //updatedUser.getRoles()
+        assertEquals(roles, updatedUser.getRoles());
     }
 
     @Test
@@ -61,6 +61,7 @@ class UpdatedUserTest {
         assertEquals("Batou", updatedUser.getPseudo());
         assertEquals("pass", updatedUser.getPassword());
         assertTrue(updatedUser.isActivated());
+        assertEquals(roles, updatedUser.getRoles());
     }
 
 }
