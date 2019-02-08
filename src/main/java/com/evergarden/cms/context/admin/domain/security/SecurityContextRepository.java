@@ -32,7 +32,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
 
         ServerHttpRequest request    = exchange.getRequest();
         String            authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
-
+        
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
 
             String         authToken = authHeader.substring(7);
@@ -43,7 +43,6 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
                 .map(SecurityContextImpl::new);
 
         } else {
-
             return Mono.empty();
         }
     }
