@@ -197,6 +197,7 @@ public class UserRepository {
 
 
     public Mono<Integer> create(UserMappingInterface user) {
+        logger.warn("inside the target crate user method");
         String createUserSql = "INSERT INTO evergarden_user (email, password, firstname, lastname, activated, salt, pseudo) " +
             "VALUES (:email, :password, :firstname, :lastname, :activated, :salt, :pseudo) ";
 
@@ -223,6 +224,8 @@ public class UserRepository {
 
         }).firstOrError();
 
+
+        logger.warn("the integer is "+singleInteger.toString());
         return RxJava2Adapter.singleToMono(singleInteger);
     }
 

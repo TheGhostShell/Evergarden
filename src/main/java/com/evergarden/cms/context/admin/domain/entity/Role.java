@@ -1,12 +1,14 @@
 package com.evergarden.cms.context.admin.domain.entity;
 
 import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 
 @Entity
 @Table(name = "evergarden_role")
 @EqualsAndHashCode
+@NoArgsConstructor
 public class Role {
 
     @Id

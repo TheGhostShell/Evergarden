@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.admin.domain.entity;
 
+import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -11,6 +12,7 @@ import java.util.stream.Collectors;
 
 @Entity
 @Table(name = "evergarden_user")
+@ToString
 public class User implements UserMappingInterface {
     
     @Id

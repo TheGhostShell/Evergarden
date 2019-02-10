@@ -67,7 +67,7 @@ public class LoginHandler {
                         EvergardenEncoder encoder = new EvergardenEncoder(env, logger, encodedCredential);
 
                         boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
-                        logger.info("is valid pass "+ isValidPass);
+                        logger.info("is valid pass " + isValidPass);
                         Collection<Role> roles = user.getRoles();
                         if (isValidPass) {
                             ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
@@ -107,14 +107,10 @@ public class LoginHandler {
             })
             .flatMap(jsonNode -> {
                 try {
-                    encoder.encode(jsonNode.get("user")
-                        .get("password")
-                        .asText());
-                    User user = new User();
+                    encoder.encode(jsonNode.get("user").get("password").asText());
 
-                    user.setEmail(jsonNode.get("user")
-                        .get("email")
-                        .asText())
+                    User user = new User();
+                    user.setEmail(jsonNode.get("user").get("email").asText())
                         .setFirstname(jsonNode.get("user").get("firstname").asText())
                         .setLastname(jsonNode.get("user").get("lastname").asText())
                         .setPseudo(jsonNode.get("user").get("pseudo").asText())
@@ -123,30 +119,25 @@ public class LoginHandler {
                     Iterator<JsonNode> it = jsonNode.get("user").get("roles").elements();
 
                     while (it.hasNext()) {
-                        user.addRole(new Role(it.next()
-                            .asText()));
+                        user.addRole(new Role(it.next().asText()));
                     }
-
+                    logger.warn("Before null pointer exception" + user.toString());
+                    logger.warn(userRepository.toString());
                     return userRepository.create(user)
                         .flatMap(integer -> {
                             if (integer > 0) {
 
-                                return userRepository.findById(integer)
-                                    .flatMap(userMappingInterface -> {
+                                return userRepository.findById(integer).flatMap(userMappingInterface -> {
+
                                         UserCreateResponse userCreateResponse =
-                                            UserCreateResponse.mapToUserResponse(userMappingInterface)
-                                                .dropRoles();
-                                        user.getRoles()
-                                            .stream()
-                                            .peek(role -> {
-                                                userCreateResponse.addRole(role.getRoleValue());
-                                            })
+                                            UserCreateResponse.mapToUserResponse(userMappingInterface).dropRoles();
+
+                                        user.getRoles().stream()
+                                            .peek(role -> userCreateResponse.addRole(role.getRoleValue()))
                                             .count();
-                                        Mono<UserCreateResponse> userResponseMono =
-                                            Mono.just(userCreateResponse);
 
                                         return ServerResponse.ok()
-                                            .body(userResponseMono, UserCreateResponse.class);
+                                            .body(Mono.just(userCreateResponse), UserCreateResponse.class);
                                     })
                                     .onErrorResume(throwable -> ServerResponse.badRequest().build());
                             } else {
@@ -156,8 +147,7 @@ public class LoginHandler {
                         .onErrorResume(throwable -> ServerResponse.badRequest().build());
 
                 } catch (NullPointerException e) {
-                    return ServerResponse.badRequest()
-                        .build();
+                    return ServerResponse.badRequest().build();
                 }
             });
     }
@@ -177,9 +167,9 @@ public class LoginHandler {
                 ArrayList<SimpleGrantedAuthority> authoritie = new ArrayList<>();
                 authoritie.add(new SimpleGrantedAuthority("ROLE_GUEST"));
                 String subject = guest.getSubject();
-                Guest guest1 = new Guest();
+                Guest  guest1  = new Guest();
                 logger.warn(subject);
-                if(guest.getSubject() == null) {
+                if (guest.getSubject() == null) {
                     subject = "unknow";
                 }
                 String token = jwtHelper.generateToken(subject, authoritie, 1L).getToken();
@@ -196,12 +186,10 @@ public class LoginHandler {
 
                 UserResponse us = UserResponse.mapToUserResponse(userMappingInterface);
 
-                return Mono.just(us);
+                return ServerResponse.ok()
+                    .body(Mono.just(us), UserResponse.class);
             })
-            .flatMap(userResponse -> ServerResponse.ok()
-                .body(Mono.just(userResponse), UserResponse.class))
-            .onErrorResume(throwable -> ServerResponse.notFound()
-                .build());
+            .onErrorResume(throwable -> ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> show(ServerRequest request) {
