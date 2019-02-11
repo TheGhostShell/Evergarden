@@ -262,10 +262,9 @@ class UserRepositoryTest {
                     })
                     .verifyComplete();
 
-
                 return true;
-            }).verifyComplete();
-
+            })
+            .verifyComplete();
     }
 
     @Test

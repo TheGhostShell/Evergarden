@@ -33,6 +33,7 @@ public class UserRepository {
     }
 
     public Mono<UserMappingInterface> findByEmail(String email) {
+        logger.warn("find by email test");
         String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.pseudo, u.activated, u.salt, u.password, " +
             "GROUP_CONCAT(DISTINCT CONCAT(r.id, ':', r.role)) AS concat_role " +
             "FROM evergarden_user u " +
