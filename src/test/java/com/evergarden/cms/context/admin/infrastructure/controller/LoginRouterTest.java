@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
+import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +27,7 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import reactor.core.publisher.Mono;
+import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -58,12 +60,15 @@ class LoginRouterTest {
 
     private JwtHelper jwtHelper;
 
+    UserRepository mockRep;
+
     @BeforeEach
     void setUp() {
         // TODO refactor LoginHandler constructor parameter to simplify reduce number argument
         encoder = new EvergardenEncoder(env, logger);
+        mockRep = mock(UserRepository.class);
         jwtHelper = new JwtHelper(new JwtRequest(env.getProperty("jwt.secret")), logger);
-        loginHandler = new LoginHandler(userRepository, logger, objectMapper, encoder, env, jwtHelper);
+        loginHandler = new LoginHandler(mockRep, logger, objectMapper, encoder, env, jwtHelper);
         router = (new LoginRouter()).loginRoute(loginHandler, env);
         client = WebTestClient.bindToRouterFunction(router).build();
     }
@@ -159,6 +164,9 @@ class LoginRouterTest {
         ArrayList<String> roles = new ArrayList<>();
         roles.add("COFFEE_MAKER");
 
+        Role targetRole = new Role("coffee_maker");
+        targetRole.setId(1);
+
         String d = "{\n" +
             "\t\"user\": {\n" +
             "\t\t\"firstname\":\"Batou\",\n" +
@@ -186,7 +194,19 @@ class LoginRouterTest {
             .addRole(new Role("admin"))
             .setEncodedCredential(encoder.getEncodedCredential());
 
+        BDDMockito.given(userRepository.create(userToSave)).willReturn(Mono.just(new Integer("1")));
+        BDDMockito.given(userRepository.createUserRole(targetRole, 1)).willReturn(Mono.just(targetRole));
+        BDDMockito.given(userRepository.createRole(new Role("coffee_maker"))).willReturn(Mono.just(targetRole));
+        BDDMockito.given(userRepository.findRole(new Role("coffee_maker"))).willReturn(Mono.just(targetRole));
         BDDMockito.given(userRepository.findById(1)).willReturn(Mono.just(userToSave));
+        when(mockRep.create(any(User.class))).thenReturn(Mono.just(1));
+        //doAnswer(Mono.just(1)).when(mockRep).create(userToSave);
+
+
+
+
+
+
 
         //userToSave.setId(1);
 
@@ -196,9 +216,10 @@ class LoginRouterTest {
             .uri(env.getProperty("v1s")+"/user")
             .syncBody(dataBuffer)
             .exchange()
-            .expectBody(UserCreateResponse.class)
+            .expectBody(Integer.class)
             .consumeWith(userCreateResponseEntityExchangeResult -> {
-                UserCreateResponse user = userCreateResponseEntityExchangeResult.getResponseBody();
+                Integer user = userCreateResponseEntityExchangeResult.getResponseBody();
+                assertEquals(1, user.intValue());
                 //user.getEmail();
                 //assertEquals("batou@mail.com", user.getEmail());
             });

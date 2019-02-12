@@ -123,8 +123,8 @@ public class LoginHandler {
                         user.addRole(new Role(it.next().asText()));
                     }
 
-                    Mono<UserMappingInterface> integerMono = userRepository.findById(1);
-                    return ServerResponse.ok().body(integerMono, UserMappingInterface.class);
+                    Mono<Integer> integerMono = userRepository.create(user);
+                    return ServerResponse.ok().body(integerMono, Integer.class);
 //                    return userRepository.create(user)
 //                        .flatMap(integer -> {
 //                            logger.warn("maybe integer is null"+ integer);

@@ -94,9 +94,10 @@ public class UserRepository {
     }
 
     private Flowable<UserMappingInterface> userMap(SelectBuilder builder) {
-        User u = new User();
+
         return builder
             .get(rs -> {
+                User u = new User();
                 String roles = rs.getString("concat_role");
 
                 logger.warn("the value is null fuck !! " + roles);
@@ -224,7 +225,6 @@ public class UserRepository {
             return userId;
 
         }).firstOrError();
-
 
         logger.warn("the integer is "+singleInteger.toString());
         return RxJava2Adapter.singleToMono(singleInteger);
