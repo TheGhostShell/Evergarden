@@ -13,9 +13,9 @@ class UpdatedUserTest {
 
     @Test
     void createInstanceAllParamConstructor() {
-        Collection<SimpleGrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
-        roles.add(new SimpleGrantedAuthority("ROLE_GUEST"));
+        Collection<Role> roles = new ArrayList<>();
+        roles.add(new Role("ADMIN"));
+        roles.add(new Role("GUEST"));
 
         UpdatedUser updatedUser = new UpdatedUser(
             1,
@@ -40,8 +40,8 @@ class UpdatedUserTest {
 
     @Test
     void createInstanceWithDefaultConstructor() {
-        Collection<SimpleGrantedAuthority> roles = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+        Collection<Role> roles = new ArrayList<>();
+        roles.add(new Role("ADMIN"));
 
         UpdatedUser updatedUser = new UpdatedUser();
 

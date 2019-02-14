@@ -95,17 +95,21 @@ public class LoginHandler {
             });
     }
 
+    private Mono<JsonNode> bodyToJsonNode(Mono<DataBuffer> buffer) {
+
+        return buffer.flatMap(dataBuffer -> {
+            try {
+                return Mono.just(objectMapper.readTree(dataBuffer.asInputStream()))
+                    .publishOn(Schedulers.elastic());
+            } catch (IOException e) {
+                return Mono.empty();
+            }
+        });
+    }
+
     public Mono<ServerResponse> create(ServerRequest request) {
 
-        return request.bodyToMono(DataBuffer.class)
-            .flatMap(dataBuffer -> {
-                try {
-                    return Mono.just(objectMapper.readTree(dataBuffer.asInputStream()))
-                        .publishOn(Schedulers.elastic());
-                } catch (IOException e) {
-                    return Mono.empty();
-                }
-            })
+        return bodyToJsonNode(request.bodyToMono(DataBuffer.class))
             .flatMap(jsonNode -> {
                 try {
                     encoder.encode(jsonNode.get("user").get("password").asText());
@@ -210,22 +214,43 @@ public class LoginHandler {
             .body(userResponseFlux, UserResponse.class);
     }
 
+    // TODO refactor and use private method as create()
     public Mono<ServerResponse> update(ServerRequest request) {
 
-        return request
-            .body(BodyExtractors.toMono(UpdatedUser.class))
-            .flatMap(updatedUser -> userRepository.update(updatedUser))
+        return bodyToJsonNode(request.bodyToMono(DataBuffer.class))
+            .flatMap(jsonNode -> {
+
+                UpdatedUser us = new UpdatedUser();
+                us.setEmail(jsonNode.get("email").asText());
+                us.setFirstname(jsonNode.get("firstname").asText());
+                us.setLastname(jsonNode.get("lastname").asText());
+                us.setPseudo(jsonNode.get("pseudo").asText());
+                us.setPassword(jsonNode.get("password").asText());
+                us.setId(jsonNode.get("id").asInt());
+
+                Iterator<JsonNode> it    = jsonNode.get("roles").elements();
+                Collection<Role>   roles = new ArrayList<>();
+
+                while (it.hasNext()) {
+                    roles.add(new Role(it.next().asText()));
+                }
+
+                us.setRoles(roles);
+
+                return userRepository.update(us);
+            })
             .flatMap(userMappingInterface -> ServerResponse.ok().body(
                 Mono.just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class)
             );
     }
 
-    // Todo really used ?
+    // TODO really used ?
     private Mono<ServerResponse> addRole(ServerRequest request) {
         return request
             .body(BodyExtractors.toMono(UpdatedUser.class))
             .flatMap(updatedUser -> userRepository.update(updatedUser))
             .flatMap(userMappingInterface -> ServerResponse.ok().body(Mono
-                .just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class));
+                .just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class)
+            );
     }
 }

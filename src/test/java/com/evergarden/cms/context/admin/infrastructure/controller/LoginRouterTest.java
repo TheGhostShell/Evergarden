@@ -209,6 +209,7 @@ class LoginRouterTest {
             });
     }
 
+    // TODO some writing method don't need to return the new modified value
     @Test
     void update() {
         encoder.encode("pass");

@@ -18,5 +18,5 @@ public class UpdatedUser {
     private String lastname;
     private String pseudo;
     private String password;
-    private Collection roles;
+    private Collection<Role> roles;
 }
