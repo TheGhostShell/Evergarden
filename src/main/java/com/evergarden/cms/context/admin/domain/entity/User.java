@@ -108,12 +108,12 @@ public class User implements UserMappingInterface {
         return email;
     }
     
-    public String getFirstName() {
+    public String getFirstname() {
         return firstname;
     }
     
     @Override
-    public String getLastName() {
+    public String getLastname() {
         return lastname;
     }
     

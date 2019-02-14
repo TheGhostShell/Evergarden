@@ -25,8 +25,8 @@ class UserTest {
         user.addRole(new Role("admin"));
 
         assertEquals("batou@mail.com", user.getEmail());
-        assertEquals("Ranger", user.getLastName());
-        assertEquals("Batou", user.getFirstName());
+        assertEquals("Ranger", user.getLastname());
+        assertEquals("Batou", user.getFirstname());
         assertEquals("Batou", user.getPseudo());
         assertEquals("salt", user.getSalt());
         assertEquals("password", user.getPassword());

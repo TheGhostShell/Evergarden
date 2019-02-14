@@ -12,7 +12,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.mockito.Mockito;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,12 +20,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
-import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
 import reactor.core.publisher.Mono;
+
 import static org.mockito.Mockito.*;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -60,15 +59,12 @@ class LoginRouterTest {
 
     private JwtHelper jwtHelper;
 
-    UserRepository mockRep;
-
     @BeforeEach
     void setUp() {
         // TODO refactor LoginHandler constructor parameter to simplify reduce number argument
         encoder = new EvergardenEncoder(env, logger);
-        mockRep = mock(UserRepository.class);
         jwtHelper = new JwtHelper(new JwtRequest(env.getProperty("jwt.secret")), logger);
-        loginHandler = new LoginHandler(mockRep, logger, objectMapper, encoder, env, jwtHelper);
+        loginHandler = new LoginHandler(userRepository, logger, objectMapper, encoder, env, jwtHelper);
         router = (new LoginRouter()).loginRoute(loginHandler, env);
         client = WebTestClient.bindToRouterFunction(router).build();
     }
@@ -162,12 +158,9 @@ class LoginRouterTest {
     @Test
     void create() {
         ArrayList<String> roles = new ArrayList<>();
-        roles.add("COFFEE_MAKER");
+        roles.add("ROLE_COFFEE_MAKER");
 
-        Role targetRole = new Role("coffee_maker");
-        targetRole.setId(1);
-
-        String d = "{\n" +
+        String data = "{\n" +
             "\t\"user\": {\n" +
             "\t\t\"firstname\":\"Batou\",\n" +
             "\t\t\"lastname\": \"Ranger\",\n" +
@@ -180,7 +173,7 @@ class LoginRouterTest {
             "\t}\n" +
             "}";
 
-        DataBuffer dataBuffer = (new DefaultDataBufferFactory()).wrap(d.getBytes());
+        DataBuffer dataBuffer = (new DefaultDataBufferFactory()).wrap(data.getBytes());
 
         encoder.encode("pass");
 
@@ -194,34 +187,76 @@ class LoginRouterTest {
             .addRole(new Role("admin"))
             .setEncodedCredential(encoder.getEncodedCredential());
 
-        BDDMockito.given(userRepository.create(userToSave)).willReturn(Mono.just(new Integer("1")));
-        BDDMockito.given(userRepository.createUserRole(targetRole, 1)).willReturn(Mono.just(targetRole));
-        BDDMockito.given(userRepository.createRole(new Role("coffee_maker"))).willReturn(Mono.just(targetRole));
-        BDDMockito.given(userRepository.findRole(new Role("coffee_maker"))).willReturn(Mono.just(targetRole));
+        BDDMockito.given(userRepository.create(any(User.class))).willReturn(Mono.just(1));
+
+        userToSave.setId(1);
+
         BDDMockito.given(userRepository.findById(1)).willReturn(Mono.just(userToSave));
-        when(mockRep.create(any(User.class))).thenReturn(Mono.just(1));
-        //doAnswer(Mono.just(1)).when(mockRep).create(userToSave);
-
-
-
-
-
-
-
-        //userToSave.setId(1);
-
-        //BDDMockito.given(userRepository.findById(2)).willReturn(Mono.just(userToSave));
 
         client.post()
-            .uri(env.getProperty("v1s")+"/user")
+            .uri(env.getProperty("v1s") + "/user")
             .syncBody(dataBuffer)
             .exchange()
-            .expectBody(Integer.class)
+            .expectBody(UserCreateResponse.class)
             .consumeWith(userCreateResponseEntityExchangeResult -> {
-                Integer user = userCreateResponseEntityExchangeResult.getResponseBody();
-                assertEquals(1, user.intValue());
-                //user.getEmail();
-                //assertEquals("batou@mail.com", user.getEmail());
+                UserCreateResponse user = userCreateResponseEntityExchangeResult.getResponseBody();
+                assertEquals("batou@mail.com", user.getEmail());
+                assertEquals("Batou", user.getFirstname());
+                assertEquals("Ranger", user.getLastname());
+                assertEquals("Batou", user.getPseudo());
+                assertEquals(1, user.getId());
+                assertEquals(roles, user.getRoles());
             });
+    }
+
+    @Test
+    void update() {
+        encoder.encode("pass");
+
+        Collection<Role> roles = new ArrayList<>();
+        roles.add(new Role("admin").setId(1));
+
+        UpdatedUser updatedUser = new UpdatedUser(
+            1,
+            true,
+            "batou@mail.com",
+            "Batou",
+            "Ranger",
+            "Batou",
+            "pass",
+            roles
+        );
+
+        User user = new User();
+        user.setId(1);
+        user.setEmail("batou@mail.com");
+        user.setFirstname("Batou");
+        user.setLastname("Ranger");
+        user.setPseudo("Batou");
+        user.setActivated(true);
+        user.setEncodedCredential(encoder.getEncodedCredential());
+        user.addRole(new Role("admin").setId(1));
+
+        BDDMockito.given(userRepository.update(any(UpdatedUser.class))).willReturn(Mono.just(user));
+
+        client.put()
+            .uri(env.getProperty("v1s") + "/user")
+            .syncBody(updatedUser)
+            .exchange()
+            .expectStatus().isOk()
+            .expectBody(UserResponse.class)
+            .consumeWith(userCreateResponseExchangeResult -> {
+                UserResponse us = userCreateResponseExchangeResult.getResponseBody();
+                assertEquals("batou@mail.com", us.getEmail());
+                assertEquals("Batou", us.getFirstname());
+                assertEquals("Ranger", us.getLastname());
+                assertEquals("Batou", us.getPseudo());
+                assertEquals(1, us.getId());
+            });
+    }
+
+    @Test
+    void show() {
+
     }
 }

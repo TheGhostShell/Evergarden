@@ -66,8 +66,8 @@ class UserRepositoryTest {
         StepVerifier.create(userRepository.findByEmail("batou@mail.com"))
             .expectNextMatches(user -> {
                 assertEquals("batou@mail.com", user.getEmail());
-                assertEquals("batou", user.getFirstName());
-                assertEquals("ranger", user.getLastName());
+                assertEquals("batou", user.getFirstname());
+                assertEquals("ranger", user.getLastname());
                 assertEquals("batou", user.getPseudo());
                 assertEquals("password", user.getPassword());
                 assertEquals("salt", user.getSalt());
@@ -103,8 +103,8 @@ class UserRepositoryTest {
         StepVerifier.create(userRepository.fetchAll())
             .expectNextMatches(user -> {
                 assertEquals("violet@mail.com", user.getEmail());
-                assertEquals("Violet", user.getFirstName());
-                assertEquals("Evergarden", user.getLastName());
+                assertEquals("Violet", user.getFirstname());
+                assertEquals("Evergarden", user.getLastname());
                 assertNull(user.getPseudo());
                 assertNotNull(user.getPassword());
                 assertNotNull(user.getSalt());
@@ -130,8 +130,8 @@ class UserRepositoryTest {
         StepVerifier.create(userRepository.findById(1))
             .expectNextMatches(user -> {
                 assertEquals("batou@mail.com", user.getEmail());
-                assertEquals("batou", user.getFirstName());
-                assertEquals("ranger", user.getLastName());
+                assertEquals("batou", user.getFirstname());
+                assertEquals("ranger", user.getLastname());
                 assertEquals("batou", user.getPseudo());
                 assertEquals("password", user.getPassword());
                 assertEquals("salt", user.getSalt());
@@ -251,8 +251,8 @@ class UserRepositoryTest {
                     .expectNextMatches(user -> {
 
                         assertEquals("motoko@section9.net", user.getEmail());
-                        assertEquals("Motoko", user.getFirstName());
-                        assertEquals("Kusanagi", user.getLastName());
+                        assertEquals("Motoko", user.getFirstname());
+                        assertEquals("Kusanagi", user.getLastname());
                         assertEquals("hack9", user.getPseudo());
                         assertEquals(credential.getEncodedPassword(), user.getPassword());
                         assertEquals(credential.getSalt(), user.getSalt());
@@ -276,8 +276,8 @@ class UserRepositoryTest {
             .expectNextMatches(user -> {
 
                 assertEquals("batou@mail.com", user.getEmail());
-                assertEquals("batou", user.getFirstName());
-                assertEquals("ranger", user.getLastName());
+                assertEquals("batou", user.getFirstname());
+                assertEquals("ranger", user.getLastname());
                 assertEquals("batou", user.getPseudo());
                 assertEquals("password", user.getPassword());
                 assertEquals("salt", user.getSalt());
@@ -309,8 +309,8 @@ class UserRepositoryTest {
             .expectNextMatches(user -> {
 
                 assertEquals("motoko@section9.net", user.getEmail());
-                assertEquals("Motoko", user.getFirstName());
-                assertEquals("Kusanagi", user.getLastName());
+                assertEquals("Motoko", user.getFirstname());
+                assertEquals("Kusanagi", user.getLastname());
                 assertEquals("hack9", user.getPseudo());
                 assertNotNull(user.getPassword());
                 assertNotNull(user.getSalt());

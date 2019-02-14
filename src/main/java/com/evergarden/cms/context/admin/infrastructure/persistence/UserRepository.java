@@ -206,8 +206,8 @@ public class UserRepository {
         Flowable<Integer> record = database.update(createUserSql)
             .parameter("email", user.getEmail())
             .parameter("password", user.getPassword())
-            .parameter("firstname", user.getFirstName())
-            .parameter("lastname", user.getLastName())
+            .parameter("firstname", user.getFirstname())
+            .parameter("lastname", user.getLastname())
             .parameter("activated", user.isActivated())
             .parameter("salt", user.getSalt())
             .parameter("pseudo", user.getPseudo())
@@ -276,7 +276,18 @@ public class UserRepository {
             .parameter("id", user.getId())
             .counts();
 
-        Single<UserMappingInterface> singleUser = isUpdated.flatMap(integer -> findById(integer)).firstOrError();
+        Single<UserMappingInterface> singleUser = isUpdated
+            .flatMap(integer -> {
+                // TODO Remove first all role then save new ones
+//                Flux<Role> flux = Flux.fromStream(user.getRoles()
+//                    .stream());
+//
+//                flux.map(role -> createUserRole(role, user.getId()).subscribe())
+//                    .subscribe();
+
+                return findById(user.getId());
+            })
+            .firstOrError();
 
         return RxJava2Adapter.singleToMono(singleUser);
     }
