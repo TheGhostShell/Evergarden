@@ -43,7 +43,6 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
                 .map(SecurityContextImpl::new);
 
         } else {
-
             return Mono.empty();
         }
     }

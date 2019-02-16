@@ -7,10 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 class EncodedCredentialTest {
 	
 	@Test
-	void getSalt() {
-	}
-	
-	@Test
-	void getEncodedPassword() {
+	void testGetter() {
+		EncodedCredential encodedCredential = new EncodedCredential("salt", "password");
+		
+		assertEquals("salt", encodedCredential.getSalt());
+		assertEquals("password", encodedCredential.getEncodedPassword());
+		
 	}
 }

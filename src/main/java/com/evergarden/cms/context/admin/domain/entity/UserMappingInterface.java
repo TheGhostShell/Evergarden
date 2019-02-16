@@ -19,10 +19,10 @@ public interface UserMappingInterface {
 	String getSalt();
 	
 	@Column("firstname")
-	String getFirstName();
+	String getFirstname();
 	
 	@Column("lastname")
-	String getLastName();
+	String getLastname();
 	
 	@Column("pseudo")
 	String getPseudo();
