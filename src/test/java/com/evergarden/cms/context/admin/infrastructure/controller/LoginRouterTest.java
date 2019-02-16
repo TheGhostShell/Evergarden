@@ -24,6 +24,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.Mockito.*;
@@ -258,6 +259,51 @@ class LoginRouterTest {
 
     @Test
     void show() {
+        User u1 = new User();
+        u1.setId(1);
+        u1.setEmail("batou@mail.com");
+        u1.setFirstname("Batou");
+        u1.setLastname("Ranger");
+        u1.setPseudo("Batou");
+        u1.setActivated(true);
+        u1.addRole(new Role("admin").setId(1));
 
+        User u2 = new User();
+        u2.setId(1);
+        u2.setEmail("denver@mail.com");
+        u2.setFirstname("denver");
+        u2.setLastname("dino");
+        u2.setPseudo("denver");
+        u2.setActivated(true);
+        u2.addRole(new Role("writer").setId(2));
+
+        User u3 = new User();
+        u3.setId(1);
+        u3.setEmail("motoko@mail.com");
+        u3.setFirstname("motoko");
+        u3.setLastname("kisanagi");
+        u3.setPseudo("moto");
+        u3.setActivated(true);
+        u3.addRole(new Role("major").setId(3));
+
+        BDDMockito.given(userRepository.fetchAll()).willReturn(Flux.just(u1, u2, u3));
+
+        client.get()
+            .uri(env.getProperty("v1s") + "/user")
+            .exchange()
+            .expectStatus().isOk()
+            .expectBodyList(UserResponse.class)
+            .consumeWith(listEntityExchangeResult -> {
+                UserResponse ur1 = listEntityExchangeResult.getResponseBody().get(0);
+
+                assertEquals("batou@mail.com", ur1.getEmail());
+                assertEquals(1, ur1.getId());
+                assertNotNull(ur1.getRoles());
+                assertEquals(1, ur1.getRoles().toArray().length);
+                assertEquals("Batou", ur1.getPseudo());
+                assertEquals("Ranger", ur1.getLastname());
+                assertEquals("Batou", ur1.getFirstname());
+            })
+            .hasSize(3);
     }
 }

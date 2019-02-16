@@ -197,20 +197,21 @@ public class UserRepository {
     }
 
     //Todo refactor
-//    public Mono<Role> findRoleByCriteria(String role, int userId) {
-//        String sql = "SELECT * FROM user_roles WHERE role = :role AND user_id = :userId";
-//
-//        Single<Role> roleSingle = database.select(sql)
-//                .parameter("role", role)
-//                .parameter("user_id", userId)
-//                .get(rs -> {
-//                    Role r = new Role(rs.getInt("user_id"), rs.getString("role"));
-//                    return r;
-//                })
-//                .firstOrError();
-//
-//        return RxJava2Adapter.singleToMono(roleSingle);
-//    }
+    public Mono<Role> findRoleByCriteria(Role role, int userId) {
+        String sql = "SELECT * FROM user_roles ur WHERE role = :role AND ur.user_id = :userId " +
+            "INNER JOIN role r ON r.id = ur.role_id";
+
+        Single<Role> roleSingle = database.select(sql)
+                .parameter("role", role.getRoleValue())
+                .parameter("user_id", userId)
+                .get(rs -> {
+                    Role r = new Role(rs.getString("role")).setId(rs.getInt("user_id"));
+                    return r;
+                })
+                .firstOrError();
+
+        return RxJava2Adapter.singleToMono(roleSingle);
+    }
 
     public Mono<Integer> create(UserMappingInterface user) {
         // TODO check if email already exist to avoid side effect incrementation of id when on duplicate email

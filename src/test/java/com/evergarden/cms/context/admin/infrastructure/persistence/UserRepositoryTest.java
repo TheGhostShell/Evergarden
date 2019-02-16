@@ -303,6 +303,10 @@ class UserRepositoryTest {
         userToUpdate.setActivated(true);
         userToUpdate.setId(1);
 
+        Collection<Role> roles = new ArrayList<>();
+        roles.add(new Role("admin"));
+        userToUpdate.setRoles(roles);
+
         // Credential are encoded randomly we can't predict the result
 
         StepVerifier.create(userRepository.update(userToUpdate))
