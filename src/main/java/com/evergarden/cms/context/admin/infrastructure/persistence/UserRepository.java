@@ -25,14 +25,18 @@ public class UserRepository {
 
     private Logger logger;
 
+    private RoleRepository roleRepository;
+
     @Autowired
-    public UserRepository(EvergardenEncoder encoder, Database database, Logger logger) {
+    public UserRepository(EvergardenEncoder encoder, Database database, Logger logger, RoleRepository roleRepository) {
         this.encoder = encoder;
         this.database = database;
         this.logger = logger;
+        this.roleRepository = roleRepository;
     }
 
     public Mono<UserMappingInterface> findByEmail(String email) {
+        logger.warn("find by email test");
         String sql = "SELECT u.id, u.email, u.firstname, u.lastname, u.pseudo, u.activated, u.salt, u.password, " +
             "GROUP_CONCAT(DISTINCT CONCAT(r.id, ':', r.role)) AS concat_role " +
             "FROM evergarden_user u " +
@@ -51,7 +55,7 @@ public class UserRepository {
 
                     return RxJava2Adapter.singleToMono(singleUser);
                 }
-                return Mono.error(new NoSuchElementException("no user with email "+ email));
+                return Mono.error(new NoSuchElementException("no user with email " + email));
             });
     }
 
@@ -93,12 +97,13 @@ public class UserRepository {
     }
 
     private Flowable<UserMappingInterface> userMap(SelectBuilder builder) {
-        User u = new User();
+
         return builder
             .get(rs -> {
+                User   u     = new User();
                 String roles = rs.getString("concat_role");
 
-                logger.warn("the value is null fuck !! " + roles);
+                logger.warn("the value is null !! " + roles);
 
                 if (roles != null && !roles.equals(":")) {
                     logger.warn("inside the deep association");
@@ -129,11 +134,15 @@ public class UserRepository {
 
     //Todo refactor
     public Mono<Role> createUserRole(Role role, int userId) {
+
         String createUserRoleSql = "INSERT INTO evergarden_user_roles (user_id, role_id) VALUES(:userId, :roleId)";
+
+        logger.warn("try to creat user role " + role.getRoleValue() + userId);
 
         return createRole(role)
             .doOnError(throwable -> logger.error(throwable.toString()))
             .flatMap(role1 -> {
+                logger.warn("so now we will execute createUserRoleSql ");
                 database.update(createUserRoleSql)
                     .parameter("roleId", role1.getId())
                     .parameter("userId", userId)
@@ -149,7 +158,7 @@ public class UserRepository {
     public Mono<Role> createRole(Role role) {
         String createRole = "INSERT INTO evergarden_role (role) VALUES(:role)";
 
-        return findRole(role)
+        Mono<Role> r = findRole(role)
             .doOnError(throwable -> {
                 logger.warn("I m not found the role so I will try to create the new role " + role.getRoleValue());
                 database.update(createRole)
@@ -159,10 +168,16 @@ public class UserRepository {
                     .doOnError(throwable1 -> logger.error(throwable1.toString()))
                     .blockingFirst();
             })
-            .onErrorResume(throwable -> findRole(role));
+            .onErrorResume(throwable -> {
+                logger.warn(throwable.toString());
+                return findRole(role);
+            });
+
+        return r;
     }
 
     public Mono<Role> findRole(Role role) {
+
         String findRole = "SELECT * FROM evergarden_role r WHERE r.role = :role";
 
         logger.info("finding role " + role.getRoleValue());
@@ -172,39 +187,43 @@ public class UserRepository {
             .get(rs -> {
                 Role r = Role.createFromRawValue(rs.getString("role"));
                 r.setId(rs.getInt("id"));
+                logger.warn("the role is roleId :  " + r.getId());
                 return r;
             })
-            .firstOrError();
+            .firstOrError()
+            .doOnError(throwable -> logger.error(throwable.toString()));
 
         return RxJava2Adapter.singleToMono(singleRole);
     }
 
     //Todo refactor
-//    public Mono<Role> findRoleByCriteria(String role, int userId) {
-//        String sql = "SELECT * FROM user_roles WHERE role = :role AND user_id = :userId";
-//
-//        Single<Role> roleSingle = database.select(sql)
-//                .parameter("role", role)
-//                .parameter("user_id", userId)
-//                .get(rs -> {
-//                    Role r = new Role(rs.getInt("user_id"), rs.getString("role"));
-//                    return r;
-//                })
-//                .firstOrError();
-//
-//        return RxJava2Adapter.singleToMono(roleSingle);
-//    }
+    public Mono<Role> findRoleByCriteria(Role role, int userId) {
+        String sql = "SELECT * FROM user_roles ur WHERE role = :role AND ur.user_id = :userId " +
+            "INNER JOIN role r ON r.id = ur.role_id";
 
+        Single<Role> roleSingle = database.select(sql)
+                .parameter("role", role.getRoleValue())
+                .parameter("user_id", userId)
+                .get(rs -> {
+                    Role r = new Role(rs.getString("role")).setId(rs.getInt("user_id"));
+                    return r;
+                })
+                .firstOrError();
+
+        return RxJava2Adapter.singleToMono(roleSingle);
+    }
 
     public Mono<Integer> create(UserMappingInterface user) {
+        // TODO check if email already exist to avoid side effect incrementation of id when on duplicate email
+        logger.warn("inside the target crate user method");
         String createUserSql = "INSERT INTO evergarden_user (email, password, firstname, lastname, activated, salt, pseudo) " +
             "VALUES (:email, :password, :firstname, :lastname, :activated, :salt, :pseudo) ";
 
         Flowable<Integer> record = database.update(createUserSql)
             .parameter("email", user.getEmail())
             .parameter("password", user.getPassword())
-            .parameter("firstname", user.getFirstName())
-            .parameter("lastname", user.getLastName())
+            .parameter("firstname", user.getFirstname())
+            .parameter("lastname", user.getLastname())
             .parameter("activated", user.isActivated())
             .parameter("salt", user.getSalt())
             .parameter("pseudo", user.getPseudo())
@@ -223,6 +242,7 @@ public class UserRepository {
 
         }).firstOrError();
 
+        logger.warn("the integer is " + singleInteger.toString());
         return RxJava2Adapter.singleToMono(singleInteger);
     }
 
@@ -261,7 +281,7 @@ public class UserRepository {
 
         encoder.encode(user.getPassword());
 
-        Flowable<Integer> isUpdated = database.update(sqlUpdate)
+        Single<Integer> isUpdated = database.update(sqlUpdate)
             .parameter("email", user.getEmail())
             .parameter("firstname", user.getFirstname())
             .parameter("lastname", user.getLastname())
@@ -270,11 +290,23 @@ public class UserRepository {
             .parameter("password", encoder.getEncodedCredential().getEncodedPassword())
             .parameter("salt", encoder.getEncodedCredential().getSalt())
             .parameter("id", user.getId())
-            .counts();
+            .counts().firstOrError();
 
-        Single<UserMappingInterface> singleUser = isUpdated.flatMap(integer -> findById(integer)).firstOrError();
+        return RxJava2Adapter.singleToMono(isUpdated)
+            .flatMap(isUp ->
+                // TODO what we need to do when no roles is given
+                roleRepository
+                    .deleteRoleByUserId(user.getId())
+                    .flatMap(isDel ->
 
-        return RxJava2Adapter.singleToMono(singleUser);
+                        // TODO block is nasty need to be refactor
+                        Flux.fromStream(user.getRoles().stream())
+                            .map(role ->
+                                createUserRole(role, user.getId()).block()
+                            )
+                            .then(findById(user.getId()))
+                    )
+            );
     }
 
     private Mono<Boolean> noCacheFix(String email) {

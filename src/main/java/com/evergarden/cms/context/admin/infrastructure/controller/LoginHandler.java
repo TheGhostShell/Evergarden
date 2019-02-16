@@ -59,6 +59,7 @@ public class LoginHandler {
         return request.body(BodyExtractors.toMono(UnAuthUser.class))
             .flatMap(unAuthUser -> {
 
+                //logger.warn("befor call find by email"+userRepository.toString());
                 return userRepository.findByEmail(unAuthUser.getEmail())
                     .flatMap(user -> {
 
@@ -67,7 +68,7 @@ public class LoginHandler {
                         EvergardenEncoder encoder = new EvergardenEncoder(env, logger, encodedCredential);
 
                         boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
-                        logger.info("is valid pass "+ isValidPass);
+                        logger.info("is valid pass " + isValidPass);
                         Collection<Role> roles = user.getRoles();
                         if (isValidPass) {
                             ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
@@ -94,27 +95,27 @@ public class LoginHandler {
             });
     }
 
+    private Mono<JsonNode> bodyToJsonNode(Mono<DataBuffer> buffer) {
+
+        return buffer.flatMap(dataBuffer -> {
+            try {
+                return Mono.just(objectMapper.readTree(dataBuffer.asInputStream()))
+                    .publishOn(Schedulers.elastic());
+            } catch (IOException e) {
+                return Mono.empty();
+            }
+        });
+    }
+
     public Mono<ServerResponse> create(ServerRequest request) {
 
-        return request.bodyToMono(DataBuffer.class)
-            .flatMap(dataBuffer -> {
-                try {
-                    return Mono.just(objectMapper.readTree(dataBuffer.asInputStream()))
-                        .publishOn(Schedulers.elastic());
-                } catch (IOException e) {
-                    return Mono.empty();
-                }
-            })
+        return bodyToJsonNode(request.bodyToMono(DataBuffer.class))
             .flatMap(jsonNode -> {
                 try {
-                    encoder.encode(jsonNode.get("user")
-                        .get("password")
-                        .asText());
+                    encoder.encode(jsonNode.get("user").get("password").asText());
+                    logger.warn("suces to decode some value " + jsonNode.get("user").get("email").asText());
                     User user = new User();
-
-                    user.setEmail(jsonNode.get("user")
-                        .get("email")
-                        .asText())
+                    user.setEmail(jsonNode.get("user").get("email").asText())
                         .setFirstname(jsonNode.get("user").get("firstname").asText())
                         .setLastname(jsonNode.get("user").get("lastname").asText())
                         .setPseudo(jsonNode.get("user").get("pseudo").asText())
@@ -123,41 +124,43 @@ public class LoginHandler {
                     Iterator<JsonNode> it = jsonNode.get("user").get("roles").elements();
 
                     while (it.hasNext()) {
-                        user.addRole(new Role(it.next()
-                            .asText()));
+                        user.addRole(new Role(it.next().asText()));
                     }
 
                     return userRepository.create(user)
                         .flatMap(integer -> {
+                            logger.warn("maybe integer is null" + integer);
                             if (integer > 0) {
 
-                                return userRepository.findById(integer)
-                                    .flatMap(userMappingInterface -> {
-                                        UserCreateResponse userCreateResponse =
-                                            UserCreateResponse.mapToUserResponse(userMappingInterface)
-                                                .dropRoles();
-                                        user.getRoles()
-                                            .stream()
-                                            .peek(role -> {
-                                                userCreateResponse.addRole(role.getRoleValue());
-                                            })
-                                            .count();
-                                        Mono<UserCreateResponse> userResponseMono =
-                                            Mono.just(userCreateResponse);
+                                return userRepository.findById(integer).flatMap(userMappingInterface -> {
 
-                                        return ServerResponse.ok()
-                                            .body(userResponseMono, UserCreateResponse.class);
-                                    })
-                                    .onErrorResume(throwable -> ServerResponse.badRequest().build());
+                                    UserCreateResponse userCreateResponse =
+                                        UserCreateResponse.mapToUserResponse(userMappingInterface).dropRoles();
+
+                                    user.getRoles().stream()
+                                        .peek(role -> userCreateResponse.addRole(role.getRoleValue()))
+                                        .count();
+
+                                    return ServerResponse.ok()
+                                        .body(Mono.just(userCreateResponse), UserCreateResponse.class);
+                                })
+                                    .onErrorResume(throwable -> {
+                                        logger.warn("1er first bad request");
+                                        return ServerResponse.badRequest().build();
+                                    });
                             } else {
                                 return ServerResponse.status(HttpStatus.CONFLICT).build();
                             }
                         })
-                        .onErrorResume(throwable -> ServerResponse.badRequest().build());
+                        .onErrorResume(throwable -> {
+                            logger.warn("2 seconde bad request");
+                            return ServerResponse.badRequest().build();
+                        });
 
                 } catch (NullPointerException e) {
-                    return ServerResponse.badRequest()
-                        .build();
+                    e.printStackTrace();
+                    logger.warn("3 last bad request");
+                    return ServerResponse.badRequest().build();
                 }
             });
     }
@@ -170,15 +173,22 @@ public class LoginHandler {
      * @return
      */
     public Mono<ServerResponse> guest(ServerRequest request) {
-        // TODO extract email from request if present
+        // TODO extract email from request if present return error if no subject field filled
         return request.body(BodyExtractors.toMono(Guest.class))
             .flatMap(guest -> {
+                logger.warn("no log");
                 ArrayList<SimpleGrantedAuthority> authoritie = new ArrayList<>();
                 authoritie.add(new SimpleGrantedAuthority("ROLE_GUEST"));
-                String token = jwtHelper.generateToken("guest@mail.com", authoritie, 1L).getToken();
-                guest.setToken(token);
+                String subject = guest.getSubject();
+                Guest  guest1  = new Guest();
+                logger.warn(subject);
+                if (guest.getSubject() == null) {
+                    subject = "unknow";
+                }
+                String token = jwtHelper.generateToken(subject, authoritie, 1L).getToken();
+                guest1.setToken(token);
                 return ServerResponse.ok()
-                    .body(Mono.just(guest), Guest.class);
+                    .body(Mono.just(guest1), Guest.class);
             });
     }
 
@@ -189,12 +199,10 @@ public class LoginHandler {
 
                 UserResponse us = UserResponse.mapToUserResponse(userMappingInterface);
 
-                return Mono.just(us);
+                return ServerResponse.ok()
+                    .body(Mono.just(us), UserResponse.class);
             })
-            .flatMap(userResponse -> ServerResponse.ok()
-                .body(Mono.just(userResponse), UserResponse.class))
-            .onErrorResume(throwable -> ServerResponse.notFound()
-                .build());
+            .onErrorResume(throwable -> ServerResponse.notFound().build());
     }
 
     public Mono<ServerResponse> show(ServerRequest request) {
@@ -206,19 +214,43 @@ public class LoginHandler {
             .body(userResponseFlux, UserResponse.class);
     }
 
+    // TODO refactor and use private method as create()
     public Mono<ServerResponse> update(ServerRequest request) {
-        return request
-            .body(BodyExtractors.toMono(UpdatedUser.class))
-            .flatMap(updatedUser -> userRepository.update(updatedUser))
-            .flatMap(userMappingInterface -> ServerResponse.ok().body(Mono
-                .just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class));
+
+        return bodyToJsonNode(request.bodyToMono(DataBuffer.class))
+            .flatMap(jsonNode -> {
+
+                UpdatedUser us = new UpdatedUser();
+                us.setEmail(jsonNode.get("email").asText());
+                us.setFirstname(jsonNode.get("firstname").asText());
+                us.setLastname(jsonNode.get("lastname").asText());
+                us.setPseudo(jsonNode.get("pseudo").asText());
+                us.setPassword(jsonNode.get("password").asText());
+                us.setId(jsonNode.get("id").asInt());
+
+                Iterator<JsonNode> it    = jsonNode.get("roles").elements();
+                Collection<Role>   roles = new ArrayList<>();
+
+                while (it.hasNext()) {
+                    roles.add(new Role(it.next().asText()));
+                }
+
+                us.setRoles(roles);
+
+                return userRepository.update(us);
+            })
+            .flatMap(userMappingInterface -> ServerResponse.ok().body(
+                Mono.just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class)
+            );
     }
 
-    public Mono<ServerResponse> addRole(ServerRequest request) {
+    // TODO really used ?
+    private Mono<ServerResponse> addRole(ServerRequest request) {
         return request
             .body(BodyExtractors.toMono(UpdatedUser.class))
             .flatMap(updatedUser -> userRepository.update(updatedUser))
             .flatMap(userMappingInterface -> ServerResponse.ok().body(Mono
-                .just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class));
+                .just(UserResponse.mapToUserResponse(userMappingInterface)), UserResponse.class)
+            );
     }
 }

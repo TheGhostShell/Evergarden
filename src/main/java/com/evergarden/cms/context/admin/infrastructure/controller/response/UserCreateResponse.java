@@ -31,8 +31,8 @@ public class UserCreateResponse {
 		UserCreateResponse us = new UserCreateResponse();
 		
 		us.setEmail(user.getEmail());
-		us.setFirstname(user.getFirstName());
-		us.setLastname(user.getLastName());
+		us.setFirstname(user.getFirstname());
+		us.setLastname(user.getLastname());
 		us.setId(user.getId());
 		us.setPseudo(user.getPseudo());
 		
