@@ -1,9 +1,9 @@
 package com.evergarden.cms.app.plugin;
 
 import com.google.common.eventbus.EventBus;
-import com.hanami.sdk.api.Hanami;
-import com.hanami.sdk.event.HanamiStartedEvent;
-import com.hanami.sdk.plugin.ExtentionPlugin;
+import com.evergarden.sdk.api.Hanami;
+import com.evergarden.sdk.event.HanamiStartedEvent;
+import com.evergarden.sdk.plugin.ExtentionPlugin;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.xeustechnologies.jcl.JarClassLoader;
@@ -57,7 +57,7 @@ public class PluginLoader {
 		URL[] urls = new URL[]{url};
 
 		ClassLoader cl       = new URLClassLoader(urls);
-		Class       cls      = cl.loadClass("com.hanami.demoplugin.PluginOne");
+		Class       cls      = cl.loadClass("com.evergarden.demoplugin.PluginOne");
 		Object      instance = cls.newInstance();
 		EventBus eventBus = new EventBus();
 
