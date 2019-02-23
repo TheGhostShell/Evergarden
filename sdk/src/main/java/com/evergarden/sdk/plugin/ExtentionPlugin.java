@@ -1,6 +1,6 @@
-package com.hanami.sdk.plugin;
+package com.evergarden.sdk.plugin;
 
-import com.hanami.sdk.api.Hanami;
+import com.evergarden.sdk.api.Hanami;
 
 public interface ExtentionPlugin {
 

@@ -1,4 +1,4 @@
-package com.hanami.sdk.router;
+package com.evergarden.sdk.router;
 
 public enum HttpMethod {
     get("GET"), post("POST"), put("PUT"), patch("PATCH"), delete("DELETE");

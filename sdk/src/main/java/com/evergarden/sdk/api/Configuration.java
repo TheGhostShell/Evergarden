@@ -1,4 +1,4 @@
-package com.hanami.sdk.api;
+package com.evergarden.sdk.api;
 
 public class Configuration {
 
