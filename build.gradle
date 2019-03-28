@@ -75,6 +75,9 @@ dependencies {
     // Eureka client
 //    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
+    //sdk
+    compile 'com.github.GostShell:sdk:v0.0.2-alpha'
+
     //dependencies
     compile 'org.xeustechnologies:jcl-core:2.8'
 
@@ -95,9 +98,6 @@ dependencies {
 
     // sugar syntax and helper
     compile 'org.projectlombok:lombok:1.18.4'
-
-    // sub module dependencies
-    implementation 'com.github.GostShell:sdk:v0.0.1-alpha'
 
     //spring web-flux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
