@@ -9,8 +9,14 @@ import org.slf4j.Logger;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 @Configuration
 public class OsgiLoader {
@@ -24,19 +30,34 @@ public class OsgiLoader {
         try {
             framework.init();
 
-            logger.warn("Starting good");
+            logger.info("Starting good");
+
+            Pattern pattern = Pattern.compile("^*\\.jar$");
+
+            try (Stream<Path> paths = Files.walk(Paths.get("plugins/"))) {
+                paths
+                    .filter(Files::isRegularFile)
+                    .peek(path -> {
+                        if (pattern.matcher(path.toString()).find()) {
+                            logger.info("FOUND AND MATCH !! " + path.toString());
+                        }
+                    })
+                    .count();
+            }
 
             BundleContext context = framework.getBundleContext();
-            Bundle plugin = context.installBundle("file:plugins/test-bnd-plug-1.0-SNAPSHOT.jar");
+            Bundle        plugin  = context.installBundle("file:plugins/test-bnd-plug-1.0-SNAPSHOT.jar");
             framework.start();
             plugin.start();
+            URL pathurl = plugin.getResource("evergarden.properties");
+            logger.info(pathurl.getFile());
             framework.stop();
 
             return context;
         } catch (BundleException exception) {
             //logger.error(exception.getMessage());
             exception.printStackTrace();
-        } catch (Exception e){
+        } catch (Exception e) {
             //logger.error(e.getMessage());
             e.printStackTrace();
         }

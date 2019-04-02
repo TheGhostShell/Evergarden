@@ -73,13 +73,10 @@ task codeCoverageReport(type: JacocoReport) {
 
 dependencies {
     // Eureka client
-//    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    // compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
     //sdk
     compile 'com.github.GostShell:sdk:v0.0.2-alpha'
-
-    //dependencies
-    compile 'org.xeustechnologies:jcl-core:2.8'
 
     //rxjava-jdbc
     compile 'com.github.davidmoten:rxjava2-jdbc:0.2.1'
