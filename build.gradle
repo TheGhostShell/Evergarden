@@ -75,8 +75,11 @@ dependencies {
     // Eureka client
     // compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
+    //jooq sql lib
+    compile group: 'org.jooq', name: 'jooq', version: '3.11.10'
+
     //sdk
-    compile 'com.github.GostShell:sdk:v0.0.2-alpha'
+    implementation 'com.github.GostShell:sdk:v0.0.3.6-alpha'
 
     //rxjava-jdbc
     compile 'com.github.davidmoten:rxjava2-jdbc:0.2.1'
