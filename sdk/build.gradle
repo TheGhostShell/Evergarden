@@ -1,0 +1,17 @@
+apply plugin: 'java'
+
+group 'com.hanami.sdk'
+version '0.0.1-SNAPSHOT'
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    //dependencies
+    compile 'com.google.guava:guava:21.0'
+
+    //junit test
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

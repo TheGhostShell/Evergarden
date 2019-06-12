@@ -1,6 +1,6 @@
 package com.evergarden.cms.app.router;
 
-import com.evergarden.sdk.router.HttpMethod;
+import com.hanami.sdk.router.HttpMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
