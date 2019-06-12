@@ -25,7 +25,6 @@ sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
-    maven {url 'https://jitpack.io'}
 }
 
 configurations {
@@ -97,7 +96,7 @@ dependencies {
     compile 'org.projectlombok:lombok:1.18.4'
 
     // sub module dependencies
-    implementation 'com.github.GostShell:sdk:v0.0.1-alpha'
+    compile project(':sdk')
 
     //spring web-flux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
