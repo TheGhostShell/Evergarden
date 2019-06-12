@@ -12,6 +12,7 @@ import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
@@ -220,10 +221,16 @@ public class LoginHandler {
             .body(userResponseFlux, UserResponse.class);
     }
 
-    public Mono<ServerResponse> home(ServerRequest request) {
-
+    public Mono<ServerResponse> admin(ServerRequest request) {
+// "classpath:/public/admin/index.html"
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_HTML).syncBody(html);
+    }
+
+    public Mono<ServerResponse> home(ServerRequest request) {
+// "classpath:/public/admin/index.html"
+        return ServerResponse.ok()
+                .contentType(MediaType.TEXT_HTML).syncBody(new ClassPathResource("/public/theme/index.html"));
     }
 
     // TODO refactor and use private method as create()

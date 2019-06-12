@@ -10,36 +10,38 @@ import org.springframework.web.reactive.resource.PathResourceResolver;
 import reactor.core.publisher.Mono;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import static com.evergarden.cms.context.admin.infrastructure.controller.FrontControllerHandler.FRONT_CONTROLLER;
 import static com.evergarden.cms.context.admin.infrastructure.controller.FrontControllerHandler.URL_SEPARATOR;
 
 @Configuration
-public class SingleAppPageConfig implements WebFluxConfigurer {
+public class SingleAppThemePageConfig implements WebFluxConfigurer {
     public static final String IGNORED_PATH = "/v1";
-    private static final String PATH_PATTERNS = "/admin/**";
+    private static final String PATH_PATTERNS = "/home/**";
 
     private final FrontControllerHandler frontControllerHandler;
     private final ApplicationContext applicationContext;
-    private final String[] staticLocations;
+    private final List<String> staticLocations = new ArrayList();
 
-    public SingleAppPageConfig(
+    public SingleAppThemePageConfig(
             ResourceProperties resourceProperties,
             FrontControllerHandler frontControllerHandler,
             ApplicationContext applicationContext
     ) {
         this.frontControllerHandler = frontControllerHandler;
         this.applicationContext = applicationContext;
-        this.staticLocations = resourceProperties.getStaticLocations();
-        this.staticLocations[staticLocations.length - 1] = "classpath:/public/admin/";
+        // this.staticLocations = resourceProperties.getStaticLocations();
+        this.staticLocations.add("classpath:/public/theme/");
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler(PATH_PATTERNS)
-                .addResourceLocations(staticLocations)
+                .addResourceLocations(staticLocations.toArray(new String[0]))
                 .resourceChain(true)
                 .addResolver(new SinglePageAppResourceResolver());
     }
@@ -50,7 +52,7 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
 
         SinglePageAppResourceResolver() {
             this.frontControllerResource = Arrays
-                    .stream(staticLocations)
+                    .stream(staticLocations.toArray())
                     .peek(s -> {
                         System.out.println(s);
                     })
