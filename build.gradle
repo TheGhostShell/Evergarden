@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.2.RELEASE'
+        springBootVersion = '2.1.5.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -82,7 +82,7 @@ dependencies {
     implementation 'com.github.GostShell:sdk:v0.0.3.6-alpha'
 
     //rxjava-jdbc
-    compile 'com.github.davidmoten:rxjava2-jdbc:0.2.1'
+    compile 'com.github.davidmoten:rxjava2-jdbc:0.2.4'
 
     // Reactor Adapter (RxJava2, Akka Actors scheduler and more)
     compile "io.projectreactor.addons:reactor-adapter:3.2.0.RELEASE"
@@ -135,6 +135,9 @@ dependencies {
 
     // Integrate flyway for database migration version control
     compile "org.flywaydb:flyway-core:5.2.4"
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 
     // Integrate spring shell or crash
     // Use neo4j to manage taxonomy system

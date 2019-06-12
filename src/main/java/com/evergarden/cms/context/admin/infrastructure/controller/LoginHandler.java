@@ -10,9 +10,12 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -43,15 +46,18 @@ public class LoginHandler {
 
     private JwtHelper jwtHelper;
 
+    private Resource html;
+
     @Autowired
     public LoginHandler(UserRepository userRepository, Logger logger, ObjectMapper objectMapper,
-                        EvergardenEncoder encoder, Environment env, JwtHelper jwtHelper) {
+                        EvergardenEncoder encoder, Environment env, JwtHelper jwtHelper, @Value("classpath:/public/admin/index.html") Resource html) {
         this.userRepository = userRepository;
         this.logger = logger;
         this.objectMapper = objectMapper;
         this.encoder = encoder;
         this.env = env;
         this.jwtHelper = jwtHelper;
+        this.html = html;
     }
 
     public Mono<ServerResponse> login(ServerRequest request) {
@@ -212,6 +218,12 @@ public class LoginHandler {
 
         return ServerResponse.ok()
             .body(userResponseFlux, UserResponse.class);
+    }
+
+    public Mono<ServerResponse> home(ServerRequest request) {
+
+        return ServerResponse.ok()
+                .contentType(MediaType.TEXT_HTML).syncBody(html);
     }
 
     // TODO refactor and use private method as create()
