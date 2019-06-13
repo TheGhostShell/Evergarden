@@ -1,8 +1,8 @@
 addons:
   sonarcloud:
     organization: "theghostshell"
-    token:
-      secure: "qCW2atylbrB3eDMFZ/77OgogGZtkzFuKr75e2dDUpjJYXX/t327bY21jFGHBrQH+oOumIFqKatPzjH+624jbl5N809JeQovD1+h/KGzyWDdyay3fymTBPw8DHZ8mdNAK09/AJRFp33IEFYB8N5YSVUVbn+qQz4gX697/m2IeCZJ3rvw/obDiLmVvUzCl94ar+1jTl0f+1ge91mZIrrEBZKb1KFCvOGxHeCfwLANZFw5YF2SgNJIu6VEPmZ4wg2XOF2tMlQ7AdVKC6zKX/tYffpkDQknfFCyqOfdqNFw4un++Avexc0+h8uPPdHZ0ehTcfC5B76YjXttbUSu5ytgaKit7mfTwkCTT+lom9LuJGqNFda/Ia1LGneMoKqeIC2QK1Nw2+efRmq8Civ4qxrm143I403+ohx9iANymmF0IISehq2GUSK6UX7QSzn4vpy98Z2cgjvr+gWYN3QX7MLRW5g5Wh+HrY5LVjkHfG6/25dDdURchm9L12jSkjH/u+21PqEu4bNDLsIWuVzy14D5+aFBD5QiaUp7Bx+FZUiS5KFrXMnSoKyStveNwqrFNT22sn/mBRFbIki+wzrHW/5+yb0/mHlrvUm4YkGPY1fo5POLB6YOAcoJL9I9aq8j7Dvu6qvDXyEbLyqo3hyQQLUYyDB9XLrNVs5sQmhNK5GKmHok="
+    token: $SONAR_TOKEN
+
 dist: trusty
 language: java
 jdk:
