@@ -22,6 +22,8 @@ public class LoginRouter {
 			.andRoute(RequestPredicates.POST(pathSecure + "/user"), handler::create)
 			.andRoute(RequestPredicates.GET(pathSecure + "/user/{id}"), handler::read)
 			.andRoute(RequestPredicates.PUT(pathSecure + "/user"), handler::update)
-			.andRoute(RequestPredicates.GET(pathSecure + "/user"), handler::show);
+			.andRoute(RequestPredicates.GET(pathSecure + "/user"), handler::show)
+			.andRoute(RequestPredicates.GET("/admin"), handler::admin)
+			.andRoute(RequestPredicates.GET("/*"), handler::home);
 	}
 }

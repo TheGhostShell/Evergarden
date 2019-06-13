@@ -10,9 +10,13 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.BodyExtractors;
@@ -212,6 +216,20 @@ public class LoginHandler {
 
         return ServerResponse.ok()
             .body(userResponseFlux, UserResponse.class);
+    }
+
+    public Mono<ServerResponse> admin(ServerRequest request) {
+
+        String path;
+        Resource html = new ClassPathResource("/public/admin/index.html");
+        return ServerResponse.ok()
+                .contentType(MediaType.TEXT_HTML).syncBody(html);
+    }
+
+    public Mono<ServerResponse> home(ServerRequest request) {
+
+        return ServerResponse.ok()
+                .contentType(MediaType.TEXT_HTML).syncBody(new ClassPathResource("/public/theme/index.html"));
     }
 
     // TODO refactor and use private method as create()

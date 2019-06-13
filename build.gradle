@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.2.RELEASE'
+        springBootVersion = '2.1.5.RELEASE'
     }
     repositories {
         mavenCentral()
@@ -11,7 +11,7 @@ buildscript {
 }
 
 plugins {
-    id "org.sonarqube" version "2.6"
+    id "org.sonarqube" version "2.7"
 }
 apply plugin: 'java'
 apply plugin: 'eclipse'
@@ -35,6 +35,13 @@ configurations {
     }
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectName", "Evergarden Core"
+        property "sonar.projectKey", "Evergarden"
+    }
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true
@@ -53,33 +60,28 @@ test {
 
 task codeCoverageReport(type: JacocoReport) {
     executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-
-    // Add all relevant sourcesets from the subprojects
-    subprojects.each {
-        sourceSets it.sourceSets.main
-    }
-
+    
     reports {
         xml.enabled = true
         xml.setDestination(new File("${buildDir}/reports/jacoco/report.xml"))
     }
 
-    dependencies {
-        subprojects {
-            test
-        }
-    }
+    classDirectories = fileTree(dir: 'build/classes/main')
+    sourceDirectories = fileTree(dir: 'scr/main/java')
 }
 
 dependencies {
     // Eureka client
-//    compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+    // compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
-    //dependencies
-    compile 'org.xeustechnologies:jcl-core:2.8'
+    //jooq sql lib
+    compile group: 'org.jooq', name: 'jooq', version: '3.11.10'
+
+    //sdk
+    implementation 'com.github.GostShell:sdk:v0.0.3.6-alpha'
 
     //rxjava-jdbc
-    compile 'com.github.davidmoten:rxjava2-jdbc:0.2.1'
+    compile 'com.github.davidmoten:rxjava2-jdbc:0.2.4'
 
     // Reactor Adapter (RxJava2, Akka Actors scheduler and more)
     compile "io.projectreactor.addons:reactor-adapter:3.2.0.RELEASE"
@@ -95,9 +97,6 @@ dependencies {
 
     // sugar syntax and helper
     compile 'org.projectlombok:lombok:1.18.4'
-
-    // sub module dependencies
-    implementation 'com.github.GostShell:sdk:v0.0.1-alpha'
 
     //spring web-flux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
@@ -135,6 +134,9 @@ dependencies {
 
     // Integrate flyway for database migration version control
     compile "org.flywaydb:flyway-core:5.2.4"
+
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
 
     // Integrate spring shell or crash
     // Use neo4j to manage taxonomy system

@@ -5,6 +5,10 @@
 plugins/
 *.db
 h2/
+felix-cache
+bin
+
+src/main/resources/public
 
 ### STS ###
 .apt_generated
