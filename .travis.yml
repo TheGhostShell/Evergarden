@@ -1,21 +1,20 @@
 addons:
   sonarcloud:
     organization: "theghostshell"
-
+    token:
+      secure: "qCW2atylbrB3eDMFZ/77OgogGZtkzFuKr75e2dDUpjJYXX/t327bY21jFGHBrQH+oOumIFqKatPzjH+624jbl5N809JeQovD1+h/KGzyWDdyay3fymTBPw8DHZ8mdNAK09/AJRFp33IEFYB8N5YSVUVbn+qQz4gX697/m2IeCZJ3rvw/obDiLmVvUzCl94ar+1jTl0f+1ge91mZIrrEBZKb1KFCvOGxHeCfwLANZFw5YF2SgNJIu6VEPmZ4wg2XOF2tMlQ7AdVKC6zKX/tYffpkDQknfFCyqOfdqNFw4un++Avexc0+h8uPPdHZ0ehTcfC5B76YjXttbUSu5ytgaKit7mfTwkCTT+lom9LuJGqNFda/Ia1LGneMoKqeIC2QK1Nw2+efRmq8Civ4qxrm143I403+ohx9iANymmF0IISehq2GUSK6UX7QSzn4vpy98Z2cgjvr+gWYN3QX7MLRW5g5Wh+HrY5LVjkHfG6/25dDdURchm9L12jSkjH/u+21PqEu4bNDLsIWuVzy14D5+aFBD5QiaUp7Bx+FZUiS5KFrXMnSoKyStveNwqrFNT22sn/mBRFbIki+wzrHW/5+yb0/mHlrvUm4YkGPY1fo5POLB6YOAcoJL9I9aq8j7Dvu6qvDXyEbLyqo3hyQQLUYyDB9XLrNVs5sQmhNK5GKmHok="
 dist: trusty
-
 language: java
-
 jdk:
-  - openjdk8
-
+- openjdk8
 script:
-  - ./gradlew assemble
-  - ./gradlew check
-  - ./gradlew codeCoverageReport
-  - ./gradlew jacocoTestReport
-  - sonar-scanner
-
+- "./gradlew assemble"
+- "./gradlew check"
+- "./gradlew codeCoverageReport"
+- "./gradlew jacocoTestReport"
+- "sonar-scanner -X"
 after_success:
-  - bash <(curl -s https://codecov.io/bash)
-
+- bash <(curl -s https://codecov.io/bash)
+#env:
+#  matrix:
+#    secure: TFMwRPttu1rkKL2ie7rZvrFWCXK/F2noodtfSz8Jq4KtnJ5vttRtk9wCQKJDob6hVlhzL9JTeSX4ZV2fhFKEJsAo5gHLUJ+/FeQM1a6x5YP86wO1cqJy9tty2qGbQ5gb8rSxyrIiAcOJxW2viVye3irbvBnqir4LhwJkTyQs13yN18vo6Ga7XBoHgq+NDmtsRbwVQbkg2nnJe+GQR0/5bd8KwJOqJvtD145KhFYlV4kxRKomJRGyP/HmzAqVc2TIZtyH3X7YgeWqJsBgGYiqeyZYxM1CZo4rTUgT+m36kkGczoUGeeeua0LHfvKtUOQXnAtc8m5OiNoQyOABfsQKUSBuVoawgLDm81SqmCcErJhGTuBtW16vVPPnqV7kn/7LIuY+3CPn0ZhOCuLR6NY2D4stVjbIE71TxdKEiuomTO+ZDh/imfjzj5jfUn4N5iEjPjXXAaNuWEtd0M51QIEBZkPv0AVqU4P0vFhxcJCApI8DE4dK2z6/xRcmQRsFEO9ved31oMRLOPiYIefk4xS9LastKi+o800m9eUXjMqp8hrS3iJIcV6VWE500bdXA1Pc9MsMdV0F+mC0XuyOhKLijqQOVSrhzzgd7F2w/xDzyjg1aAqcXDY4xpHNp9/O1513a+M0vvLJYsDmmUA6gilIL1BdiWx9ivY5A19/l+WCyyA=
