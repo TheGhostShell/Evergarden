@@ -10,8 +10,8 @@ jdk:
 script:
 - "./gradlew assemble"
 - "./gradlew check"
+- "sonar-scanner -X"
 - "./gradlew codeCoverageReport"
 - "./gradlew jacocoTestReport"
-- "sonar-scanner -X"
 after_success:
 - bash <(curl -s https://codecov.io/bash)
