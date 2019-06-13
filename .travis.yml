@@ -1,10 +1,21 @@
+addons:
+  sonarcloud:
+    organization: "theghostshell"
+
+dist: trusty
+
 language: java
+
 jdk:
   - openjdk8
+
 script:
   - ./gradlew assemble
   - ./gradlew check
   - ./gradlew codeCoverageReport
   - ./gradlew jacocoTestReport
+  - sonar-scanner
+
 after_success:
   - bash <(curl -s https://codecov.io/bash)
+
