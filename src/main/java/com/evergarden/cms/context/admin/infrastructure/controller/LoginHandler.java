@@ -47,18 +47,15 @@ public class LoginHandler {
 
     private JwtHelper jwtHelper;
 
-    private Resource html;
-
     @Autowired
     public LoginHandler(UserRepository userRepository, Logger logger, ObjectMapper objectMapper,
-                        EvergardenEncoder encoder, Environment env, JwtHelper jwtHelper, @Value("classpath:/public/admin/index.html") Resource html) {
+                        EvergardenEncoder encoder, Environment env, JwtHelper jwtHelper) {
         this.userRepository = userRepository;
         this.logger = logger;
         this.objectMapper = objectMapper;
         this.encoder = encoder;
         this.env = env;
         this.jwtHelper = jwtHelper;
-        this.html = html;
     }
 
     public Mono<ServerResponse> login(ServerRequest request) {
@@ -223,6 +220,8 @@ public class LoginHandler {
 
     public Mono<ServerResponse> admin(ServerRequest request) {
 // "classpath:/public/admin/index.html"
+        String path;
+        Resource html = new ClassPathResource("/public/admin/index.html");
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_HTML).syncBody(html);
     }
