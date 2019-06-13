@@ -219,7 +219,7 @@ public class LoginHandler {
     }
 
     public Mono<ServerResponse> admin(ServerRequest request) {
-// "classpath:/public/admin/index.html"
+
         String path;
         Resource html = new ClassPathResource("/public/admin/index.html");
         return ServerResponse.ok()
@@ -227,7 +227,7 @@ public class LoginHandler {
     }
 
     public Mono<ServerResponse> home(ServerRequest request) {
-// "classpath:/public/admin/index.html"
+
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_HTML).syncBody(new ClassPathResource("/public/theme/index.html"));
     }

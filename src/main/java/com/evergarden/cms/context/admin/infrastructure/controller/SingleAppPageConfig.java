@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.admin.infrastructure.controller;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.web.ResourceProperties;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.annotation.Configuration;
@@ -13,24 +14,21 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 
-import static com.evergarden.cms.context.admin.infrastructure.controller.FrontControllerHandler.FRONT_CONTROLLER;
-import static com.evergarden.cms.context.admin.infrastructure.controller.FrontControllerHandler.URL_SEPARATOR;
-
 @Configuration
 public class SingleAppPageConfig implements WebFluxConfigurer {
     public static final String IGNORED_PATH = "/v1";
     private static final String PATH_PATTERNS = "/admin/**";
+    private static final String FRONT_CONTROLLER = "index.html";
+    private static final String URL_SEPARATOR = "/";
 
-    private final FrontControllerHandler frontControllerHandler;
     private final ApplicationContext applicationContext;
     private final String[] staticLocations;
 
+    @Autowired
     public SingleAppPageConfig(
             ResourceProperties resourceProperties,
-            FrontControllerHandler frontControllerHandler,
             ApplicationContext applicationContext
     ) {
-        this.frontControllerHandler = frontControllerHandler;
         this.applicationContext = applicationContext;
         this.staticLocations = resourceProperties.getStaticLocations();
         this.staticLocations[staticLocations.length - 1] = "classpath:/public/admin/";
@@ -57,7 +55,6 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
                     .map(path -> applicationContext.getResource(path + FRONT_CONTROLLER))
                     .filter(this::resourceExistsAndIsReadable)
                     .findFirst()
-                    .map(frontControllerHandler::buildFrontControllerResource)
                     .orElseGet(() -> {
                         System.out.println(FRONT_CONTROLLER + " not found. "
                                 + "Ensure you have built the frontend part if you are not in dev mode.");
