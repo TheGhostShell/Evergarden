@@ -35,6 +35,13 @@ configurations {
     }
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectName", "Evergarden Core"
+        property "sonar.projectKey", "Evergarden"
+    }
+}
+
 jacocoTestReport {
     reports {
         xml.enabled true
