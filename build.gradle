@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = '2.1.5.RELEASE'
+        springBootVersion = "2.1.5.RELEASE"
     }
     repositories {
         mavenCentral()
@@ -10,9 +10,7 @@ buildscript {
     }
 }
 
-plugins {
-    id "org.sonarqube" version "2.7"
-}
+
 apply plugin: 'java'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
@@ -32,13 +30,6 @@ configurations {
     developmentOnly
     runtimeClasspath {
         extendsFrom developmentOnly
-    }
-}
-
-sonarqube {
-    properties {
-        property "sonar.projectName", "Evergarden Core"
-        property "sonar.projectKey", "Evergarden"
     }
 }
 
