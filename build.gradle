@@ -10,6 +10,9 @@ buildscript {
     }
 }
 
+plugins{
+    id "com.github.johnrengelman.shadow" version "5.0.0"
+}
 
 apply plugin: 'java'
 apply plugin: 'eclipse'
@@ -61,6 +64,12 @@ task codeCoverageReport(type: JacocoReport) {
     sourceDirectories = fileTree(dir: 'scr/main/java')
 }
 
+jar {
+    manifest {
+        attributes "Main-Class": "com.evergarden.cms.CmsApplication"
+    }
+}
+
 dependencies {
     // Eureka client
     // compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
@@ -87,7 +96,8 @@ dependencies {
     developmentOnly("org.springframework.boot:spring-boot-devtools") //runtimeOnly ??
 
     // sugar syntax and helper
-    compile 'org.projectlombok:lombok:1.18.4'
+    compileOnly 'org.projectlombok:lombok:1.18.8'
+    annotationProcessor 'org.projectlombok:lombok:1.18.8'
 
     //spring web-flux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'

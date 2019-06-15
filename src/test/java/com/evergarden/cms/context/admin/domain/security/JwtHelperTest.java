@@ -11,10 +11,6 @@ class JwtHelperTest {
 	}
 	
 	@Test
-	void generateToken1() {
-	}
-	
-	@Test
 	void verifyToken() {
 	}
 	
