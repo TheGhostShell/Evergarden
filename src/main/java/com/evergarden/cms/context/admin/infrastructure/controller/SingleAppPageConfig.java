@@ -13,6 +13,7 @@ import reactor.core.publisher.Mono;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 @Configuration
 public class SingleAppPageConfig implements WebFluxConfigurer {
@@ -22,7 +23,7 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
     private static final String URL_SEPARATOR = "/";
 
     private final ApplicationContext applicationContext;
-    private final String[] staticLocations;
+//    private final String[] staticLocations;
 
     @Autowired
     public SingleAppPageConfig(
@@ -30,27 +31,36 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
             ApplicationContext applicationContext
     ) {
         this.applicationContext = applicationContext;
-        this.staticLocations = resourceProperties.getStaticLocations();
-        this.staticLocations[staticLocations.length - 1] = "classpath:/public/admin/";
+//        this.staticLocations = resourceProperties.getStaticLocations();
+//        this.staticLocations[staticLocations.length - 1] = "classpath:/public/admin/";
     }
 
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
-        registry.addResourceHandler(PATH_PATTERNS)
-                .addResourceLocations(staticLocations)
+        String[] adminLoc = {"classpath:public/admin/"};
+
+        String[] themeLoc = {"file:./template/theme/", "classpath:/public/admin/"};
+
+        registry.addResourceHandler("/**")
+                .addResourceLocations(themeLoc)
                 .resourceChain(true)
-                .addResolver(new SinglePageAppResourceResolver());
+                .addResolver(new SinglePageAppResourceResolver(themeLoc));
+
+        registry.addResourceHandler("/admin/**")
+                .addResourceLocations(adminLoc)
+                .resourceChain(true)
+                .addResolver(new SinglePageAppResourceResolver(adminLoc));
     }
 
     private class SinglePageAppResourceResolver extends PathResourceResolver {
 
         private final Resource frontControllerResource;
 
-        SinglePageAppResourceResolver() {
+        SinglePageAppResourceResolver(String[] staticLocations) {
             this.frontControllerResource = Arrays
                     .stream(staticLocations)
                     .peek(s -> {
-                        System.out.println(s);
+                        System.err.println("the static location " + s);
                     })
                     .map(path -> applicationContext.getResource(path + FRONT_CONTROLLER))
                     .filter(this::resourceExistsAndIsReadable)
@@ -67,11 +77,14 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
         protected Mono<Resource> getResource(String resourcePath, Resource location) {
             Resource resource = null;
             try {
+                System.err.println("Oveerride get ressource path resolver " + resourcePath + " + " + location.toString() + " + " +location.exists());
                 resource = location.createRelative(resourcePath);
+                System.err.println("new resources " + resource.toString());
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
             if (resourceExistsAndIsReadable(resource)) {
+                System.out.println("Resource exist and is readable");
                 //if the asked resource is index.html itself, we serve it with the base-href rewritten
                 if (resourcePath.endsWith(FRONT_CONTROLLER)) {
                     return Mono.just(frontControllerResource);
@@ -87,11 +100,16 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
 
             //we are in the case of an angular route here, we rewrite to index.html
             try {
+                if(Pattern.matches("^.*\\..*", resourcePath)){
+                    System.out.println("pattern matching ");
+                    return Mono.empty();
+                }
                 if (resourceExistsAndIsReadable(location.createRelative(FRONT_CONTROLLER))) {
+                    System.out.println("another resource is readable");
                     return Mono.just(frontControllerResource);
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                //e.printStackTrace();
             }
 
             return Mono.empty();
@@ -99,6 +117,9 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
 
         private boolean resourceExistsAndIsReadable(Resource resource) {
             Objects.requireNonNull(resource, "resource cannot be null");
+            if(resource.exists() && resource.isReadable()){
+                System.out.println(resource.toString());
+            }
             return resource.exists() && resource.isReadable();
         }
     }

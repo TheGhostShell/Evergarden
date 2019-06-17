@@ -18,7 +18,7 @@ public class Sequencer {
 
     private void build(){
         add(new CreateFileStep());
-        add(new DonwloadThemeStep());
+        // add(new DownloadThemeStep());
     }
 
     @Bean

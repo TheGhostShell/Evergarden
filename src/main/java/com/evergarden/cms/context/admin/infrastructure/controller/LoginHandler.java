@@ -13,6 +13,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.FileUrlResource;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.http.HttpStatus;
@@ -227,9 +229,8 @@ public class LoginHandler {
     }
 
     public Mono<ServerResponse> home(ServerRequest request) {
-
         return ServerResponse.ok()
-                .contentType(MediaType.TEXT_HTML).syncBody(new ClassPathResource("/public/theme/index.html"));
+                .contentType(MediaType.TEXT_HTML).syncBody(new FileSystemResource("./template/theme/index.html"));
     }
 
     // TODO refactor and use private method as create()
