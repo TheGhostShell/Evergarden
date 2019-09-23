@@ -98,6 +98,9 @@ dependencies {
     //dev devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools") //runtimeOnly ??
 
+    //reactivedb no sql mongo
+    compile("org.springframework.boot:spring-boot-starter-data-mongodb-reactive")
+
     // sugar syntax and helper
     compileOnly 'org.projectlombok:lombok:1.18.8'
     annotationProcessor 'org.projectlombok:lombok:1.18.8'

@@ -1,50 +1,39 @@
 package com.evergarden.cms.context.admin.domain.entity;
 
+import lombok.Data;
 import lombok.ToString;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.DBRef;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.stream.Collectors;
 
-@Entity
-@Table(name = "evergarden_user")
 @ToString
+@Document
+@Data
 public class User implements UserMappingInterface {
     
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "BIGINT")
     private int id;
-    
-    @Column(unique = true, nullable = false)
+
+    @Indexed(unique = true)
     private String email;
     
-    @Column(nullable = false)
     private String password;
     
-    @Column
     private String firstname;
     
-    @Column
     private String lastname;
-    
-    @Column
+
     private String pseudo;
     
-    @Column(nullable = false)
     private boolean activated = true;
-    
-    @ManyToMany
-    @JoinTable(name = "evergarden_user_roles",
-        joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
-        inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+
+    @DBRef
     private Collection<Role> roles = new ArrayList<>();
     
-    @Column(nullable = false)
     private String salt;
     
     @Transient
