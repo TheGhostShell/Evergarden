@@ -1,29 +1,26 @@
 package com.evergarden.cms.context.publisher.domain.entity;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
 
-@Entity
-@Table(name = "evergarden_post")
+@Document
 @Data
+@AllArgsConstructor
 public class Post implements PostMappingInterface {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(columnDefinition = "BIGINT")
     private Long id;
 
-    @Column
     @JsonProperty("title")
     private String title;
 
-    @Column(columnDefinition = "CLOB")
     @JsonProperty("body")
     private String body;
 
-    @Column
     @JsonProperty("author")
     private String author;
 
@@ -31,22 +28,6 @@ public class Post implements PostMappingInterface {
         this.title = title;
         this.body = body;
         this.author = author;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public String getTitle() {
-        return title;
-    }
-
-    public String getBody() {
-        return body;
-    }
-
-    public String getAuthor() {
-        return author;
     }
 
     /**

@@ -1,8 +1,10 @@
 package com.evergarden.cms.context.admin.domain.entity;
 
+import com.mongodb.lang.NonNull;
 import lombok.Data;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.annotation.Transient;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -16,11 +18,13 @@ import java.util.Collection;
 public class User implements UserMappingInterface {
     
     @Id
-    private int id;
+    private String id;
 
     @Indexed(unique = true)
+    @NonNull
     private String email;
-    
+
+    @NonNull
     private String password;
     
     private String firstname;
@@ -28,7 +32,7 @@ public class User implements UserMappingInterface {
     private String lastname;
 
     private String pseudo;
-    
+
     private boolean activated = true;
 
     @DBRef
