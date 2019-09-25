@@ -4,13 +4,14 @@ import com.evergarden.cms.context.admin.domain.security.EvergardenEncoder;
 import com.evergarden.cms.context.admin.domain.entity.Role;
 import com.evergarden.cms.context.admin.domain.entity.RoleEnum;
 import com.evergarden.cms.context.admin.domain.entity.User;
-import com.evergarden.cms.context.admin.domain.entity.UserMappingInterface;
 import com.evergarden.cms.context.admin.infrastructure.persistence.UserRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import reactor.core.publisher.Mono;
+
+import java.util.Collection;
 
 @Configuration
 public class DefaultAdminConfig {
@@ -45,11 +46,20 @@ public class DefaultAdminConfig {
                 .subscribe();
     }
 
-    private Mono<UserMappingInterface> createMasterAdmin() {
+    private Mono<User> createMasterAdmin() {
+
+        Collection<Role> roles =
 
         encoder.encode("pass");
 
-        User admin = new User();
+        User admin = User.builder()
+            .email("violet@mail.com")
+            .password(encoder.getEncodedCredential().getEncodedPassword())
+            .activated(true)
+            .firstname("Violet")
+            .lastname("Evergarden")
+            .roles()
+            .build();
 
         return Mono.just(admin)
                 .map(user -> {

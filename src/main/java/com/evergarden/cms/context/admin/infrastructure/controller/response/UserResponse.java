@@ -1,7 +1,6 @@
 package com.evergarden.cms.context.admin.infrastructure.controller.response;
 
 import com.evergarden.cms.context.admin.domain.entity.Role;
-import com.evergarden.cms.context.admin.domain.entity.UserMappingInterface;
 import lombok.Data;
 
 import java.util.ArrayList;
