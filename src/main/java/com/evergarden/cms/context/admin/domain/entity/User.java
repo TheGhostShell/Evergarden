@@ -1,8 +1,10 @@
 package com.evergarden.cms.context.admin.domain.entity;
 
 import com.mongodb.lang.NonNull;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.annotation.Transient;
@@ -17,8 +19,10 @@ import java.util.Collection;
 @Document
 @Data
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class User {
-    
+
     @Id
     private String id;
 
@@ -28,9 +32,9 @@ public class User {
 
     @NonNull
     private String password;
-    
+
     private String firstname;
-    
+
     private String lastname;
 
     private String pseudo;
@@ -39,23 +43,24 @@ public class User {
 
     @DBRef
     private Collection<Role> roles = new ArrayList<>();
-    
+
     private String salt;
-    
+
     @Transient
     private EncodedCredential encodedCredential;
-    
+
     public User setEncodedCredential(EncodedCredential encodedCredential) {
         password = encodedCredential.getEncodedPassword();
         salt = encodedCredential.getSalt();
-        
+
         this.encodedCredential = encodedCredential;
-        
+
         return this;
     }
-    
+
     public User addRole(Role role) {
-        this.roles.add(role);
+        if (roles == null) roles = new ArrayList<>();
+        roles.add(role);
         return this;
     }
 }

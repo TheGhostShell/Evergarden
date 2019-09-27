@@ -16,14 +16,4 @@ import reactor.core.publisher.Mono;
 
 @Repository
 public interface PostRepository extends ReactiveMongoRepository<Post, String> {
-
-    Flux<PostMappingInterface> fetchAll();
-
-    Mono<PostMappingInterface> fetchById(Long id);
-
-    Mono<PostMappingInterface> create(PostMappingInterface post);
-
-    Mono<PostMappingInterface> update(PostMappingInterface post);
-
-    Mono<Void> delete(int id);
 }

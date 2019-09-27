@@ -17,7 +17,7 @@ import reactor.core.publisher.Mono;
 @Component
 public class PostHandler {
 
-    private Logger         logger;
+    private Logger logger;
     private PostRepository repository;
 
     @Autowired
@@ -30,51 +30,55 @@ public class PostHandler {
 
         return request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(updatedPost -> {
 
-            Mono<PostMappingInterface> post = repository
-                    .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
+            Mono<Post> post = repository
+                .save(new Post(
+                    updatedPost.getTitle(),
+                    updatedPost.getBody(),
+                    updatedPost.getAuthor()
+                ));
 
-            return ServerResponse.ok().body(post, PostMappingInterface.class);
+            return ServerResponse.ok().body(post, Post.class);
         });
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {
-        
-        Long id = Long.parseLong(request.pathVariable("id"));
+
+        String id = request.pathVariable("id");
 
         return repository
-            .fetchById(id)
+            .findById(id)
             .onErrorReturn(Post.empty())
             .flatMap(PostHandler::handleEntityOrNotFound);
     }
 
     public Mono<ServerResponse> show(ServerRequest request) {
-        
-        Flux<PostMappingInterface> posts = repository.fetchAll();
-        
-        return ServerResponse.ok().body(posts, PostMappingInterface.class);
+
+        Flux<Post> posts = repository.findAll();
+
+        return ServerResponse.ok().body(posts, Post.class);
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-    
+
         Long id = Long.parseLong(request.pathVariable("id"));
-    
+
         return request
-            .body(BodyExtractors.toMono(UpdatedPost.class))
+            .body(BodyExtractors.toMono(Post.class))
             .flatMap(updatedPost -> {
                 updatedPost.setId(id);
-                return  repository.update(updatedPost);
+                return repository.save(updatedPost);
             })
             .onErrorReturn(Post.empty())
             .flatMap(PostHandler::handleEntityOrNotFound);
     }
-    
+
     // TODO: 22/01/19 use long type for better code consistency
     public Mono<ServerResponse> delete(ServerRequest request) {
-        
-        int id = Integer.parseInt(request.pathVariable("id"));
 
-        return repository.delete(id)
-                .flatMap(deletedPost -> ServerResponse.ok().build());
+        String id = request.pathVariable("id");
+
+        return repository.deleteById(id)
+            .flatMap(deletedPost -> ServerResponse.ok().build());
     }
 
     private static Mono<ServerResponse> handleEntityOrNotFound(PostMappingInterface post) {

@@ -4,10 +4,12 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
+import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.lang.NonNull;
 
 @EqualsAndHashCode
 @NoArgsConstructor
+@Document
 public class Role {
 
     @Id
@@ -55,5 +57,10 @@ public class Role {
 
     public String getId() {
         return id;
+    }
+
+    @Override
+    public String toString() {
+        return role;
     }
 }

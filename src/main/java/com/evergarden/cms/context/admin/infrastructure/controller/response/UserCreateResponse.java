@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.admin.infrastructure.controller.response;
 
+import com.evergarden.cms.context.admin.domain.entity.User;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -8,7 +9,7 @@ import java.util.Collection;
 @Data
 public class UserCreateResponse {
 	
-	private int id;
+	private String id;
 	
 	private String pseudo;
 	
@@ -25,7 +26,7 @@ public class UserCreateResponse {
 		return this;
 	}
 	
-	public static UserCreateResponse mapToUserResponse(UserMappingInterface user){
+	public static UserCreateResponse mapToUserResponse(User user){
 		
 		UserCreateResponse us = new UserCreateResponse();
 		

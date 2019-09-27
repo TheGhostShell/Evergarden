@@ -65,7 +65,7 @@ class LoginRouterTest {
         // TODO refactor LoginHandler constructor parameter to simplify reduce number argument
         encoder = new EvergardenEncoder(env, logger);
         jwtHelper = new JwtHelper(new JwtRequest(env.getProperty("jwt.secret")), logger);
-        loginHandler = new LoginHandler(userRepository, logger, objectMapper, encoder, env, jwtHelper);
+        loginHandler = new LoginHandler(userRepository, roleRepository, logger, objectMapper, encoder, env, jwtHelper);
         router = (new LoginRouter()).loginRoute(loginHandler, env);
         client = WebTestClient.bindToRouterFunction(router).build();
     }

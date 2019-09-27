@@ -10,7 +10,10 @@ import org.springframework.stereotype.Repository;
 import reactor.adapter.rxjava.RxJava2Adapter;
 import reactor.core.publisher.Mono;
 
+import java.util.Optional;
+
 @Repository
 public interface RoleRepository extends ReactiveMongoRepository<Role, String> {
 
+    Mono<Role> findByRole(String role);
 }

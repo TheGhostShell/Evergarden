@@ -19,6 +19,7 @@ public class LoginRouter {
 		
 		return RouterFunctions.route(RequestPredicates.POST(pathPublic + "/login"), handler::login)
 			.andRoute(RequestPredicates.POST(pathPublic + "/guest"), handler::guest)
+			.andRoute(RequestPredicates.GET( pathPublic + "/test"), handler::test)
 			.andRoute(RequestPredicates.POST(pathSecure + "/user"), handler::create)
 			.andRoute(RequestPredicates.GET(pathSecure + "/user/{id}"), handler::read)
 			.andRoute(RequestPredicates.PUT(pathSecure + "/user"), handler::update)

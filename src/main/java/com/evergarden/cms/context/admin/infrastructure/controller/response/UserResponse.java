@@ -1,6 +1,7 @@
 package com.evergarden.cms.context.admin.infrastructure.controller.response;
 
 import com.evergarden.cms.context.admin.domain.entity.Role;
+import com.evergarden.cms.context.admin.domain.entity.User;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -9,7 +10,7 @@ import java.util.Collection;
 @Data
 public class UserResponse {
 
-    private int id;
+    private String id;
 
     private String pseudo;
 
@@ -28,7 +29,7 @@ public class UserResponse {
         return this;
     }
 
-    public static UserResponse mapToUserResponse(UserMappingInterface user) {
+    public static UserResponse mapToUserResponse(User user) {
 
         UserResponse us = new UserResponse();
 

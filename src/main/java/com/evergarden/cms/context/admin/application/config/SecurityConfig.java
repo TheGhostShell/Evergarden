@@ -29,6 +29,7 @@ public class SecurityConfig {
             .and().authorizeExchange().pathMatchers("/v1/private/**").authenticated()
             .and().authorizeExchange().pathMatchers("/v1/guest").permitAll()
             .and().authorizeExchange().pathMatchers("/v1/login").permitAll()
+            .and().authorizeExchange().pathMatchers("/v1/test").permitAll()
             .and().authorizeExchange().pathMatchers("/v1/**").hasRole("GUEST")
             .and().authenticationManager(authenticationManager)
             .securityContextRepository(securityContextRepository)
