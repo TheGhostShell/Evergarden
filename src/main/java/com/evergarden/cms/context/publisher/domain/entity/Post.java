@@ -6,14 +6,15 @@ import lombok.Data;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import javax.persistence.*;
+import java.util.UUID;
 
 @Document
 @Data
 @AllArgsConstructor
-public class Post implements PostMappingInterface {
+public class Post {
 
     @Id
-    private Long id;
+    private String id;
 
     @JsonProperty("title")
     private String title;
@@ -37,21 +38,5 @@ public class Post implements PostMappingInterface {
      */
     public static Post empty() {
         return new Post("", "", "");
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public void setTitle(String title) {
-        this.title = title;
-    }
-
-    public void setBody(String body) {
-        this.body = body;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 }
