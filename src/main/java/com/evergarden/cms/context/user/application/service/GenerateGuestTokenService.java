@@ -36,7 +36,7 @@ public class GenerateGuestTokenService {
                     subject = "unknown";
                 }
                 logger.debug("Guest subject is "+subject);
-                String token = jwtHelper.generateToken(subject, authorities, 1L).getToken();
+                String token = jwtHelper.generateToken(subject, authorities, 1L, "").getToken();
                 guest1.setToken(token);
                 guest1.setSubject(subject);
                 logger.debug("New token generated is " + token);

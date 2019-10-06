@@ -54,7 +54,7 @@ public class GenerateTokenService {
                         });
 
                         logger.debug("Try to generate token");
-                        Token token = jwtHelper.generateToken(user.getEmail(), authorities);
+                        Token token = jwtHelper.generateToken(user.getEmail(), authorities, user.getId());
                         logger.debug("Token is generated with this value " + token.getToken());
 
                         return Mono.just(token);

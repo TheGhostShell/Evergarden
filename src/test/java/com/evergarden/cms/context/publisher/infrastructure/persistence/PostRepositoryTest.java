@@ -1,7 +1,6 @@
 package com.evergarden.cms.context.publisher.infrastructure.persistence;
 
 import com.evergarden.cms.context.publisher.domain.entity.Post;
-import com.evergarden.cms.context.publisher.domain.entity.UpdatedPost;
 import org.junit.Assert;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;

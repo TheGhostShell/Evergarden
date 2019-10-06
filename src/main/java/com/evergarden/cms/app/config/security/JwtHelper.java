@@ -39,11 +39,11 @@ public class JwtHelper {
 
     }
 
-    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities) {
-        return generateToken(email, authorities, 6L);
+    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, String id) {
+        return generateToken(email, authorities, 6L, id);
     }
 
-    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, Long hours) {
+    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, Long hours, String id) {
         String[] roles = new String[authorities.size()];
 
         for (int i = 0; i < authorities.size(); i++) {
@@ -51,6 +51,7 @@ public class JwtHelper {
         }
 
         String token = JWT.create()
+            .withClaim("id", id)
             .withClaim("email", email)
             .withArrayClaim("role", roles)
             .withIssuer(JwtHelper.ISSUER)
