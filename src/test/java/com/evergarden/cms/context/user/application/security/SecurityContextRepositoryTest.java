@@ -37,7 +37,7 @@ class SecurityContextRepositoryTest {
     @Test
     void save() {
         EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper, logger);
-        SecurityContextRepository context = new SecurityContextRepository(manager);
+        SecurityContextRepository context = new SecurityContextRepository(manager, jwtHelper);
 
         ServerWebExchange mockServer  = mock(ServerWebExchange.class);
         SecurityContext   mockContext = mock(SecurityContext.class);
@@ -49,7 +49,7 @@ class SecurityContextRepositoryTest {
     void load() {
 
         EvergardenAuthenticationManager   manager = new EvergardenAuthenticationManager(jwtHelper, logger);
-        SecurityContextRepository         context = new SecurityContextRepository(manager);
+        SecurityContextRepository         context = new SecurityContextRepository(manager, jwtHelper);
         ArrayList<SimpleGrantedAuthority> roles   = new ArrayList<>();
         roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 

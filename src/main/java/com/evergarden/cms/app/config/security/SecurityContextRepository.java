@@ -16,10 +16,12 @@ import reactor.core.publisher.Mono;
 public class SecurityContextRepository implements ServerSecurityContextRepository {
 
     private EvergardenAuthenticationManager authenticationManager;
+    private JwtHelper jwtHelper;
 
     @Autowired
-    public SecurityContextRepository(EvergardenAuthenticationManager authenticationManager) {
+    public SecurityContextRepository(EvergardenAuthenticationManager authenticationManager, JwtHelper jwtHelper) {
         this.authenticationManager = authenticationManager;
+        this.jwtHelper = jwtHelper;
     }
 
     @Override
@@ -33,7 +35,7 @@ public class SecurityContextRepository implements ServerSecurityContextRepositor
         ServerHttpRequest request    = exchange.getRequest();
         String            authHeader = request.getHeaders().getFirst(HttpHeaders.AUTHORIZATION);
 
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+        if (authHeader != null && authHeader.startsWith("Bearer ") && jwtHelper.verifyTokenCache(authHeader.substring(7)) ) {
 
             String         authToken = authHeader.substring(7);
             Authentication auth      = new UsernamePasswordAuthenticationToken(authToken, authToken);

@@ -14,6 +14,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
 
+import javax.cache.Cache;
 import java.util.ArrayList;
 
 @Service
@@ -23,18 +24,20 @@ public class GenerateTokenService {
     private Environment env;
     private Logger logger;
     private JwtHelper jwtHelper;
+    private Cache<String, Token> tokenCache;
 
     @Autowired
     public GenerateTokenService(
         UserRepository userRepository,
         Environment env,
         Logger logger,
-        JwtHelper jwtHelper
-    ) {
+        JwtHelper jwtHelper,
+        Cache<String, Token> tokenCache) {
         this.userRepository = userRepository;
         this.env = env;
         this.logger = logger;
         this.jwtHelper = jwtHelper;
+        this.tokenCache = tokenCache;
     }
 
     public Mono<Token> generateToken(Mono<UnAuthUser> unAuthUserMono) {
@@ -62,5 +65,9 @@ public class GenerateTokenService {
                     // TODO generate token if pass is valid and maybe save it in cache
                     return Mono.error(new InvalidCredentialException(unAuthUser.getEmail()));
                 }));
+    }
+
+    public Boolean removeTokenFromCache(String id) {
+        return tokenCache.remove(id);
     }
 }

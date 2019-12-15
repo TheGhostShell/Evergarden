@@ -7,6 +7,7 @@ import com.evergarden.cms.context.user.application.service.GenerateTokenService;
 import com.evergarden.cms.context.user.domain.entity.Guest;
 import com.evergarden.cms.context.user.domain.entity.Token;
 import com.evergarden.cms.context.user.domain.exception.InvalidRoleNameException;
+import com.evergarden.cms.context.user.infrastructure.controller.input.Logout;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnAuthUser;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnSaveUser;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
@@ -59,7 +60,7 @@ public class LoginHandler {
             .onErrorResume(throwable -> ServerResponse.badRequest().build());
     }
 
-    public Mono<ServerResponse> login(ServerRequest request) {
+    Mono<ServerResponse> login(ServerRequest request) {
         Mono<UnAuthUser> unAuthUserMono = request.body(BodyExtractors.toMono(UnAuthUser.class));
         Mono<Token> tokenMono = this.generateTokenService.generateToken(unAuthUserMono);
         return tokenMono.flatMap(token -> ServerResponse.ok().body(BodyInserters.fromObject(token)))
@@ -82,7 +83,7 @@ public class LoginHandler {
     }
 
     // TODO refactor and use private method as create()
-    public Mono<ServerResponse> update(ServerRequest request) {
+    Mono<ServerResponse> update(ServerRequest request) {
         Mono<UpdatedUser> updatedUserMono = request.body(BodyExtractors.toMono(UpdatedUser.class));
         return cRUDUserService.updateUser(updatedUserMono)
             .flatMap(userResponse -> ServerResponse.ok().body(Mono.just(userResponse), UserResponse.class))
@@ -110,8 +111,19 @@ public class LoginHandler {
             .contentType(MediaType.TEXT_HTML).syncBody(html);
     }
 
-    public Mono<ServerResponse> home(ServerRequest request) {
+    Mono<ServerResponse> home(ServerRequest request) {
         return ServerResponse.ok()
             .contentType(MediaType.TEXT_HTML).syncBody(new FileSystemResource("./template/theme/index.html"));
+    }
+
+    // TODO implement
+    Mono<ServerResponse> updatePassword(ServerRequest serverRequest) {
+        return ServerResponse.ok().build();
+    }
+
+    public Mono<ServerResponse> logout(ServerRequest serverRequest) {
+        return serverRequest.body(BodyExtractors.toMono(Logout.class))
+            .flatMap(logout -> Mono.just(generateTokenService.removeTokenFromCache(logout.getId())))
+            .flatMap(aBoolean -> ServerResponse.ok().build());
     }
 }
