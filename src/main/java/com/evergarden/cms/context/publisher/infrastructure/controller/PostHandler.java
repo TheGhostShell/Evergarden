@@ -1,9 +1,7 @@
 package com.evergarden.cms.context.publisher.infrastructure.controller;
 
+import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
-import com.evergarden.cms.context.publisher.domain.entity.PostMappingInterface;
-import com.evergarden.cms.context.publisher.domain.entity.UpdatedPost;
-import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -11,77 +9,62 @@ import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
 import org.springframework.web.reactive.function.server.ServerResponse;
-import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @Component
 public class PostHandler {
 
-    private Logger         logger;
-    private PostRepository repository;
+    private Logger logger;
+    private CRUDPostService crudPostService;
 
     @Autowired
-    public PostHandler(Logger logger, PostRepository repository) {
+    public PostHandler(Logger logger, CRUDPostService crudPostService) {
         this.logger = logger;
-        this.repository = repository;
+        this.crudPostService = crudPostService;
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
 
-        return request.body(BodyExtractors.toMono(UpdatedPost.class)).flatMap(updatedPost -> {
+        return request.body(BodyExtractors.toMono(Post.class)).flatMap(unSavedPost -> {
 
-            Mono<PostMappingInterface> post = repository
-                    .create(new Post(updatedPost.getTitle(), updatedPost.getBody(), updatedPost.getAuthor()));
+            Mono<Post> post = crudPostService.create(unSavedPost);
 
-            return ServerResponse.ok().body(post, PostMappingInterface.class);
+            return ServerResponse.ok().body(post, Post.class);
         });
     }
 
     public Mono<ServerResponse> read(ServerRequest request) {
-        
-        Long id = Long.parseLong(request.pathVariable("id"));
 
-        return repository
-            .fetchById(id)
-            .onErrorReturn(Post.empty())
-            .flatMap(PostHandler::handleEntityOrNotFound);
+        String id = request.pathVariable("id");
+
+        return crudPostService
+            .findById(id)
+            .flatMap(post -> ServerResponse.ok().body(BodyInserters.fromObject(post)))
+            .onErrorResume(throwable -> ServerResponse.badRequest()
+                .body(BodyInserters.fromObject(throwable.getMessage())));
     }
 
     public Mono<ServerResponse> show(ServerRequest request) {
-        
-        Flux<PostMappingInterface> posts = repository.fetchAll();
-        
-        return ServerResponse.ok().body(posts, PostMappingInterface.class);
+
+        return ServerResponse.ok().body(crudPostService.findAll(), Post.class)
+            .onErrorResume(throwable -> ServerResponse.noContent().build());
     }
 
     public Mono<ServerResponse> update(ServerRequest request) {
-    
-        Long id = Long.parseLong(request.pathVariable("id"));
-    
+
         return request
-            .body(BodyExtractors.toMono(UpdatedPost.class))
-            .flatMap(updatedPost -> {
-                updatedPost.setId(id);
-                return  repository.update(updatedPost);
-            })
-            .onErrorReturn(Post.empty())
-            .flatMap(PostHandler::handleEntityOrNotFound);
+            .body(BodyExtractors.toMono(Post.class))
+            .flatMap(crudPostService::updatePost)
+            .flatMap(post -> ServerResponse.ok().body(BodyInserters.fromObject(post)))
+            .onErrorResume(throwable -> ServerResponse.badRequest()
+                .body(BodyInserters.fromObject(throwable.getMessage())));
     }
-    
-    // TODO: 22/01/19 use long type for better code consistency
+
     public Mono<ServerResponse> delete(ServerRequest request) {
-        
-        int id = Integer.parseInt(request.pathVariable("id"));
 
-        return repository.delete(id)
-                .flatMap(deletedPost -> ServerResponse.ok().build());
-    }
+        String id = request.pathVariable("id");
 
-    private static Mono<ServerResponse> handleEntityOrNotFound(PostMappingInterface post) {
-        if (post.getId() != 0) {
-            return ServerResponse.ok().body(BodyInserters.fromObject(post));
-        } else {
-            return ServerResponse.notFound().build();
-        }
+        return crudPostService.deleteById(id)
+            .flatMap(deletedPost -> ServerResponse.ok().build());
     }
 }

@@ -1,7 +1,6 @@
 package com.evergarden.cms.context.publisher.infrastructure.controller;
 
 import com.evergarden.cms.context.publisher.domain.entity.Post;
-import com.evergarden.cms.context.publisher.domain.entity.UpdatedPost;
 import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
