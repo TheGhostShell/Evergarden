@@ -120,4 +120,11 @@ public class JwtHelper {
             return false;
         }
     }
+
+    public Token sanitizeHeaderToken(String token) {
+        if (token.startsWith("Bearer ")){
+            return new Token(token.substring(7));
+        }
+        return new Token(token);
+    }
 }

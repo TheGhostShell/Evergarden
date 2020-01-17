@@ -41,6 +41,9 @@ public class SingleAppPageConfig implements WebFluxConfigurer {
 
         String[] themeLoc = {"file:./template/theme/", "classpath:/public/admin/"};
 
+        registry.addResourceHandler("/images/avatar/**")
+                .addResourceLocations("file:./images/avatar/");
+
         registry.addResourceHandler("/**")
                 .addResourceLocations(themeLoc)
                 .resourceChain(true)

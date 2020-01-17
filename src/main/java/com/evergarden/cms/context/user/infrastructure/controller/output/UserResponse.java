@@ -20,6 +20,8 @@ public class UserResponse {
 
     private String lastname;
 
+    private String avatarUrl;
+
     private boolean activated;
 
     private Collection<Role> roles = new ArrayList<>();
@@ -39,7 +41,7 @@ public class UserResponse {
         us.setId(user.getId());
         us.setPseudo(user.getPseudo());
         us.setActivated(user.isActivated());
-
+        us.setAvatarUrl(user.getAvatar().getRelativeUri());
         us.setRoles(user.getRoles());
 
         return us;

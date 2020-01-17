@@ -39,6 +39,8 @@ public class User {
 
     private String pseudo;
 
+    private Avatar avatar;
+
     private boolean activated = true;
 
     @DBRef
