@@ -1,6 +1,7 @@
 package com.evergarden.cms.context.user.application.service;
 
 import com.evergarden.cms.app.utils.ExceptionUtils;
+import com.evergarden.cms.context.user.application.mapper.UpdateUserMapper;
 import com.evergarden.cms.context.user.application.mapper.UserMapper;
 import com.evergarden.cms.context.user.domain.entity.User;
 import com.evergarden.cms.context.user.domain.exception.RessourceNotFoundException;
@@ -64,9 +65,9 @@ public class CRUDUserService {
     public Mono<UserResponse> updateUser(Mono<UpdatedUser> updatedUser) {
         return updatedUser
             .flatMap(upUser -> userRepository.findById(upUser.getId())
-                .flatMap(user -> updatedUser)
-                .switchIfEmpty(Mono.error(new RessourceNotFoundException(upUser.getId()))))
-            .flatMap(unUpdateUser -> Mono.just(UserMapper.INSTANCE.updatedUserToUser(unUpdateUser)))
+                .flatMap(user -> Mono.just(UpdateUserMapper.toUser(upUser, user)))
+                .switchIfEmpty(Mono.error(new RessourceNotFoundException(upUser.getId())))
+            )
             .flatMap(user -> assignRoleUserService.assignRoleToUser(user))
             .flatMap(user -> userRepository.save(user))
             .flatMap(user -> Mono.just(UserMapper.INSTANCE.userToUserResponse(user)))

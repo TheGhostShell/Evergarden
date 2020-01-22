@@ -41,7 +41,6 @@ public class JwtHelper {
         this.logger = logger;
         this.tokenCache = tokenCache;
         this.verifier = JWT.require(algorithm).withIssuer(JwtHelper.ISSUER).build();
-
     }
 
     @Cacheable(value = "tokenCache", key = "#id")
