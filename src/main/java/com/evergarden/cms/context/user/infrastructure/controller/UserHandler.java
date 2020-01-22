@@ -58,6 +58,7 @@ public class UserHandler {
     }
 
     // TODO refactor and use private method as create()
+    // TODO use id from token for more security is the right behavior
     Mono<ServerResponse> update(ServerRequest request) {
         Mono<UpdatedUser> updatedUserMono = request.body(BodyExtractors.toMono(UpdatedUser.class));
         return cRUDUserService.updateUser(updatedUserMono)

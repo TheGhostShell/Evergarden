@@ -1,11 +1,13 @@
 package com.evergarden.cms.context.user.infrastructure.controller.output;
 
+import com.evergarden.cms.context.user.domain.entity.Avatar;
 import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.User;
 import lombok.Data;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 
 @Data
 public class UserResponse {
@@ -41,7 +43,7 @@ public class UserResponse {
         us.setId(user.getId());
         us.setPseudo(user.getPseudo());
         us.setActivated(user.isActivated());
-        us.setAvatarUrl(user.getAvatar().getRelativeUri());
+        us.setAvatarUrl(Optional.ofNullable(user.getAvatar()).map(Avatar::getRelativeUri).orElse(""));
         us.setRoles(user.getRoles());
 
         return us;
