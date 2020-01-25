@@ -1,21 +1,21 @@
 package com.evergarden.cms.context.publisher.infrastructure.controller;
 
+import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
-import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.BDDMockito;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.env.Environment;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.test.web.reactive.server.WebTestClient;
 import org.springframework.web.reactive.function.server.RouterFunction;
+import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -25,69 +25,67 @@ import reactor.core.publisher.Mono;
  */
 @ExtendWith(SpringExtension.class)
 @WebFluxTest
+@ContextConfiguration(classes = {PostRouter.class, PostHandler.class})
 class PostRouterTest {
 
     @Autowired
     private Environment env;
 
-    private Logger logger = LoggerFactory.getLogger(this.getClass());
-
     @MockBean
-    private PostRepository postRepository;
+    private CRUDPostService crudPostService;
 
     private WebTestClient client;
 
     @BeforeEach
     void setUp() {
-        PostHandler    postHandler = new PostHandler(logger, postRepository);
-        RouterFunction router      = (new PostRouter()).postRoute(postHandler, env);
-        client = WebTestClient.bindToRouterFunction(router)
-            .build();
+        PostHandler                    postHandler = new PostHandler(crudPostService);
+        RouterFunction<ServerResponse> router      = (new PostRouter()).postRoute(postHandler, env);
+        client = WebTestClient.bindToRouterFunction(router).build();
     }
 
     @Test
     void read() {
 
-        UpdatedPost expectedPost = new UpdatedPost();
+        Post expectedPost = new Post();
         expectedPost.setAuthor("john");
         expectedPost.setTitle("<h1>The book ever</h1>");
         expectedPost.setBody("<b>This is a wonderfull book I ever read</b>");
-        expectedPost.setId(1L);
+        expectedPost.setId("postId");
 
-        BDDMockito.given(postRepository.fetchById(1L))
+        BDDMockito.given(crudPostService.findById("postId"))
             .willReturn(Mono.just(expectedPost));
 
         client.get()
-            .uri(env.getProperty("v1") + "/post/{id}", 1)
+            .uri(env.getProperty("v1") + "/post/{id}", "postId")
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk()
-            .expectBody(UpdatedPost.class)
+            .expectBody(Post.class)
             .isEqualTo(expectedPost);
     }
 
     @Test
     void show() {
 
-        UpdatedPost expectedPost1 = new UpdatedPost();
+        Post expectedPost1 = new Post();
         expectedPost1.setAuthor("john");
         expectedPost1.setTitle("<h1>The book ever</h1>");
         expectedPost1.setBody("<b>This is a wonderfull book I ever read</b>");
-        expectedPost1.setId(1L);
+        expectedPost1.setId("post1");
 
-        UpdatedPost expectedPost2 = new UpdatedPost();
+        Post expectedPost2 = new Post();
         expectedPost2.setAuthor("john2");
         expectedPost2.setTitle("<h1>The book ever 2</h1>");
         expectedPost2.setBody("<b>This is a wonderfull book I ever read 2</b>");
-        expectedPost2.setId(2L);
+        expectedPost2.setId("post2");
 
-        UpdatedPost expectedPost3 = new UpdatedPost();
+        Post expectedPost3 = new Post();
         expectedPost3.setAuthor("john3");
         expectedPost3.setTitle("<h1>The book ever 3</h1>");
         expectedPost3.setBody("<b>This is a wonderfull book I ever read 3</b>");
-        expectedPost3.setId(3L);
+        expectedPost3.setId("post3");
 
-        BDDMockito.given(postRepository.fetchAll())
+        BDDMockito.given(crudPostService.findAll())
             .willReturn(Flux.just(expectedPost1, expectedPost2, expectedPost3));
 
         client.get()
@@ -95,7 +93,7 @@ class PostRouterTest {
             .accept(MediaType.APPLICATION_JSON)
             .exchange()
             .expectStatus().isOk()
-            .expectBodyList(UpdatedPost.class)
+            .expectBodyList(Post.class)
             .hasSize(3)
             .contains(expectedPost3)
             .contains(expectedPost1);
@@ -104,11 +102,10 @@ class PostRouterTest {
     @Test
     void delete() {
 
-        BDDMockito.given(postRepository.delete(1))
-            .willReturn(Mono.empty());
+        BDDMockito.given(crudPostService.deleteById("postToDelete")).willReturn(Mono.empty());
 
         client.delete()
-            .uri(env.getProperty("v1s") + "/post/{id}", 1)
+            .uri(env.getProperty("v1s") + "/post/{id}", "postToDelete")
             .exchange()
             .expectStatus().isOk();
     }
@@ -116,60 +113,68 @@ class PostRouterTest {
     @Test
     void create() {
 
-        Post post             = new Post("Best post", "Lorem ipsum", "john");
-        Post postMonoResponse = new Post("Best post", "Lorem ipsum", "john");
-        postMonoResponse.setId(1L);
+        Post post = Post.builder()
+            .body("Lorem ipsum")
+            .author("john")
+            .title("Best post")
+            .build();
+        Post postMonoResponse = Post.builder()
+            .body("Lorem ipsum")
+            .author("john")
+            .title("Best post")
+            .id("postId")
+            .build();
 
-        BDDMockito.given(postRepository.create(post))
+        Post request = Post.builder()
+            .title("Best post")
+            .author("john")
+            .body("Lorem ipsum")
+            .build();
+
+        BDDMockito.given(crudPostService.create(post))
             .willReturn(Mono.just(postMonoResponse));
-
-        PostRequestTest request = new PostRequestTest(
-            "Lorem ipsum",
-            "john",
-            "Best post"
-        );
 
         client.post()
             .uri(env.getProperty("v1s") + "/post")
-            .syncBody(request)
+            .bodyValue(request)
             .exchange()
             .expectStatus().isOk()
             .expectBody()
             .jsonPath("body").isEqualTo("Lorem ipsum")
             .jsonPath("author").isEqualTo("john")
-            .jsonPath("title").isEqualTo("Best post")
-            .jsonPath("id").isEqualTo(1);
+            .jsonPath("title").isEqualTo("Best post");
+        //.jsonPath("id").isEqualTo(1);
     }
 
     @Test
     void update() {
 
-        UpdatedPost post = new UpdatedPost();
-        post.setBody("Lorem ipsum");
-        post.setTitle("Best post");
-        post.setAuthor("john");
-        post.setId(1L);
+        Post post = Post.builder()
+            .body("Opo dum opo dim")
+            .author("Mike")
+            .title("The snake")
+            .id("postId")
+            .build();
 
-        BDDMockito.given(postRepository.update(post))
+        BDDMockito.given(crudPostService.updatePost(post))
             .willReturn(Mono.just(post));
 
-        PostRequestTest request = new PostRequestTest(
-            "Lorem ipsum",
-            "john",
-            "Best post"
-        );
-
-        request.setId(1L);
+        Post request = Post.builder()
+            .body("Opo dum opo dim")
+            .author("Mike")
+            .title("The snake")
+            .id("postId")
+            .build();
 
         client.patch()
-            .uri(env.getProperty("v1s") + "/post/{id}", 1)
-            .syncBody(request)
+            .uri(env.getProperty("v1s") + "/post")
+            .bodyValue(request)
             .exchange()
             .expectStatus().isOk()
             .expectBody()
-            .jsonPath("body").isEqualTo("Lorem ipsum")
-            .jsonPath("author").isEqualTo("john")
-            .jsonPath("title").isEqualTo("Best post")
-            .jsonPath("id").isEqualTo(1);
+            .jsonPath("body").isEqualTo("Opo dum opo dim")
+            .jsonPath("author").isEqualTo("Mike")
+            .jsonPath("title").isEqualTo("The snake")
+            .jsonPath("id").isEqualTo("postId");
     }
 }

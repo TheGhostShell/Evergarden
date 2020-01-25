@@ -14,12 +14,10 @@ import reactor.core.publisher.Mono;
 @Component
 public class PostHandler {
 
-    private Logger logger;
     private CRUDPostService crudPostService;
 
     @Autowired
-    public PostHandler(Logger logger, CRUDPostService crudPostService) {
-        this.logger = logger;
+    public PostHandler(CRUDPostService crudPostService) {
         this.crudPostService = crudPostService;
     }
 
@@ -39,9 +37,9 @@ public class PostHandler {
 
         return crudPostService
             .findById(id)
-            .flatMap(post -> ServerResponse.ok().body(BodyInserters.fromObject(post)))
+            .flatMap(post -> ServerResponse.ok().body(BodyInserters.fromValue(post)))
             .onErrorResume(throwable -> ServerResponse.badRequest()
-                .body(BodyInserters.fromObject(throwable.getMessage())));
+                .body(BodyInserters.fromValue(throwable.getMessage())));
     }
 
     public Mono<ServerResponse> show(ServerRequest request) {
@@ -55,9 +53,9 @@ public class PostHandler {
         return request
             .body(BodyExtractors.toMono(Post.class))
             .flatMap(crudPostService::updatePost)
-            .flatMap(post -> ServerResponse.ok().body(BodyInserters.fromObject(post)))
+            .flatMap(post -> ServerResponse.ok().body(BodyInserters.fromValue(post)))
             .onErrorResume(throwable -> ServerResponse.badRequest()
-                .body(BodyInserters.fromObject(throwable.getMessage())));
+                .body(BodyInserters.fromValue(throwable.getMessage())));
     }
 
     public Mono<ServerResponse> delete(ServerRequest request) {

@@ -1,6 +1,7 @@
 package com.evergarden.cms.context.user.domain.entity;
 
 import com.evergarden.cms.context.user.domain.exception.InvalidRoleNameException;
+import com.evergarden.cms.context.user.domain.security.Permission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -8,6 +9,9 @@ import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 import org.springframework.lang.NonNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @EqualsAndHashCode
@@ -21,6 +25,8 @@ public class Role {
     @Indexed(unique = true)
     @NonNull
     private String role;
+
+    private List<Permission> permissions = new ArrayList<>();
 
     public Role(String role) {
         setRole(role);

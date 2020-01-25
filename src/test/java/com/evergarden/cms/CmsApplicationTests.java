@@ -1,18 +1,22 @@
 package com.evergarden.cms;
 
+import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
+//@ContextConfiguration(classes={ReactiveMongoRepository.class})
 public class CmsApplicationTests {
 	
-	@Autowired
-	private PostRepository postRepository;
+	private CRUDPostService postRepository;
 	
 	/*@Test
 	public void contextLoads() {

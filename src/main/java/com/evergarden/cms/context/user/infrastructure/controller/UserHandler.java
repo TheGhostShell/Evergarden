@@ -39,7 +39,7 @@ public class UserHandler {
     public Mono<ServerResponse> create(ServerRequest request) {
         Mono<UnSaveUser> unSaveUserMono = request.body(BodyExtractors.toMono(UnSaveUser.class));
         return cRUDUserService.createUser(unSaveUserMono)
-            .flatMap(userResponse -> ServerResponse.ok().body(BodyInserters.fromObject(userResponse)))
+            .flatMap(userResponse -> ServerResponse.ok().body(BodyInserters.fromValue(userResponse)))
             .onErrorResume(throwable -> {
                 logger.warn(throwable.toString());
                 String err = ExceptionUtils.getRootCause(throwable).getClass() == InvalidRoleNameException.class

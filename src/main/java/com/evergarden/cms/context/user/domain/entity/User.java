@@ -41,9 +41,11 @@ public class User {
 
     private Avatar avatar;
 
+    @Builder.Default
     private boolean activated = true;
 
     @DBRef
+    @Builder.Default
     private Collection<Role> roles = new ArrayList<>();
 
     private String salt;

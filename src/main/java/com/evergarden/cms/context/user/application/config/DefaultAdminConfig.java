@@ -42,7 +42,7 @@ public class DefaultAdminConfig {
     public void createDefaultAdmin() {
 
         roleRepository.findByRole(RoleEnum.MASTER_ADMIN.toString())
-            .flatMap(role -> userRepository.findFirstByRoles(role))
+            .flatMap(this::findOneMasterAdmin)
             .switchIfEmpty(
                 Mono.defer(this::createMasterAdmin)
             ).subscribe();
@@ -73,6 +73,13 @@ public class DefaultAdminConfig {
 
         return cRUDRoleService.assignRoleToUser(admin)
             .flatMap(user -> userRepository.save(user))
+            .doOnSuccess(user -> logger.debug("Successfully created default master user with id: {}", user.getId()))
             .doOnError(throwable -> logger.error("We failed bad in creating default user"));
+    }
+
+    private Mono<User> findOneMasterAdmin(Role role){
+        logger.debug("Try to find one user with role MASTER_ADMIN");
+       return userRepository.findFirstByRoles(role).doOnSuccess(user ->
+           logger.debug("found one user with email: {}", user.getEmail()));
     }
 }

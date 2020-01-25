@@ -7,11 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -22,6 +26,8 @@ import java.util.Base64;
 import static org.junit.jupiter.api.Assertions.*;
 
 @WebFluxTest
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes={ReactiveMongoRepository.class})
 class EvergardenEncoderTest {
 
     @Autowired
