@@ -12,7 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 @ExtendWith(SpringExtension.class)
-@SpringBootTest
+//@SpringBootTest
 //@ContextConfiguration(classes={ReactiveMongoRepository.class})
 public class CmsApplicationTests {
 	
@@ -22,9 +22,9 @@ public class CmsApplicationTests {
 	public void contextLoads() {
 	}*/
 	
-	@Test
+	/*@Test
 	public void testStepVerifier() {
-		/*Flux<Long> flux = Flux.interval(Duration.ofSeconds(1L)).take(10L);
+		*//*Flux<Long> flux = Flux.interval(Duration.ofSeconds(1L)).take(10L);
 		
 		Duration dur = Duration.ofSeconds(1L);
 		
@@ -37,10 +37,10 @@ public class CmsApplicationTests {
 			.expectComplete()
 			.verify(Duration.ofSeconds(4L));
 		
-		System.out.println(duration.getSeconds());*/
+		System.out.println(duration.getSeconds());*//*
 
 //		StepVerifier.withVirtualTime(()->flux)
 //			.expectSubscription()
 //			.expect
-	}
+	}*/
 }
