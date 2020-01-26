@@ -56,9 +56,29 @@ test {
     finalizedBy jacocoTestReport
 }
 
+
+
+/*
+task integrationTestOnly(type: Test) {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+    }
+    include 'integrationTest/**'
+    dependsOn compileTestJava
+    mustRunAfter test
+    jacoco {
+        include 'integrationTest/**'
+        // append = true
+
+    }
+}
+*/
+
 task codeCoverageReport(type: JacocoReport) {
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-    
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/test.exec")
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/integrationTest.exec")
+
     reports {
         xml.enabled = true
         xml.setDestination(new File("${buildDir}/reports/jacoco/report.xml"))
@@ -156,14 +176,14 @@ dependencies {
 }
 
 testSets {
-    integration
+    integrationTest
 }
 
 tasks.withType(Test) {
     useJUnitPlatform()
 }
 
-check.dependsOn integration
+check.dependsOn integrationTest
 
 //	        			from spring initializr
 // runtimeOnly('org.springframework.boot:spring-boot-devtools')
