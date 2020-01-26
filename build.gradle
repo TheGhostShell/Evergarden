@@ -88,9 +88,6 @@ dependencies {
     // Eureka client
     // compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
-    //jooq sql lib
-    // compile group: 'org.jooq', name: 'jooq', version: '3.11.10'
-
     //sdk
     implementation 'com.github.GostShell:sdk:v0.0.3.6-alpha'
 
@@ -133,40 +130,11 @@ dependencies {
     testImplementation('io.projectreactor:reactor-test')
     testCompile('org.junit.jupiter:junit-jupiter:5.4.0')
 
-    //junit test
-    //testCompile group: 'junit', name: 'junit', version: '4.12'
-    
-    // mockito
-    //testCompile group: 'org.mockito', name: 'mockito-core', version: '2.24.0'
-
-    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    //testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
-
-    /**
-     * JUnit Jupiter parameter configuration.
-     */
-    //testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.3.2'
-
-    /**
-     * JUnit Jupiter testing engine.
-     */
-    //testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
-
-    //testCompile group: 'org.junit.vintage', name: 'junit-vintage-engine', version: '5.3.2'
-
-    /**
-     * Vintage platform engine.
-     */
-    //testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.3.2'
-
     // testContainer acceptance test
     testImplementation(group: 'org.testcontainers', name: 'testcontainers', version: '1.12.4')
 
     testCompile group: 'io.rest-assured', name: 'rest-assured', version: '4.1.2'
     testCompile group: 'io.rest-assured', name: 'rest-assured-all', version: '4.1.2'
-//    testCompile group: 'io.rest-assured', name: 'json-path', version: '4.1.2'
-//    testCompile group: 'io.rest-assured', name: 'rest-assured-common', version: '4.1.2'
-//    testCompile group: 'io.rest-assured', name: 'spring-commons', version: '4.1.2'
 
     // caching
     implementation 'org.springframework.boot:spring-boot-starter-cache'
@@ -174,9 +142,6 @@ dependencies {
     compile 'org.ehcache:ehcache:3.8.1'
 
     implementation 'javax.cache:cache-api'
-
-    // Integrate flyway for database migration version control
-    // compile "org.flywaydb:flyway-core:5.2.4"
 
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
@@ -201,12 +166,7 @@ tasks.withType(Test) {
 check.dependsOn integration
 
 //	        			from spring initializr
-
-// implementation('org.springframework.boot:spring-boot-starter-web')
 // runtimeOnly('org.springframework.boot:spring-boot-devtools')
-// runtimeOnly('com.h2database:h2')
-// testImplementation('org.springframework.boot:spring-boot-starter-test')
-// testImplementation('io.projectreactor:reactor-test')
 
 
 //dependencyManagement {
