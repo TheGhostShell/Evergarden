@@ -25,7 +25,7 @@ public class OsgiLoader {
 
     private String migration;
 
-    @Bean
+    //@Bean
     public BundleContext loadPlugin(Logger logger, Jooquer jooquer) {
         configMap.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
         configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "com.evergarden.sdk, com.evergarden.sdk.database");

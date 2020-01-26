@@ -1,5 +1,6 @@
 package com.evergarden.cms.app.config.security;
 
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.ReactiveAuthenticationManager;
@@ -19,15 +20,14 @@ import java.util.List;
  * Invalid tokens are filtered one previous step
  */
 @Component
+@Slf4j
 public class EvergardenAuthenticationManager implements ReactiveAuthenticationManager {
 
     private JwtHelper jwtHelper;
-    private Logger logger;
 
     @Autowired
-    public EvergardenAuthenticationManager(JwtHelper jwtHelper, Logger logger) {
+    public EvergardenAuthenticationManager(JwtHelper jwtHelper) {
         this.jwtHelper = jwtHelper;
-        this.logger = logger;
     }
 
     /**
@@ -36,7 +36,7 @@ public class EvergardenAuthenticationManager implements ReactiveAuthenticationMa
      * @param authentication A valid authentication object
      * @return if authentication is successful an {@link Authentication} is returned.
      * If authentication cannot be determined, an empty Mono is returned.
-     * If authentication fails, a Mono error is returned.
+     * TODO If authentication fails, a Mono error is returned.
      */
     @Override
     public Mono<Authentication> authenticate(Authentication authentication) {
@@ -51,6 +51,8 @@ public class EvergardenAuthenticationManager implements ReactiveAuthenticationMa
 
         List<SimpleGrantedAuthority> roles = jwtHelper.getRolesFromToken(authToken);
         String                       email = jwtHelper.getEmailFromToken(authToken);
+
+        log.debug("Try to authenticate {}", email);
 
         Authentication authenticated = new UsernamePasswordAuthenticationToken(email, authToken, roles);
 

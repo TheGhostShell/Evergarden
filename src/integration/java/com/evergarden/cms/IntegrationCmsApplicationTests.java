@@ -1,25 +1,29 @@
 package com.evergarden.cms;
 
-import org.springframework.boot.test.context.SpringBootTest;
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class IntegrationCmsApplicationTests {
-    private static MongoDbContainer mongo;
+    public static MongoDbContainer mongo;
+    private static Logger logger;
 
     static {
-        IntegrationCmsApplicationTests.mongo = new MongoDbContainer("mongo:4.2.2")
-            .withExposedPorts(27017);
+        mongo = new MongoDbContainer("mongo:3.2").withExposedPorts(27017);
+        logger = LoggerFactory.getLogger(IntegrationCmsApplicationTests.class);
         mongo.start();
+        String dbname = "evergardenTest";
 
-        System.setProperty("spring.data.mongodb.database", "evergardenTest");
+
+        System.setProperty("spring.data.mongodb.database", dbname);
         System.setProperty("spring.data.mongodb.host", mongo.getContainerIpAddress());
         System.setProperty("spring.data.mongodb.port", mongo.getFirstMappedPort().toString());
 
-    }
+        System.out.printf(
+            "Starting mongodb for integration test on host %s:%s and db name %s  \n",
+            mongo.getContainerIpAddress(),
+            mongo.getFirstMappedPort().toString(),
+            dbname
+        );
 
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        IntegrationCmsApplicationTests.mongo.stop();
     }
 }
