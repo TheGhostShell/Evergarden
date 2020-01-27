@@ -78,7 +78,7 @@ public class CRUDPostServiceTest extends IntegrationCmsApplicationTests {
             .expectNextMatches(savedPost -> {
                 Assertions.assertEquals("Violet", savedPost.getAuthor());
                 Assertions.assertEquals("I'm a writer", savedPost.getBody());
-                Assertions.assertEquals("Nice titl", savedPost.getTitle());
+                Assertions.assertEquals("Nice title", savedPost.getTitle());
                 Assertions.assertNotNull(savedPost.getId());
                 crudPostService.deleteById(savedPost.getId()).subscribe();
                 return true;
