@@ -205,7 +205,7 @@ task integtest(type: Test) {
     jacocoTestReport {
         executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/jacocoIntegTest.exec")
         reports.xml.enabled(true)
-        reports.xml.setDestination(new File("${buildDir}/reports/jacoco/xml/integreport.xml"))
+        reports.xml.setDestination(new File("${buildDir}/reports/jacoco/integ/report.xml"))
         getClassDirectories().setFrom(fileTree(dir: 'build/classes/java/main'))
         getSourceDirectories().setFrom(fileTree(dir: 'scr/main/java'))
     }
