@@ -54,6 +54,8 @@ test {
         exceptionFormat "full"
     }
     finalizedBy jacocoTestReport
+
+    reports.junitXml.enabled(true)
 }
 
 
@@ -76,14 +78,11 @@ task integrationTestOnly(type: Test) {
 */
 
 task codeCoverageReport(type: JacocoReport) {
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/test.exec")
-    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/integrationTest.exec")
+    executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
 
     reports {
         xml.enabled = true
         xml.setDestination(new File("${buildDir}/reports/jacoco/xml/report.xml"))
-        html.enabled = true
-        html.setDestination(new File("${buildDir}/reports/jacoco/html/report"))
     }
 
     getClassDirectories().setFrom(fileTree(dir: 'build/classes/java/main'))
@@ -177,7 +176,43 @@ dependencies {
     // test integration w<ith flyway https://github.com/flyway/flyway-test-extensions/wiki/Usage-flyway-spring-test
 }
 
-testSets {
+sourceSets {
+    integtest {
+
+            compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.test.compileClasspath
+            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.test.compileClasspath
+            java.srcDir "$projectDir/src/integrationTest/java"
+            resources.srcDir "$projectDir/src/test/resources"
+
+    }
+}
+
+configurations {
+    integtestCompile.extendsFrom testCompile
+    integtestImplementation.extendsFrom(testImplementaion)
+    integtestRuntime.extendsFrom(testRuntime)
+}
+
+task integtest(type: Test) {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.integtest.output.classesDirs
+    classpath = sourceSets.integtest.runtimeClasspath
+
+    dependsOn(compileJava)
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/jacocoIntegTest.exec")
+    }
+    jacocoTestReport {
+        executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/jacocoIntegTest.exec")
+        reports.xml.enabled(true)
+        reports.xml.setDestination(new File("${buildDir}/reports/jacoco/xml/integreport.xml"))
+        getClassDirectories().setFrom(fileTree(dir: 'build/classes/java/main'))
+        getSourceDirectories().setFrom(fileTree(dir: 'scr/main/java'))
+    }
+    finalizedBy jacocoTestReport
+}
+check.dependsOn(integtest)
+/*testSets {
     integrationTest
 }
 
@@ -185,7 +220,7 @@ tasks.withType(Test) {
     useJUnitPlatform()
 }
 
-check.dependsOn integrationTest
+check.dependsOn integrationTest*/
 
 //	        			from spring initializr
 // runtimeOnly('org.springframework.boot:spring-boot-devtools')
