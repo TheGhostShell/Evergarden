@@ -179,8 +179,8 @@ dependencies {
 sourceSets {
     integtest {
 
-            compileClasspath += sourceSets.main.runtimeClasspath + sourceSets.test.compileClasspath
-            runtimeClasspath += sourceSets.main.runtimeClasspath + sourceSets.test.compileClasspath
+            compileClasspath += sourceSets.test.compileClasspath
+            runtimeClasspath += sourceSets.test.runtimeClasspath
             java.srcDir "$projectDir/src/integrationTest/java"
             resources.srcDir "$projectDir/src/test/resources"
 
