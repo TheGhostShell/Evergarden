@@ -10,7 +10,7 @@ import reactor.test.StepVerifier;
 
 
 public class should_updated_previous_post extends IntegrationCmsApplicationTests {
-    
+
     @Autowired
     private CRUDPostService crudPostService;
 
