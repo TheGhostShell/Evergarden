@@ -1,17 +1,14 @@
 package com.evergarden.cms.context.publisher.application.service.crudpostservice;
 
+import com.evergarden.cms.IntegrationCmsApplicationTests;
 import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
-public class should_delete_existing_post {
+
+public class should_delete_existing_post extends IntegrationCmsApplicationTests {
 
     @Autowired
     private CRUDPostService crudPostService;

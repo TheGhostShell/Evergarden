@@ -5,14 +5,10 @@ import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.test.StepVerifier;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
+
 public class should_save_new_post extends IntegrationCmsApplicationTests {
 
     @Autowired

@@ -5,15 +5,11 @@ import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.junit.jupiter.SpringExtension;
 import reactor.core.publisher.Flux;
 import reactor.test.StepVerifier;
 
-@ExtendWith(SpringExtension.class)
-@SpringBootTest
+
 public class should_find_all_post extends IntegrationCmsApplicationTests {
 
     @Autowired
