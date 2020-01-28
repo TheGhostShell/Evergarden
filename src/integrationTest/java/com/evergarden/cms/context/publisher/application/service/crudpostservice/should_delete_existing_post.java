@@ -3,8 +3,10 @@ package com.evergarden.cms.context.publisher.application.service.crudpostservice
 import com.evergarden.cms.IntegrationCmsApplicationTests;
 import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
+import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
 
@@ -21,15 +23,17 @@ public class should_delete_existing_post extends IntegrationCmsApplicationTests 
             .body("I'm a tragic novel author")
             .build();
 
-        crudPostService.create(freshPost1).block();
-
-        StepVerifier.create(crudPostService.findAll())
+        StepVerifier.create(crudPostService.create(freshPost1))
             .expectNextMatches(post1 -> {
-                crudPostService.deleteById(post1.getId()).subscribe();
+                Assertions.assertNotNull(post1.getId());
                 return true;
             })
             .expectComplete()
             .verify();
+
+        crudPostService.findAll()
+            .flatMap(post -> crudPostService.deleteById(post.getId()))
+            .blockLast();
 
         StepVerifier.create(crudPostService.findAll())
             .expectNextCount(0)
