@@ -50,8 +50,8 @@ jacocoTestReport {
 
 sonarqube {
     properties {
-        property 'sonar.coverage.jacoco.xmlReportsPath', ['./build/reports/jacoco/integ/', './build/reports/jacoco/']
-        property 'sonar.junit.reportPaths',	['./build/test-results/integtest', './build/test-results/test']
+        property 'sonar.coverage.jacoco.xmlReportsPath', './build/reports/jacoco/integ/, ./build/reports/jacoco/']
+        property 'sonar.junit.reportPaths',	'./build/test-results/integtest, ./build/test-results/test'
     }
 }
 
@@ -220,6 +220,8 @@ task integtest(type: Test) {
     finalizedBy jacocoTestReport
 }
 check.dependsOn(integtest)
+project.tasks["sonarqube"].dependsOn "integtest"
+
 /*testSets {
     integrationTest
 }
