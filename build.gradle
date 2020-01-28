@@ -82,7 +82,7 @@ task codeCoverageReport(type: JacocoReport) {
 
     reports {
         xml.enabled = true
-        xml.setDestination(new File("${buildDir}/reports/jacoco/xml/report.xml"))
+        xml.setDestination(new File("${buildDir}/reports/jacoco/report.xml"))
     }
 
     getClassDirectories().setFrom(fileTree(dir: 'build/classes/java/main'))
