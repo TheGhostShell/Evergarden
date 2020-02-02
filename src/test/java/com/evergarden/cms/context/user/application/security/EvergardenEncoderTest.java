@@ -39,7 +39,7 @@ class EvergardenEncoderTest {
 
     @BeforeEach
     void setUp() {
-        encoder = new EvergardenEncoder(env, logger);
+        encoder = new EvergardenEncoder(env);
     }
 
     @Test
@@ -75,7 +75,7 @@ class EvergardenEncoderTest {
     @Test
     void encodeFailWithBadAlgorithm() {
         Environment envMock = mock(Environment.class);
-        encoder = new EvergardenEncoder(envMock, logger);
+        encoder = new EvergardenEncoder(envMock);
 
         when(envMock.getProperty("secure.ramdom.algo")).thenReturn("bad-algorithm");
         when(envMock.getProperty("encode.iteration")).thenReturn(env.getProperty("encode.iteration"));
@@ -123,7 +123,7 @@ class EvergardenEncoderTest {
         String password = "weak_password";
         encoder.encode(password);
         EncodedCredential encodedCredential = encoder.getEncodedCredential();
-        EvergardenEncoder eveEncoder        = new EvergardenEncoder(env, logger, encodedCredential);
+        EvergardenEncoder eveEncoder        = new EvergardenEncoder(env, encodedCredential);
 
         assertTrue(eveEncoder.matches(password, encodedCredential.getEncodedPassword()));
     }
@@ -133,7 +133,7 @@ class EvergardenEncoderTest {
         String password = "weak_password";
         encoder.encode(password);
         EncodedCredential encodedCredentialMock = mock(EncodedCredential.class);
-        EvergardenEncoder eveEncoder            = new EvergardenEncoder(env, logger, encodedCredentialMock);
+        EvergardenEncoder eveEncoder            = new EvergardenEncoder(env, encodedCredentialMock);
 
         when(encodedCredentialMock.getSalt()).thenAnswer(invocation -> {
             throw new Exception();

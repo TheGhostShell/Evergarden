@@ -45,7 +45,7 @@ public class GenerateTokenService {
                 .flatMap(user -> {
 
                     EncodedCredential encodedCredential = new EncodedCredential(user.getSalt(), user.getPassword());
-                    EvergardenEncoder encoder = new EvergardenEncoder(env, logger, encodedCredential);
+                    EvergardenEncoder encoder = new EvergardenEncoder(env, encodedCredential);
 
                     boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
                     logger.debug("Is password valid for user " + user.getEmail() + " " +isValidPass);

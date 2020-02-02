@@ -7,11 +7,13 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.evergarden.cms.context.user.domain.entity.Token;
+import com.evergarden.cms.context.user.domain.entity.TokenDecrypted;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
 
 import javax.cache.Cache;
 import java.sql.Date;
@@ -125,5 +127,18 @@ public class JwtHelper {
             return new Token(token.substring(7));
         }
         return new Token(token);
+    }
+
+    public TokenDecrypted fromServerRequest(ServerRequest serverRequest) {
+        String token = serverRequest.headers().header("Authorization").get(0); // TODO verify if get(0) is safe
+        return toTokenDecrypted(sanitizeHeaderToken(token));
+    }
+
+    public TokenDecrypted toTokenDecrypted(Token token) {
+        return TokenDecrypted.builder()
+            .rawToken(token.getToken())
+            .userId(getIdFromToken(token.getToken()))
+            .build();
+
     }
 }

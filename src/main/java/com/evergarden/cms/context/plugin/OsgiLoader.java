@@ -1,11 +1,14 @@
 package com.evergarden.cms.context.plugin;
 
-import com.evergarden.cms.tester.Jooquer;
+
 import com.evergarden.sdk.database.Migration;
 import org.apache.felix.framework.Felix;
-import org.osgi.framework.*;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.BundleContext;
+import org.osgi.framework.BundleException;
+import org.osgi.framework.Constants;
+import org.osgi.framework.ServiceReference;
 import org.slf4j.Logger;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import java.io.IOException;
@@ -14,7 +17,9 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Properties;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -26,7 +31,7 @@ public class OsgiLoader {
     private String migration;
 
     //@Bean
-    public BundleContext loadPlugin(Logger logger, Jooquer jooquer) {
+    public BundleContext loadPlugin(Logger logger) {
         configMap.put(Constants.FRAMEWORK_STORAGE_CLEAN, "onFirstInit");
         configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, "com.evergarden.sdk, com.evergarden.sdk.database");
         Felix framework = new Felix(configMap);

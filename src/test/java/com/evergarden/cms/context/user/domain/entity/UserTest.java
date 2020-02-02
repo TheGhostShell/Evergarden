@@ -20,7 +20,6 @@ class UserTest {
         user.setFirstname("Batou");
         user.setPseudo("Batou");
         user.setEncodedCredential(new EncodedCredential("salt", "password"));
-        user.setId("userId");
         user.setActivated(true);
         user.setRoles(roles);
 

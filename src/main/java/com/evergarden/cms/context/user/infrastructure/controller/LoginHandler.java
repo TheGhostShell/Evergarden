@@ -54,7 +54,7 @@ public class LoginHandler {
     Mono<ServerResponse> login(ServerRequest request) {
         Mono<UnAuthUser> unAuthUserMono = request.body(BodyExtractors.toMono(UnAuthUser.class));
         Mono<Token> tokenMono = this.generateTokenService.generateToken(unAuthUserMono);
-        return tokenMono.flatMap(token -> ServerResponse.ok().body(BodyInserters.fromObject(token)))
+        return tokenMono.flatMap(token -> ServerResponse.ok().body(BodyInserters.fromValue(token)))
             .onErrorResume(throwable -> {
                 logger.warn(throwable.toString());
                 return ServerResponse.badRequest().build();

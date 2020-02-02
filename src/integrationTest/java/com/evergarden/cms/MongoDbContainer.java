@@ -11,13 +11,9 @@ public class MongoDbContainer extends GenericContainer<MongoDbContainer> {
 
     @Override
     public void close() {
+        dockerClient.stopContainerCmd("docker stop " + this.getContainerId());
+        dockerClient.killContainerCmd("docker kill " + this.getContainerId());
+        dockerClient.removeContainerCmd("docker rm " + this.getContainerId());
         super.close();
-        dockerClient.stopContainerCmd("docker stop $(docker container ls -aq)");
-        dockerClient.killContainerCmd("docker stop $(docker container ls -aq)");
-        try {
-            dockerClient.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 }

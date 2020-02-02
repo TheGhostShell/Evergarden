@@ -39,8 +39,7 @@ public class CRUDUserService {
             .flatMap(unSaveUser1 -> {
                 User user = UserMapper.INSTANCE.unSaveUserToUser(unSaveUser1);
                 encoder.encode(unSaveUser1.getPassword());
-                user.setPassword(encoder.getEncodedCredential().getEncodedPassword());
-                user.setSalt(encoder.getEncodedCredential().getSalt());
+                user.setEncodedCredential(encoder.getEncodedCredential());
                 return assignRoleUserService.assignRoleToUser(user);
             })
             .flatMap(user -> {
@@ -63,6 +62,10 @@ public class CRUDUserService {
             .switchIfEmpty(Mono.error(new RessourceNotFoundException(id)));
     }
 
+    public Mono<User> findUser(String id) {
+        return userRepository.findById(id);
+    }
+
     public Flux<UserResponse> showUser() {
         return userRepository.findAll()
             .map(UserResponse::mapToUserResponse)
@@ -82,5 +85,9 @@ public class CRUDUserService {
                 logger.warn(ExceptionUtils.getRootCause(throwable).getMessage());
                 return Mono.error(throwable);
             });
+    }
+
+    public Mono<User> update(User user) {
+        return userRepository.save(user);
     }
 }
