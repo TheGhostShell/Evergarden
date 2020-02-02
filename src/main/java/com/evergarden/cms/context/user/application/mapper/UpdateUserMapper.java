@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.user.application.mapper;
 
+import com.evergarden.cms.context.user.domain.entity.EncodedCredential;
 import com.evergarden.cms.context.user.domain.entity.User;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
 
@@ -14,9 +15,8 @@ public class UpdateUserMapper {
             .email(defaultTo(updatedUser.getEmail(), userFromDb.getEmail()))
             .activated(updatedUser.isActivated())
             .roles(Optional.ofNullable(updatedUser.getRoles()).orElse(userFromDb.getRoles()))
-            .password(userFromDb.getPassword())
+            .encodedCredential(new EncodedCredential(userFromDb.getSalt(), userFromDb.getPassword()))
             .avatar(userFromDb.getAvatar())
-            .salt(userFromDb.getSalt())
             .id(userFromDb.getId())
             .build();
     }

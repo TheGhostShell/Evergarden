@@ -25,12 +25,9 @@ public interface UserMapper {
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "avatar", ignore = true)
-    @Mapping(target = "salt", ignore = true)
     @Mapping(target = "encodedCredential", ignore = true)
     User unSaveUserToUser(UnSaveUser unSaveUser);
-
-    @Mapping(target = "password", ignore = true)
-    @Mapping(target = "salt", ignore = true)
+    
     @Mapping(target = "encodedCredential", ignore = true)
     User updatedUserToUser(UpdatedUser updatedUser);
 }

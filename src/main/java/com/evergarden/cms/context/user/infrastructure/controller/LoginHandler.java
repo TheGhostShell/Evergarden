@@ -6,7 +6,7 @@ import com.evergarden.cms.context.user.domain.entity.Guest;
 import com.evergarden.cms.context.user.domain.entity.Token;
 import com.evergarden.cms.context.user.infrastructure.controller.input.Logout;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnAuthUser;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.FileSystemResource;
@@ -20,18 +20,14 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class LoginHandler {
 
-    private Logger logger;
     private GenerateTokenService generateTokenService;
     private GenerateGuestTokenService generateGuestTokenService;
 
     @Autowired
-    public LoginHandler(Logger logger,
-                        GenerateTokenService generateTokenService,
-                        GenerateGuestTokenService generateGuestTokenService) {
-
-        this.logger = logger;
+    public LoginHandler(GenerateTokenService generateTokenService, GenerateGuestTokenService generateGuestTokenService) {
         this.generateTokenService = generateTokenService;
         this.generateGuestTokenService = generateGuestTokenService;
     }
@@ -52,11 +48,11 @@ public class LoginHandler {
     }
 
     Mono<ServerResponse> login(ServerRequest request) {
-        Mono<UnAuthUser> unAuthUserMono = request.body(BodyExtractors.toMono(UnAuthUser.class));
-        Mono<Token> tokenMono = this.generateTokenService.generateToken(unAuthUserMono);
-        return tokenMono.flatMap(token -> ServerResponse.ok().body(BodyInserters.fromValue(token)))
+        return request.body(BodyExtractors.toMono(UnAuthUser.class))
+            .map(unAuthUser -> generateTokenService.generateToken(unAuthUser))
+            .flatMap(tokenMono -> ServerResponse.ok().body(tokenMono, Token.class))
             .onErrorResume(throwable -> {
-                logger.warn(throwable.toString());
+                log.warn(throwable.toString());
                 return ServerResponse.badRequest().build();
             });
     }

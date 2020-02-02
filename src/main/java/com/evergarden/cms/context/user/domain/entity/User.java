@@ -1,7 +1,6 @@
 package com.evergarden.cms.context.user.domain.entity;
 
 import com.mongodb.lang.NonNull;
-import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -22,9 +21,7 @@ import java.util.Collection;
  */
 @ToString
 @Document
-@Builder
 @NoArgsConstructor
-@AllArgsConstructor
 public class User {
 
     @Id
@@ -57,13 +54,11 @@ public class User {
     @Setter
     private Avatar avatar;
 
-    @Builder.Default
     @Setter
     @Getter
     private boolean activated = true;
 
     @DBRef
-    @Builder.Default
     @Setter
     @Getter
     private Collection<Role> roles = new ArrayList<>();
@@ -74,14 +69,6 @@ public class User {
     @Transient
     @Getter
     private EncodedCredential encodedCredential;
-
-    /**
-     * Custom builder for lombok
-     * @param encodedCredential
-     */
-    public User(EncodedCredential encodedCredential) {
-        setEncodedCredential(encodedCredential);
-    }
 
     @Builder
     public User(String id, @NonNull String email, String firstname, String lastname, String pseudo, Avatar avatar,
@@ -94,7 +81,7 @@ public class User {
         this.avatar = avatar;
         this.activated = activated;
         this.roles = roles;
-        this.encodedCredential = encodedCredential;
+        this.setEncodedCredential(encodedCredential);
     }
 
     public User setEncodedCredential(EncodedCredential encodedCredential) {
@@ -112,8 +99,7 @@ public class User {
         return this;
     }
 
-    public boolean clearRole(){
+    public void clearRole(){
         roles.clear();
-        return roles.size() == 0;
     }
 }

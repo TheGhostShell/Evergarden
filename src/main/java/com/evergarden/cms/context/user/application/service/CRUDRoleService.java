@@ -27,9 +27,9 @@ public class CRUDRoleService {
     public Mono<User> assignRoleToUser(User user){
         logger.debug("Try to assign role to user " + user.getEmail());
         Collection<Role> roles = new ArrayList<>(user.getRoles());
-        boolean isRoleCleared = user.clearRole();
+        user.clearRole();
 
-        logger.debug("Role for user " + user.getEmail() +" is cleared "+isRoleCleared);
+        logger.debug("Role for user " + user.getEmail() +" is cleared ");
         roles.forEach(role -> logger.debug("Role to assign "+role.toString()));
 
         return Flux.fromIterable(roles)

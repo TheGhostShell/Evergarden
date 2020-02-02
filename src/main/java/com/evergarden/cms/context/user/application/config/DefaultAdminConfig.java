@@ -61,8 +61,6 @@ public class DefaultAdminConfig {
 
         User admin = User.builder()
             .email("violet@mail.com")
-            .password(encoder.getEncodedCredential().getEncodedPassword())
-            .salt(encoder.getEncodedCredential().getSalt())
             .pseudo("violet")
             .activated(true)
             .firstname("Violet")
