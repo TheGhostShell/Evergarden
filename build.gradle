@@ -1,6 +1,6 @@
 buildscript {
     ext {
-        springBootVersion = "2.2.2.RELEASE"
+        springBootVersion = "2.2.4.RELEASE"
     }
     repositories {
         mavenCentral()
@@ -13,6 +13,8 @@ buildscript {
 plugins{
     id "com.github.johnrengelman.shadow" version "5.0.0"
     id 'net.ltgt.apt' version '0.20'
+    id 'org.unbroken-dome.test-sets' version '2.2.1'
+    id "org.sonarqube" version "2.8"
 }
 
 apply plugin: 'java'
@@ -46,6 +48,14 @@ jacocoTestReport {
     }
 }
 
+sonarqube {
+    properties {
+        property 'sonar.coverage.jacoco.xmlReportsPath', './build/reports/jacoco/integ/, ./build/reports/jacoco/'
+        property 'sonar.junit.reportPaths',	'./build/test-results/integtest, ./build/test-results/test'
+        property 'sonar.sources',	"src/main/"
+    }
+}
+
 test {
     useJUnitPlatform()
     testLogging {
@@ -53,18 +63,39 @@ test {
         exceptionFormat "full"
     }
     finalizedBy jacocoTestReport
+
+    reports.junitXml.enabled(true)
 }
+
+
+
+/*
+task integrationTestOnly(type: Test) {
+    useJUnitPlatform()
+    testLogging {
+        showStandardStreams = true
+    }
+    include 'integrationTest/**'
+    dependsOn compileTestJava
+    mustRunAfter test
+    jacoco {
+        include 'integrationTest/**'
+        // append = true
+
+    }
+}
+*/
 
 task codeCoverageReport(type: JacocoReport) {
     executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/*.exec")
-    
+
     reports {
         xml.enabled = true
         xml.setDestination(new File("${buildDir}/reports/jacoco/report.xml"))
     }
 
-    classDirectories = fileTree(dir: 'build/classes/main')
-    sourceDirectories = fileTree(dir: 'scr/main/java')
+    getClassDirectories().setFrom(fileTree(dir: 'build/classes/java/main'))
+    getSourceDirectories().setFrom(fileTree(dir: 'scr/main/java'))
 }
 
 jar {
@@ -87,28 +118,23 @@ dependencies {
     // Eureka client
     // compile 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
 
-    //jooq sql lib
-    compile group: 'org.jooq', name: 'jooq', version: '3.11.10'
-
     //sdk
     implementation 'com.github.GostShell:sdk:v0.0.3.6-alpha'
 
     //rxjava-jdbc
-    compile 'com.github.davidmoten:rxjava2-jdbc:0.2.4'
+    // compile 'com.github.davidmoten:rxjava2-jdbc:0.2.4'
 
     // Reactor Adapter (RxJava2, Akka Actors scheduler and more)
     compile "io.projectreactor.addons:reactor-adapter:3.2.0.RELEASE"
 
     //data db
-    compile("com.h2database:h2:1.4.197") // or developmentOnly
+    // compile("com.h2database:h2:1.4.197") // or developmentOnly
 
     // jwt lib
     compile 'com.auth0:java-jwt:3.6.0'
 
     //zip library to decompress zip archive
     compile group: 'net.lingala.zip4j', name: 'zip4j', version: '1.3.3'
-
-
 
     //dev devtools
     developmentOnly("org.springframework.boot:spring-boot-devtools") //runtimeOnly ??
@@ -126,36 +152,19 @@ dependencies {
 
     //spring web-flux
     implementation 'org.springframework.boot:spring-boot-starter-webflux'
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
+    //implementation("org.springframework.boot:spring-boot-starter-data-jpa")
     implementation("org.springframework.boot:spring-boot-starter-security")
 
     testImplementation('org.springframework.boot:spring-boot-starter-test')
     //testImplementation('org.springframework.security:spring-security-test')
     testImplementation('io.projectreactor:reactor-test')
+    testCompile('org.junit.jupiter:junit-jupiter:5.4.0')
 
-    //junit test
-    //testCompile group: 'junit', name: 'junit', version: '4.12'
-    
-    // mockito
-    testCompile group: 'org.mockito', name: 'mockito-core', version: '2.24.0'
+    // testContainer acceptance test
+    testImplementation(group: 'org.testcontainers', name: 'testcontainers', version: '1.12.4')
 
-    // https://mvnrepository.com/artifact/org.junit.jupiter/junit-jupiter-api
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-api', version: '5.3.2'
-
-    /**
-     * JUnit Jupiter parameter configuration.
-     */
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-params', version: '5.3.2'
-
-    /**
-     * JUnit Jupiter testing engine.
-     */
-    testCompile group: 'org.junit.jupiter', name: 'junit-jupiter-engine', version: '5.3.2'
-
-    /**
-     * Vintage platform engine.
-     */
-    testCompile group: 'org.junit.platform', name: 'junit-platform-engine', version: '1.3.2'
+    testCompile group: 'io.rest-assured', name: 'rest-assured', version: '4.1.2'
+    testCompile group: 'io.rest-assured', name: 'rest-assured-all', version: '4.1.2'
 
     // caching
     implementation 'org.springframework.boot:spring-boot-starter-cache'
@@ -164,11 +173,10 @@ dependencies {
 
     implementation 'javax.cache:cache-api'
 
-    // Integrate flyway for database migration version control
-    compile "org.flywaydb:flyway-core:5.2.4"
-
     // https://mvnrepository.com/artifact/org.apache.commons/commons-lang3
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+
 
     // Integrate spring shell or crash
     // Use neo4j to manage taxonomy system
@@ -177,13 +185,56 @@ dependencies {
     // test integration w<ith flyway https://github.com/flyway/flyway-test-extensions/wiki/Usage-flyway-spring-test
 }
 
-//	        			from spring initializr
+sourceSets {
+    integtest {
 
-// implementation('org.springframework.boot:spring-boot-starter-web')
+            compileClasspath += sourceSets.test.compileClasspath
+            runtimeClasspath += sourceSets.test.runtimeClasspath
+            java.srcDir "$projectDir/src/integrationTest/java"
+            resources.srcDir "$projectDir/src/test/resources"
+
+    }
+}
+
+configurations {
+    integtestCompile.extendsFrom testCompile
+    integtestImplementation.extendsFrom(testImplementaion)
+    integtestRuntime.extendsFrom(testRuntime)
+}
+
+task integtest(type: Test) {
+    useJUnitPlatform()
+    testClassesDirs = sourceSets.integtest.output.classesDirs
+    classpath = sourceSets.integtest.runtimeClasspath
+
+    dependsOn(compileJava)
+    jacoco {
+        destinationFile = file("$buildDir/jacoco/jacocoIntegTest.exec")
+    }
+    jacocoTestReport {
+        executionData fileTree(project.rootDir.absolutePath).include("**/build/jacoco/jacocoIntegTest.exec")
+        reports.xml.enabled(true)
+        reports.xml.setDestination(new File("${buildDir}/reports/jacoco/integ/report.xml"))
+        getClassDirectories().setFrom(fileTree(dir: 'build/classes/java/main'))
+        getSourceDirectories().setFrom(fileTree(dir: 'scr/main/java'))
+    }
+    finalizedBy jacocoTestReport
+}
+check.dependsOn(integtest)
+project.tasks["sonarqube"].dependsOn "integtest"
+
+/*testSets {
+    integrationTest
+}
+
+tasks.withType(Test) {
+    useJUnitPlatform()
+}
+
+check.dependsOn integrationTest*/
+
+//	        			from spring initializr
 // runtimeOnly('org.springframework.boot:spring-boot-devtools')
-// runtimeOnly('com.h2database:h2')
-// testImplementation('org.springframework.boot:spring-boot-starter-test')
-// testImplementation('io.projectreactor:reactor-test')
 
 
 //dependencyManagement {

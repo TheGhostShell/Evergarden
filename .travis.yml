@@ -3,15 +3,16 @@ addons:
     organization: "theghostshell"
     token: $SONAR_TOKEN
 
-dist: trusty
+dist: xenial
 language: java
 jdk:
 - openjdk8
 script:
 - "./gradlew assemble"
 - "./gradlew check"
-- "sonar-scanner -X"
 - "./gradlew codeCoverageReport"
 - "./gradlew jacocoTestReport"
+- "sonar-scanner -X"
+- "./gradlew sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=Evergarden"
 after_success:
-- bash <(curl -s https://codecov.io/bash)
+- bash <(curl -s https://codecov.io/bash) -f "*.xml" -s "./build"

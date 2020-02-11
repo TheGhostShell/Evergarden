@@ -33,7 +33,7 @@ public class CRUDPostService {
     public Mono<Post> updatePost(Post post){
         return postRepository.findById(post.getId())
             .switchIfEmpty(Mono.error(new RessourceNotFoundException(post.getId())))
-            .flatMap(unchangePost -> postRepository.save(post));
+            .flatMap(unchangedPost -> postRepository.save(post));
     }
 
     public Mono<Void> deleteById(String id) {

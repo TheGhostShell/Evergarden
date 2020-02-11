@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.user.application.service;
 
+import com.evergarden.cms.app.config.security.EvergardenEncoder;
 import com.evergarden.cms.app.utils.ExceptionUtils;
 import com.evergarden.cms.context.user.application.mapper.UpdateUserMapper;
 import com.evergarden.cms.context.user.application.mapper.UserMapper;
@@ -17,23 +18,28 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class CRUDUserService {
-    private UserRepository userRepository;
+    private UserRepository  userRepository;
     private CRUDRoleService assignRoleUserService;
     private Logger logger;
+    private EvergardenEncoder encoder;
 
     @Autowired
     public CRUDUserService(UserRepository userRepository,
                            CRUDRoleService assignRoleUserService,
-                           Logger logger) {
+                           Logger logger,
+                           EvergardenEncoder encoder) {
         this.userRepository = userRepository;
         this.assignRoleUserService = assignRoleUserService;
         this.logger = logger;
+        this.encoder = encoder;
     }
 
-    public Mono<UserResponse> createUser(Mono<UnSaveUser> unSaveUser) {
-        return unSaveUser
+    public Mono<UserResponse> createUser(UnSaveUser unSaveUser) {
+        return Mono.just(unSaveUser)
             .flatMap(unSaveUser1 -> {
                 User user = UserMapper.INSTANCE.unSaveUserToUser(unSaveUser1);
+                encoder.encode(unSaveUser1.getPassword());
+                user.setEncodedCredential(encoder.getEncodedCredential());
                 return assignRoleUserService.assignRoleToUser(user);
             })
             .flatMap(user -> {
@@ -56,14 +62,18 @@ public class CRUDUserService {
             .switchIfEmpty(Mono.error(new RessourceNotFoundException(id)));
     }
 
+    public Mono<User> findUser(String id) {
+        return userRepository.findById(id);
+    }
+
     public Flux<UserResponse> showUser() {
         return userRepository.findAll()
             .map(UserResponse::mapToUserResponse)
             .switchIfEmpty(Mono.error(new RessourceNotFoundException("User")));
     }
 
-    public Mono<UserResponse> updateUser(Mono<UpdatedUser> updatedUser) {
-        return updatedUser
+    public Mono<UserResponse> updateUser(UpdatedUser updatedUser) {
+        return Mono.just(updatedUser)
             .flatMap(upUser -> userRepository.findById(upUser.getId())
                 .flatMap(user -> Mono.just(UpdateUserMapper.toUser(upUser, user)))
                 .switchIfEmpty(Mono.error(new RessourceNotFoundException(upUser.getId())))
@@ -75,5 +85,9 @@ public class CRUDUserService {
                 logger.warn(ExceptionUtils.getRootCause(throwable).getMessage());
                 return Mono.error(throwable);
             });
+    }
+
+    public Mono<User> update(User user) {
+        return userRepository.save(user);
     }
 }

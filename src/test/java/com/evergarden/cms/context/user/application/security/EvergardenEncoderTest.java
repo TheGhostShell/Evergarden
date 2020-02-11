@@ -7,11 +7,15 @@ import org.junit.jupiter.api.Test;
 
 import static org.mockito.Mockito.*;
 
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.reactive.WebFluxTest;
 import org.springframework.core.env.Environment;
+import org.springframework.data.mongodb.repository.ReactiveMongoRepository;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
@@ -22,6 +26,8 @@ import java.util.Base64;
 import static org.junit.jupiter.api.Assertions.*;
 
 @WebFluxTest
+@ExtendWith(SpringExtension.class)
+@ContextConfiguration(classes={ReactiveMongoRepository.class})
 class EvergardenEncoderTest {
 
     @Autowired
@@ -33,7 +39,7 @@ class EvergardenEncoderTest {
 
     @BeforeEach
     void setUp() {
-        encoder = new EvergardenEncoder(env, logger);
+        encoder = new EvergardenEncoder(env);
     }
 
     @Test
@@ -69,7 +75,7 @@ class EvergardenEncoderTest {
     @Test
     void encodeFailWithBadAlgorithm() {
         Environment envMock = mock(Environment.class);
-        encoder = new EvergardenEncoder(envMock, logger);
+        encoder = new EvergardenEncoder(envMock);
 
         when(envMock.getProperty("secure.ramdom.algo")).thenReturn("bad-algorithm");
         when(envMock.getProperty("encode.iteration")).thenReturn(env.getProperty("encode.iteration"));
@@ -117,7 +123,7 @@ class EvergardenEncoderTest {
         String password = "weak_password";
         encoder.encode(password);
         EncodedCredential encodedCredential = encoder.getEncodedCredential();
-        EvergardenEncoder eveEncoder        = new EvergardenEncoder(env, logger, encodedCredential);
+        EvergardenEncoder eveEncoder        = new EvergardenEncoder(env, encodedCredential);
 
         assertTrue(eveEncoder.matches(password, encodedCredential.getEncodedPassword()));
     }
@@ -127,7 +133,7 @@ class EvergardenEncoderTest {
         String password = "weak_password";
         encoder.encode(password);
         EncodedCredential encodedCredentialMock = mock(EncodedCredential.class);
-        EvergardenEncoder eveEncoder            = new EvergardenEncoder(env, logger, encodedCredentialMock);
+        EvergardenEncoder eveEncoder            = new EvergardenEncoder(env, encodedCredentialMock);
 
         when(encodedCredentialMock.getSalt()).thenAnswer(invocation -> {
             throw new Exception();

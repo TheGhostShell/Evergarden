@@ -1,11 +1,11 @@
 package com.evergarden.cms.context.user.application.security;
 
+import com.evergarden.cms.IntegrationCmsApplicationTests;
 import com.evergarden.cms.app.config.security.EvergardenAuthenticationManager;
 import com.evergarden.cms.app.config.security.JwtHelper;
 import com.evergarden.cms.app.config.security.SecurityContextRepository;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpHeaders;
@@ -21,22 +21,21 @@ import reactor.test.StepVerifier;
 
 import java.util.ArrayList;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(SpringExtension.class)
 @SpringBootTest
-class SecurityContextRepositoryTest {
+class SecurityContextRepositoryTest extends IntegrationCmsApplicationTests {
 
     @Autowired
     JwtHelper jwtHelper;
 
-    @Autowired
-    Logger logger;
-
     @Test
     void save() {
-        EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper, logger);
+        EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper);
         SecurityContextRepository context = new SecurityContextRepository(manager, jwtHelper);
 
         ServerWebExchange mockServer  = mock(ServerWebExchange.class);
@@ -48,12 +47,12 @@ class SecurityContextRepositoryTest {
     @Test
     void load() {
 
-        EvergardenAuthenticationManager   manager = new EvergardenAuthenticationManager(jwtHelper, logger);
+        EvergardenAuthenticationManager   manager = new EvergardenAuthenticationManager(jwtHelper);
         SecurityContextRepository         context = new SecurityContextRepository(manager, jwtHelper);
         ArrayList<SimpleGrantedAuthority> roles   = new ArrayList<>();
         roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        String token = jwtHelper.generateToken("b@mail.com", roles).getToken();
+        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId").getToken();
 
         ServerHttpRequest mockRequest = mock(ServerHttpRequest.class);
         HttpHeaders       headers     = mock(HttpHeaders.class);
@@ -63,7 +62,7 @@ class SecurityContextRepositoryTest {
         when(mockRequest.getHeaders()).thenReturn(headers);
         when(headers.getFirst(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + token);
 
-        Authentication      userToken = new UsernamePasswordAuthenticationToken("b@mail.com", token, roles);
+        Authentication      userToken = new UsernamePasswordAuthenticationToken("batou@mail.com", token, roles);
         SecurityContextImpl sci       = new SecurityContextImpl(userToken);
 
         StepVerifier.create(context.load(mockServer))
@@ -76,6 +75,5 @@ class SecurityContextRepositoryTest {
         when(headers.getFirst(HttpHeaders.AUTHORIZATION)).thenReturn(token);
         StepVerifier.create(context.load(mockServer))
             .verifyComplete();
-
     }
 }

@@ -17,23 +17,26 @@ class UpdatedUserTest {
         roles.add(new Role("ADMIN"));
         roles.add(new Role("GUEST"));
 
+        Avatar avatar = new Avatar();
+
         UpdatedUser updatedUser = new UpdatedUser(
-            1,
+            "id",
             true,
             "violet@mail.com",
             "Batou",
             "Ranger",
             "Batou",
-            "password",
+            "avatarUrl",
+            avatar,
             roles
         );
 
-        assertEquals(1, updatedUser.getId());
+        assertEquals("id", updatedUser.getId());
         assertEquals("violet@mail.com", updatedUser.getEmail());
         assertEquals("Batou", updatedUser.getFirstname());
         assertEquals("Ranger", updatedUser.getLastname());
         assertEquals("Batou", updatedUser.getPseudo());
-        assertEquals("password", updatedUser.getPassword());
+        assertEquals(avatar, updatedUser.getAvatar());
         assertTrue(updatedUser.isActivated());
         assertEquals(roles, updatedUser.getRoles());
     }
@@ -42,6 +45,7 @@ class UpdatedUserTest {
     void createInstanceWithDefaultConstructor() {
         Collection<Role> roles = new ArrayList<>();
         roles.add(new Role("ADMIN"));
+        Avatar avatar = new Avatar();
 
         UpdatedUser updatedUser = new UpdatedUser();
 
@@ -50,16 +54,16 @@ class UpdatedUserTest {
         updatedUser.setLastname("Ranger");
         updatedUser.setPseudo("Batou");
         updatedUser.setActivated(true);
-        updatedUser.setId(1);
+        updatedUser.setId("id");
         updatedUser.setRoles(roles);
-        updatedUser.setPassword("pass");
+        updatedUser.setAvatar(avatar);
 
-        assertEquals(1, updatedUser.getId());
+        assertEquals("id", updatedUser.getId());
         assertEquals("violet@mail.com", updatedUser.getEmail());
         assertEquals("Batou", updatedUser.getFirstname());
         assertEquals("Ranger", updatedUser.getLastname());
         assertEquals("Batou", updatedUser.getPseudo());
-        assertEquals("pass", updatedUser.getPassword());
+        assertEquals(avatar, updatedUser.getAvatar());
         assertTrue(updatedUser.isActivated());
         assertEquals(roles, updatedUser.getRoles());
     }

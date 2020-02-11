@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class GenerateTokenService {
 
     private UserRepository userRepository;
-    private Environment env;
+    private Environment    env;
     private Logger logger;
     private JwtHelper jwtHelper;
     private Cache<String, Token> tokenCache;
@@ -40,31 +40,32 @@ public class GenerateTokenService {
         this.tokenCache = tokenCache;
     }
 
-    public Mono<Token> generateToken(Mono<UnAuthUser> unAuthUserMono) {
-        return unAuthUserMono.flatMap(unAuthUser -> userRepository.findByEmail(unAuthUser.getEmail())
-                .flatMap(user -> {
+    public Mono<Token> generateToken(UnAuthUser unAuthUser) {
+        return Mono.just(unAuthUser)
+            .flatMap(unAuthU -> userRepository.findByEmail(unAuthU.getEmail()))
+            .flatMap(user -> {
 
-                    EncodedCredential encodedCredential = new EncodedCredential(user.getSalt(), user.getPassword());
-                    EvergardenEncoder encoder = new EvergardenEncoder(env, logger, encodedCredential);
+                EncodedCredential encodedCredential = new EncodedCredential(user.getSalt(), user.getPassword());
+                EvergardenEncoder encoder = new EvergardenEncoder(env, encodedCredential);
 
-                    boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
-                    logger.debug("Is password valid for user " + user.getEmail() + " " +isValidPass);
+                boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
+                logger.debug("Is password valid for user " + user.getEmail() + " " +isValidPass);
 
-                    if (isValidPass) {
-                        ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
-                        user.getRoles().forEach(role -> {
-                            authorities.add(new SimpleGrantedAuthority(role.getRole()));
-                        });
+                if (isValidPass) {
+                    ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
+                    user.getRoles().forEach(role -> {
+                        authorities.add(new SimpleGrantedAuthority(role.getRole()));
+                    });
 
-                        logger.debug("Try to generate token");
-                        Token token = jwtHelper.generateToken(user.getEmail(), authorities, user.getId());
-                        logger.debug("Token is generated with this value " + token.getToken());
+                    logger.debug("Try to generate token");
+                    Token token = jwtHelper.generateToken(user.getEmail(), authorities, user.getId());
+                    logger.debug("Token is generated with this value " + token.getToken());
 
-                        return Mono.just(token);
-                    }
-                    // TODO generate token if pass is valid and maybe save it in cache
-                    return Mono.error(new InvalidCredentialException(unAuthUser.getEmail()));
-                }));
+                    return Mono.just(token);
+                }
+                // TODO generate token if pass is valid and maybe save it in cache
+                return Mono.error(new InvalidCredentialException(unAuthUser.getEmail()));
+            });
     }
 
     public Boolean removeTokenFromCache(String id) {

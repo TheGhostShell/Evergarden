@@ -10,7 +10,7 @@ import reactor.core.publisher.Mono;
 @Service
 public class CRUDAvatarService {
 
-    private JwtHelper jwtHelper;
+    private JwtHelper      jwtHelper;
     private UserRepository userRepository;
 
     public CRUDAvatarService(JwtHelper jwtHelper, UserRepository userRepository) {

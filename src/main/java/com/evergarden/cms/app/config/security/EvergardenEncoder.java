@@ -1,6 +1,7 @@
 package com.evergarden.cms.app.config.security;
 
 import com.evergarden.cms.context.user.domain.entity.EncodedCredential;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.env.Environment;
@@ -9,26 +10,25 @@ import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
+import javax.validation.constraints.NotNull;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.util.Base64;
 
 @Component
+@Slf4j
 public class EvergardenEncoder implements PasswordEncoder {
 
     private Environment env;
-    private Logger logger;
     private EncodedCredential encodedCredential;
 
     @Autowired
-    public EvergardenEncoder(Environment env, Logger logger) {
+    public EvergardenEncoder(Environment env) {
         this.env = env;
-        this.logger = logger;
     }
 
-    public EvergardenEncoder(Environment env, Logger logger, EncodedCredential encodedCredential) {
+    public EvergardenEncoder(@NotNull Environment env, EncodedCredential encodedCredential) {
         this.env = env;
-        this.logger = logger;
         this.encodedCredential = encodedCredential;
     }
 
@@ -43,6 +43,7 @@ public class EvergardenEncoder implements PasswordEncoder {
         try {
             salt = getSaltByte();
         } catch (Exception e) {
+            log.error(e.getMessage());
             salt = staticSalt.getBytes();
         }
 
@@ -60,11 +61,12 @@ public class EvergardenEncoder implements PasswordEncoder {
 
             encodedCredential = new EncodedCredential(convToString(salt), Base64.getEncoder().encodeToString(encoded));
 
-            logger.debug("Generated salt : " + convToString(salt));
+            log.debug("Generated salt : " + convToString(salt));
 
             return Base64.getEncoder().encodeToString(encoded);
 
         } catch (Exception e) {
+            log.error(e.getMessage());
             return null;
         }
     }

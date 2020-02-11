@@ -7,11 +7,13 @@ import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.evergarden.cms.context.user.domain.entity.Token;
-import org.slf4j.Logger;
+import com.evergarden.cms.context.user.domain.entity.TokenDecrypted;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.server.ServerRequest;
 
 import javax.cache.Cache;
 import java.sql.Date;
@@ -22,23 +24,22 @@ import java.util.List;
 import java.util.Optional;
 
 @Component
+@Slf4j
 public class JwtHelper {
     // TODO It's better to declare a bean to create a singleton instance of JwtHelper to inject as dependency in class to avoid using static method and call gc
 
     private JwtRequest jwtRequest;
 
     private Algorithm   algorithm;
-    private Logger      logger;
     private JWTVerifier verifier;
     private Cache<String, Token> tokenCache;
 
     private static final String ISSUER = "evergarden";
 
     @Autowired
-    public JwtHelper(JwtRequest jwtRequest, Logger logger, Cache<String, Token> tokenCache) {
+    public JwtHelper(JwtRequest jwtRequest, Cache<String, Token> tokenCache) {
         this.jwtRequest = jwtRequest;
         this.algorithm = Algorithm.HMAC256(jwtRequest.getJwtSecret());
-        this.logger = logger;
         this.tokenCache = tokenCache;
         this.verifier = JWT.require(algorithm).withIssuer(JwtHelper.ISSUER).build();
     }
@@ -110,7 +111,7 @@ public class JwtHelper {
             String id = this.getIdFromToken(token);
             return Optional.ofNullable(tokenCache.get(id))
                 .flatMap(token1 -> {
-                    logger.debug("Load token from cache for user with id {}", id);
+                    log.debug("Load token from cache for user with id {}", id);
                     return Optional.of(token.equals(token1.getToken()));
                 })
                 .orElse(false);
@@ -125,5 +126,18 @@ public class JwtHelper {
             return new Token(token.substring(7));
         }
         return new Token(token);
+    }
+
+    public TokenDecrypted fromServerRequest(ServerRequest serverRequest) {
+        String token = serverRequest.headers().header("Authorization").get(0); // TODO verify if get(0) is safe
+        return toTokenDecrypted(sanitizeHeaderToken(token));
+    }
+
+    public TokenDecrypted toTokenDecrypted(Token token) {
+        return TokenDecrypted.builder()
+            .rawToken(token.getToken())
+            .userId(getIdFromToken(token.getToken()))
+            .build();
+
     }
 }
