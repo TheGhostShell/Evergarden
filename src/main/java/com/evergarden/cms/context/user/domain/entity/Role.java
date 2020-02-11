@@ -1,6 +1,5 @@
 package com.evergarden.cms.context.user.domain.entity;
 
-import com.evergarden.cms.context.user.domain.exception.InvalidRoleNameException;
 import com.evergarden.cms.context.user.domain.security.Permission;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -44,7 +43,8 @@ public class Role {
 
     public Role setRole(String role) {
         if(role.matches("(?i).*(ROLE).*")){
-            throw new InvalidRoleNameException(role);
+            this.role = role.toUpperCase();
+            return this;
         }
         this.role = "ROLE_" + role.toUpperCase();
         return this;

@@ -40,11 +40,11 @@ public class LoginHandler {
      * @return
      */
     public Mono<ServerResponse> guest(ServerRequest request) {
-        Mono<Guest> guestMono = generateGuestTokenService
-            .generateGuestToken(request.body(BodyExtractors.toMono(Guest.class)));
-
-        return ServerResponse.ok().body(guestMono, Guest.class)
+        return request.body(BodyExtractors.toMono(Guest.class))
+            .map(guest -> generateGuestTokenService.generateGuestToken(guest))
+            .flatMap(guestMono -> ServerResponse.ok().body(guestMono, Guest.class))
             .onErrorResume(throwable -> ServerResponse.badRequest().build());
+
     }
 
     Mono<ServerResponse> login(ServerRequest request) {

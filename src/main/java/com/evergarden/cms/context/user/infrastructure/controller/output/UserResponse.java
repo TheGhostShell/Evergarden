@@ -3,13 +3,19 @@ package com.evergarden.cms.context.user.infrastructure.controller.output;
 import com.evergarden.cms.context.user.domain.entity.Avatar;
 import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.User;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
 
 @Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class UserResponse {
 
     private String id;
@@ -26,6 +32,7 @@ public class UserResponse {
 
     private boolean activated;
 
+    @Builder.Default
     private Collection<Role> roles = new ArrayList<>();
 
     public UserResponse addRole(Role role) {

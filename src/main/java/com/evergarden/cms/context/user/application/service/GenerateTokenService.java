@@ -21,7 +21,7 @@ import java.util.ArrayList;
 public class GenerateTokenService {
 
     private UserRepository userRepository;
-    private Environment env;
+    private Environment    env;
     private Logger logger;
     private JwtHelper jwtHelper;
     private Cache<String, Token> tokenCache;

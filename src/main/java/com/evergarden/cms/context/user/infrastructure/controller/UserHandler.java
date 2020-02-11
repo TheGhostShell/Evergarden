@@ -13,6 +13,7 @@ import com.evergarden.cms.context.user.infrastructure.controller.input.UnSaveUse
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
 import com.evergarden.cms.context.user.infrastructure.controller.output.AvatarResponse;
 import com.evergarden.cms.context.user.infrastructure.controller.output.UserResponse;
+import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -24,9 +25,9 @@ import org.springframework.web.reactive.function.server.ServerResponse;
 import reactor.core.publisher.Mono;
 
 @Component
+@Slf4j
 public class UserHandler {
 
-    private Logger                logger;
     private CRUDUserService       cRUDUserService;
     private AvatarFolderHelper    avatarFolderHelper;
     private JwtHelper             jwtHelper;
@@ -36,10 +37,9 @@ public class UserHandler {
     private String dir;
 
     @Autowired
-    public UserHandler(Logger logger, CRUDUserService cRUDUserService, AvatarFolderHelper avatarFolderHelper,
+    public UserHandler(CRUDUserService cRUDUserService, AvatarFolderHelper avatarFolderHelper,
                        JwtHelper jwtHelper, UpdatePasswordService passwordService) {
 
-        this.logger = logger;
         this.cRUDUserService = cRUDUserService;
         this.avatarFolderHelper = avatarFolderHelper;
         this.jwtHelper = jwtHelper;
@@ -47,11 +47,11 @@ public class UserHandler {
     }
 
     public Mono<ServerResponse> create(ServerRequest request) {
-        Mono<UnSaveUser> unSaveUserMono = request.body(BodyExtractors.toMono(UnSaveUser.class));
-        return cRUDUserService.createUser(unSaveUserMono)
-            .flatMap(userResponse -> ServerResponse.ok().body(BodyInserters.fromValue(userResponse)))
+        return request.body(BodyExtractors.toMono(UnSaveUser.class))
+            .flatMap(unSaveUser -> cRUDUserService.createUser(unSaveUser))
+            .flatMap(userResponse -> ServerResponse.ok().body(Mono.just(userResponse), UserResponse.class))
             .onErrorResume(throwable -> {
-                logger.warn(throwable.toString());
+                log.warn(throwable.toString());
                 String err =
                     ExceptionUtils.getRootCause(throwable).getClass() == InvalidRoleNameException.class ? ExceptionUtils
                         .getRootCause(throwable).getMessage() : "Error in payload";
@@ -63,7 +63,7 @@ public class UserHandler {
         return cRUDUserService.readUser(request.pathVariable("id"))
             .flatMap(userResponse -> ServerResponse.ok().body(Mono.just(userResponse), UserResponse.class))
             .onErrorResume(throwable -> {
-                logger.warn(throwable.toString());
+                log.warn(throwable.toString());
                 return ServerResponse.notFound().build();
             });
     }
@@ -71,8 +71,8 @@ public class UserHandler {
     // TODO refactor and use private method as create()
     // TODO use id from token for more security is the right behavior
     Mono<ServerResponse> update(ServerRequest request) {
-        Mono<UpdatedUser> updatedUserMono = request.body(BodyExtractors.toMono(UpdatedUser.class));
-        return cRUDUserService.updateUser(updatedUserMono)
+        return request.body(BodyExtractors.toMono(UpdatedUser.class))
+            .flatMap(updatedUser -> cRUDUserService.updateUser(updatedUser))
             .flatMap(userResponse -> ServerResponse.ok().body(Mono.just(userResponse), UserResponse.class))
             .onErrorResume(throwable -> ServerResponse.badRequest()
                 .body(Mono.just(ExceptionUtils.getRootCause(throwable).getMessage()), String.class));
@@ -85,7 +85,7 @@ public class UserHandler {
             .flatMap(passwordRequest -> passwordService.updatePassword(passwordRequest, token.getUserId()))
             .flatMap(aBoolean ->  ServerResponse.ok().build())
             .onErrorResume(throwable -> {
-                logger.warn(throwable.getClass().getCanonicalName());
+                log.warn(throwable.getClass().getCanonicalName());
                 throwable.printStackTrace();
                 return ServerResponse.badRequest().build();
             });
@@ -112,7 +112,7 @@ public class UserHandler {
                 .body(Mono.just(AvatarMapper.INSTANCE.userResponseToAvatarResponse(userResponse)),
                     AvatarResponse.class))
                 .onErrorResume(throwable -> {
-            logger.warn(throwable.toString());
+            log.warn(throwable.toString());
             return ServerResponse.notFound().build();
         });
     }

@@ -18,7 +18,7 @@ import reactor.core.publisher.Mono;
 
 @Service
 public class CRUDUserService {
-    private UserRepository userRepository;
+    private UserRepository  userRepository;
     private CRUDRoleService assignRoleUserService;
     private Logger logger;
     private EvergardenEncoder encoder;
@@ -34,8 +34,8 @@ public class CRUDUserService {
         this.encoder = encoder;
     }
 
-    public Mono<UserResponse> createUser(Mono<UnSaveUser> unSaveUser) {
-        return unSaveUser
+    public Mono<UserResponse> createUser(UnSaveUser unSaveUser) {
+        return Mono.just(unSaveUser)
             .flatMap(unSaveUser1 -> {
                 User user = UserMapper.INSTANCE.unSaveUserToUser(unSaveUser1);
                 encoder.encode(unSaveUser1.getPassword());
@@ -72,8 +72,8 @@ public class CRUDUserService {
             .switchIfEmpty(Mono.error(new RessourceNotFoundException("User")));
     }
 
-    public Mono<UserResponse> updateUser(Mono<UpdatedUser> updatedUser) {
-        return updatedUser
+    public Mono<UserResponse> updateUser(UpdatedUser updatedUser) {
+        return Mono.just(updatedUser)
             .flatMap(upUser -> userRepository.findById(upUser.getId())
                 .flatMap(user -> Mono.just(UpdateUserMapper.toUser(upUser, user)))
                 .switchIfEmpty(Mono.error(new RessourceNotFoundException(upUser.getId())))
