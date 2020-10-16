@@ -18,7 +18,7 @@ public class should_updated_previous_post extends IntegrationCmsApplicationTests
     public void should_updated_previous_post_in_mongodb() {
         Post freshPost1 = Post.builder()
             .title("Nice title")
-            .authorName("Violet")
+            .authorId("7x34vioLEt7xc34")
             .body("I'm a tragic novel author")
             .build();
 
@@ -28,7 +28,7 @@ public class should_updated_previous_post extends IntegrationCmsApplicationTests
             .flatMap(post -> {
                 post.setTitle("Ghost");
                 post.setBody("I'm Motoko izanagi");
-                post.setAuthorName("Motoko");
+                post.setAuthorId("Motoko");
                 return crudPostService.updatePost(post);
             })
             .doOnComplete(() -> {
@@ -37,7 +37,7 @@ public class should_updated_previous_post extends IntegrationCmsApplicationTests
 
         StepVerifier.create(crudPostService.findAll())
             .expectNextMatches(post -> {
-                Assertions.assertEquals("Motoko", post.getAuthorName());
+                Assertions.assertEquals("Motoko", post.getAuthorId());
                 Assertions.assertEquals("I'm Motoko izanagi", post.getBody());
                 Assertions.assertEquals("Ghost", post.getTitle());
                 return true;

@@ -11,23 +11,23 @@ class PostTest {
 
 		Post post = Post.builder()
             .title("title")
-            .authorName("author")
+            .authorId("authorId")
             .body("body post")
             .build();
 
 		assertNull( post.getId());
 		assertEquals("title", post.getTitle());
-		assertEquals("author", post.getAuthorName());
+		assertEquals("author", post.getAuthorId());
 		assertEquals("body post", post.getBody());
 
 		post.setId("postId");
-		post.setAuthorName("author2");
+		post.setAuthorId("author2");
 		post.setTitle("title2");
 		post.setBody("body post2");
 
 		assertEquals("postId", post.getId());
 		assertEquals("title2", post.getTitle());
-		assertEquals("author2", post.getAuthorName());
+		assertEquals("author2", post.getAuthorId());
 		assertEquals("body post2", post.getBody());
 	}
 }

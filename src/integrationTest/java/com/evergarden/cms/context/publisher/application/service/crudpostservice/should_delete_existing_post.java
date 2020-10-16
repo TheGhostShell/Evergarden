@@ -18,7 +18,7 @@ public class should_delete_existing_post extends IntegrationCmsApplicationTests 
     public void should_delete_previous_post_in_mongodb() {
         Post freshPost1 = Post.builder()
             .title("Nice title")
-            .authorName("Violet")
+            .authorId("7x34vioLEt7xc34")
             .body("I'm a tragic novel author")
             .build();
 
