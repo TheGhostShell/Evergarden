@@ -12,9 +12,6 @@ import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-import java.util.ArrayList;
-import java.util.Collection;
-
 /**
  * Never expose setter for password and salt fields
  * Create a custom builder for encodedCredential
@@ -61,7 +58,7 @@ public class User {
     @DBRef
     @Setter
     @Getter
-    private Collection<Role> roles = new ArrayList<>();
+    private Profile profile;
 
     @Getter
     private String salt;
@@ -72,7 +69,7 @@ public class User {
 
     @Builder
     public User(String id, @NonNull String email, String firstname, String lastname, String pseudo, Avatar avatar,
-                boolean activated, Collection<Role> roles, EncodedCredential encodedCredential) {
+                boolean activated, Profile profile, EncodedCredential encodedCredential) {
         this.id = id;
         this.email = email;
         this.firstname = firstname;
@@ -80,7 +77,7 @@ public class User {
         this.pseudo = pseudo;
         this.avatar = avatar;
         this.activated = activated;
-        this.roles = roles;
+        this.profile = profile;
         this.setEncodedCredential(encodedCredential);
     }
 
@@ -91,15 +88,5 @@ public class User {
         this.encodedCredential = encodedCredential;
 
         return this;
-    }
-
-    public User addRole(Role role) {
-        if (roles == null) roles = new ArrayList<>();
-        roles.add(role);
-        return this;
-    }
-
-    public void clearRole(){
-        roles.clear();
     }
 }

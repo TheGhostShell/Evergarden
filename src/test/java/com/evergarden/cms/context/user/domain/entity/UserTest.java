@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -11,8 +12,8 @@ class UserTest {
 
     @Test
     void testUserInstance() {
-        User             user  = new User();
-        Collection<Role> roles = new ArrayList<>();
+        User       user  = new User();
+        List<Role> roles = new ArrayList<>();
         roles.add(new Role("admin"));
 
         Avatar avatar = Avatar.builder()
@@ -28,7 +29,7 @@ class UserTest {
         user.setEncodedCredential(new EncodedCredential("salt", "password"));
         user.setActivated(true);
         user.setAvatar(avatar);
-        user.setRoles(roles);
+        user.setProfile(Profile.builder().roles(roles).name("admin").build());
 
         assertEquals("batou@mail.com", user.getEmail());
         assertEquals("Ranger", user.getLastname());
@@ -39,7 +40,7 @@ class UserTest {
         assertEquals("salt", user.getEncodedCredential().getSalt());
         assertEquals("password", user.getEncodedCredential().getEncodedPassword());
         assertTrue(user.isActivated());
-        assertEquals(roles, user.getRoles());
+        assertEquals(roles, user.getProfile().getRoles());
 
         assertEquals("the/path", user.getAvatar().getFilePath());
         assertEquals("avatar.jpeg", user.getAvatar().getFileName());
@@ -49,7 +50,7 @@ class UserTest {
     @Test
     void testUserBuilder() {
 
-        Collection<Role> roles = new ArrayList<>();
+        List<Role> roles = new ArrayList<>();
         roles.add(new Role("admin"));
 
         User user = User.builder()
@@ -59,7 +60,7 @@ class UserTest {
             .pseudo("Batou")
             .encodedCredential(new EncodedCredential("salt", "password"))
             .activated(true)
-            .roles(roles)
+            .profile(Profile.builder().roles(roles).name("admin").build())
             .build();
 
         assertEquals("batou@mail.com", user.getEmail());
@@ -71,14 +72,8 @@ class UserTest {
         assertEquals("salt", user.getEncodedCredential().getSalt());
         assertEquals("password", user.getEncodedCredential().getEncodedPassword());
         assertTrue(user.isActivated());
-        assertEquals(roles, user.getRoles());
-        assertTrue(user.getRoles().size() > 0);
+        assertEquals(roles, user.getProfile().getRoles());
+        assertTrue(user.getProfile().getRoles().size() > 0);
         assertNotNull(user.toString());
-
-        user.clearRole();
-
-        assertEquals(0, user.getRoles().size());
-
-        assertEquals(1, user.addRole(new Role().setRole("administrator")).getRoles().size());
     }
 }

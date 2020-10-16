@@ -19,13 +19,13 @@ public class should_find_all_post extends IntegrationCmsApplicationTests {
     public void should_findAll_post_in_mongodb() {
         Post freshPost1 = Post.builder()
             .title("Nice title")
-            .author("Violet")
+            .authorName("Violet")
             .body("I'm a tragic novel author")
             .build();
 
         Post freshPost2 = Post.builder()
             .title("Nice title")
-            .author("Violet")
+            .authorName("Violet")
             .body("I'm a detective novel author")
             .build();
 

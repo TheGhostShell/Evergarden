@@ -4,7 +4,6 @@ import com.evergarden.cms.app.config.security.EvergardenEncoder;
 import com.evergarden.cms.context.user.domain.exception.PasswordConstraintViolationException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
 
 @Builder

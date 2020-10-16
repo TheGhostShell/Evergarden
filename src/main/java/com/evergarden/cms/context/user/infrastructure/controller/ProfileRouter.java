@@ -9,15 +9,16 @@ import org.springframework.web.reactive.function.server.RouterFunctions;
 import org.springframework.web.reactive.function.server.ServerResponse;
 
 @Configuration
-public class RoleRouter {
+public class ProfileRouter {
 
     @Value("${v1s}")
-    private String pathSecure;
+    String pathSecure;
 
     @Bean
-    public RouterFunction<ServerResponse> roleRoute(RoleHandler handler) {
+    public RouterFunction<ServerResponse> profileRoute(ProfileHandler profileHandler) {
 
-        return RouterFunctions.route(RequestPredicates.GET(pathSecure + "/role"), handler::show)
-            .andRoute(RequestPredicates.GET(pathSecure + "/role/{id}"), handler::read);
+        return RouterFunctions.route(RequestPredicates.POST(pathSecure + "/profile"), profileHandler::create)
+            .andRoute(RequestPredicates.GET(pathSecure + "/profile/{id}"), profileHandler::read)
+            .andRoute(RequestPredicates.GET(pathSecure + "/profile"), profileHandler::show);
     }
 }

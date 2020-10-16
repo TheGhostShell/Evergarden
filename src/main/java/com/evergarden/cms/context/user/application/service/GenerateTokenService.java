@@ -53,12 +53,12 @@ public class GenerateTokenService {
 
                 if (isValidPass) {
                     ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
-                    user.getRoles().forEach(role -> {
+                    user.getProfile().getRoles().forEach(role -> {
                         authorities.add(new SimpleGrantedAuthority(role.getRole()));
                     });
 
                     logger.debug("Try to generate token");
-                    Token token = jwtHelper.generateToken(user.getEmail(), authorities, user.getId());
+                    Token token = jwtHelper.generateToken(user.getEmail(), authorities, user.getId(), user.getProfile());
                     logger.debug("Token is generated with this value " + token.getToken());
 
                     return Mono.just(token);

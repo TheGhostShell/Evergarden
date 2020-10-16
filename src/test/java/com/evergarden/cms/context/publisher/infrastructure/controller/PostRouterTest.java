@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.publisher.infrastructure.controller;
 
+import com.evergarden.cms.app.config.security.JwtHelper;
 import com.evergarden.cms.context.publisher.application.service.CRUDPostService;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
 import org.junit.jupiter.api.BeforeEach;
@@ -34,11 +35,14 @@ class PostRouterTest {
     @MockBean
     private CRUDPostService crudPostService;
 
+    @MockBean
+    private JwtHelper jwtHelper;
+
     private WebTestClient client;
 
     @BeforeEach
     void setUp() {
-        PostHandler                    postHandler = new PostHandler(crudPostService);
+        PostHandler                    postHandler = new PostHandler(crudPostService, jwtHelper, fastCacheUser);
         RouterFunction<ServerResponse> router      = (new PostRouter()).postRoute(postHandler, env);
         client = WebTestClient.bindToRouterFunction(router).build();
     }
@@ -47,7 +51,7 @@ class PostRouterTest {
     void read() {
 
         Post expectedPost = new Post();
-        expectedPost.setAuthor("john");
+        expectedPost.setAuthorName("johnId");
         expectedPost.setTitle("<h1>The book ever</h1>");
         expectedPost.setBody("<b>This is a wonderfull book I ever read</b>");
         expectedPost.setId("postId");
@@ -68,19 +72,19 @@ class PostRouterTest {
     void show() {
 
         Post expectedPost1 = new Post();
-        expectedPost1.setAuthor("john");
+        expectedPost1.setAuthorName("johnId");
         expectedPost1.setTitle("<h1>The book ever</h1>");
         expectedPost1.setBody("<b>This is a wonderfull book I ever read</b>");
         expectedPost1.setId("post1");
 
         Post expectedPost2 = new Post();
-        expectedPost2.setAuthor("john2");
+        expectedPost2.setAuthorName("john2");
         expectedPost2.setTitle("<h1>The book ever 2</h1>");
         expectedPost2.setBody("<b>This is a wonderfull book I ever read 2</b>");
         expectedPost2.setId("post2");
 
         Post expectedPost3 = new Post();
-        expectedPost3.setAuthor("john3");
+        expectedPost3.setAuthorName("john3");
         expectedPost3.setTitle("<h1>The book ever 3</h1>");
         expectedPost3.setBody("<b>This is a wonderfull book I ever read 3</b>");
         expectedPost3.setId("post3");
@@ -115,19 +119,19 @@ class PostRouterTest {
 
         Post post = Post.builder()
             .body("Lorem ipsum")
-            .author("john")
+            .authorName("john")
             .title("Best post")
             .build();
         Post postMonoResponse = Post.builder()
             .body("Lorem ipsum")
-            .author("john")
+            .authorName("john")
             .title("Best post")
             .id("postId")
             .build();
 
         Post request = Post.builder()
             .title("Best post")
-            .author("john")
+            .authorName("john")
             .body("Lorem ipsum")
             .build();
 
@@ -151,7 +155,7 @@ class PostRouterTest {
 
         Post post = Post.builder()
             .body("Opo dum opo dim")
-            .author("Mike")
+            .authorName("Mike")
             .title("The snake")
             .id("postId")
             .build();
@@ -161,7 +165,7 @@ class PostRouterTest {
 
         Post request = Post.builder()
             .body("Opo dum opo dim")
-            .author("Mike")
+            .authorName("Mike")
             .title("The snake")
             .id("postId")
             .build();

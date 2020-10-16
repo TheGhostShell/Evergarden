@@ -4,53 +4,56 @@ import com.evergarden.cms.app.config.security.EvergardenEncoder;
 import com.evergarden.cms.app.utils.ExceptionUtils;
 import com.evergarden.cms.context.user.application.mapper.UpdateUserMapper;
 import com.evergarden.cms.context.user.application.mapper.UserMapper;
+import com.evergarden.cms.context.user.domain.entity.Profile;
 import com.evergarden.cms.context.user.domain.entity.User;
 import com.evergarden.cms.context.user.domain.exception.RessourceNotFoundException;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnSaveUser;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
 import com.evergarden.cms.context.user.infrastructure.controller.output.UserResponse;
 import com.evergarden.cms.context.user.infrastructure.persistence.UserRepository;
-import org.slf4j.Logger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.validation.Valid;
+
 @Service
+@Slf4j
 public class CRUDUserService {
-    private UserRepository  userRepository;
-    private CRUDRoleService assignRoleUserService;
-    private Logger logger;
-    private EvergardenEncoder encoder;
+    private UserRepository     userRepository;
+    private CRUDProfileService crudProfileService;
+    private EvergardenEncoder  encoder;
 
     @Autowired
-    public CRUDUserService(UserRepository userRepository,
-                           CRUDRoleService assignRoleUserService,
-                           Logger logger,
+    public CRUDUserService(UserRepository userRepository, CRUDProfileService crudProfileService,
                            EvergardenEncoder encoder) {
         this.userRepository = userRepository;
-        this.assignRoleUserService = assignRoleUserService;
-        this.logger = logger;
+        this.crudProfileService = crudProfileService;
         this.encoder = encoder;
     }
 
-    public Mono<UserResponse> createUser(UnSaveUser unSaveUser) {
-        return Mono.just(unSaveUser)
-            .flatMap(unSaveUser1 -> {
-                User user = UserMapper.INSTANCE.unSaveUserToUser(unSaveUser1);
-                encoder.encode(unSaveUser1.getPassword());
+    public Mono<UserResponse> createUser(@Valid UnSaveUser unSaveUser) {
+        return crudProfileService.findByNameOrId(unSaveUser.getProfile()
+            .getName(), unSaveUser.getProfile()
+            .getId())
+            .map(profile -> {
+                User user = UserMapper.INSTANCE.unSaveUserToUser(unSaveUser); // TODO need to be deeply tested
+                user.setProfile(profile);
+                encoder.encode(unSaveUser.getPassword());
                 user.setEncodedCredential(encoder.getEncodedCredential());
-                return assignRoleUserService.assignRoleToUser(user);
+                return user;
             })
             .flatMap(user -> {
-                logger.debug("Try to create user " + user.getEmail());
+                log.debug("Try to create user " + user.getEmail());
                 return userRepository.save(user);
             })
             .flatMap(user -> {
-                logger.debug("New user saved with id " + user.getId());
+                log.debug("New user saved with id " + user.getId());
                 return Mono.just(UserMapper.INSTANCE.userToUserResponse(user));
             })
-            .doOnError(throwable -> logger.warn(throwable.toString()));
+            .doOnError(throwable -> log.warn(throwable.toString()));
     }
 
     public Mono<UserResponse> readUser(String id) {
@@ -72,22 +75,34 @@ public class CRUDUserService {
             .switchIfEmpty(Mono.error(new RessourceNotFoundException("User")));
     }
 
+    // TODO deep test needed
     public Mono<UserResponse> updateUser(UpdatedUser updatedUser) {
         return Mono.just(updatedUser)
             .flatMap(upUser -> userRepository.findById(upUser.getId())
                 .flatMap(user -> Mono.just(UpdateUserMapper.toUser(upUser, user)))
-                .switchIfEmpty(Mono.error(new RessourceNotFoundException(upUser.getId())))
-            )
-            .flatMap(user -> assignRoleUserService.assignRoleToUser(user))
+                .flatMap(user -> crudProfileService.findByNameOrId(user.getProfile()
+                    .getName(), user.getProfile()
+                    .getId())
+                    .map(profile -> {
+                        user.setProfile(profile);
+                        return user;
+                    }))
+                .switchIfEmpty(Mono.error(new RessourceNotFoundException(upUser.getId()))))
             .flatMap(user -> userRepository.save(user))
             .flatMap(user -> Mono.just(UserMapper.INSTANCE.userToUserResponse(user)))
             .onErrorResume(throwable -> {
-                logger.warn(ExceptionUtils.getRootCause(throwable).getMessage());
+                log.warn(ExceptionUtils.getRootCause(throwable)
+                    .getMessage());
                 return Mono.error(throwable);
             });
     }
 
-    public Mono<User> update(User user) {
+    public Mono<User> updateOrSave(User user) {
         return userRepository.save(user);
+    }
+
+    public Mono<User> findFirstByProfile(Profile profile) {
+        return userRepository.findFirstByProfile(profile)
+            .switchIfEmpty(Mono.error(new RessourceNotFoundException(" for User with profile " + profile.getName())));
     }
 }

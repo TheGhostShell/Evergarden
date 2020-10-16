@@ -19,4 +19,10 @@ public class RoleHandler {
     public Mono<ServerResponse> show(ServerRequest serverRequest) {
         return ServerResponse.ok().body(crudRoleService.findAllRole(), Role.class);
     }
+
+    public Mono<ServerResponse> read(ServerRequest serverRequest) {
+        return crudRoleService.findById(serverRequest.pathVariable("id"))
+            .flatMap(role -> ServerResponse.ok().bodyValue(role))
+            .onErrorResume(throwable -> ServerResponse.notFound().build());
+    }
 }

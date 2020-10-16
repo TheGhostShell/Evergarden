@@ -22,13 +22,13 @@ public class should_save_new_post extends IntegrationCmsApplicationTests {
     public void should_save_new_post_in_mongodb() {
         Post post = Post.builder()
             .title("Nice title")
-            .author("Violet")
+            .authorName("Violet")
             .body("I'm a writer")
             .build();
 
         StepVerifier.create(crudPostService.create(post))
             .expectNextMatches(post1 -> {
-                Assertions.assertEquals("Violet", post1.getAuthor());
+                Assertions.assertEquals("Violet", post1.getAuthorName());
                 Assertions.assertEquals("I'm a writer", post1.getBody());
                 Assertions.assertEquals("Nice title", post1.getTitle());
                 Assertions.assertNotNull(post1.getId());

@@ -6,6 +6,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.JWTVerificationException;
 import com.auth0.jwt.interfaces.Claim;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import com.evergarden.cms.context.user.domain.entity.Profile;
 import com.evergarden.cms.context.user.domain.entity.Token;
 import com.evergarden.cms.context.user.domain.entity.TokenDecrypted;
 import lombok.extern.slf4j.Slf4j;
@@ -45,11 +46,13 @@ public class JwtHelper {
     }
 
     @Cacheable(value = "tokenCache", key = "#id")
-    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, String id) {
-        return generateToken(email, authorities, 6L, id);
+    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, String id, Profile profile) {
+        return generateToken(email, authorities, 6L, id, profile);
     }
 
-    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, Long hours, String id) {
+    @Cacheable(value = "tokenCache", key = "#id")
+    public Token generateToken(String email, ArrayList<SimpleGrantedAuthority> authorities, Long hours, String id,
+                               Profile profile) {
         String[] roles = new String[authorities.size()];
 
         for (int i = 0; i < authorities.size(); i++) {
@@ -59,6 +62,7 @@ public class JwtHelper {
         String token = JWT.create()
             .withClaim("id", id)
             .withClaim("email", email)
+            .withClaim("profile", profile.getName())
             .withArrayClaim("role", roles)
             .withIssuer(JwtHelper.ISSUER)
             .withExpiresAt(Date.from(Instant.now().plus(Duration.ofHours(hours))))

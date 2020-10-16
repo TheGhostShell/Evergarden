@@ -1,6 +1,9 @@
 package com.evergarden.cms.context.user.domain.entity;
 
+import com.evergarden.cms.context.user.domain.exception.InvalidRoleNameException;
 import com.evergarden.cms.context.user.domain.security.Permission;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
@@ -16,6 +19,8 @@ import java.util.List;
 @EqualsAndHashCode
 @NoArgsConstructor
 @Document
+@Builder
+@AllArgsConstructor
 public class Role {
 
     @Id
@@ -25,14 +30,16 @@ public class Role {
     @NonNull
     private String role;
 
-    private List<Permission> permissions = new ArrayList<>();
-
     public Role(String role) {
         setRole(role);
     }
 
     // Factory
     public static Role createFromRawValue(String role) {
+        if(! role.matches("(?i).*(ROLE).*")){
+            throw new InvalidRoleNameException(role);
+        }
+        // TODO if not uppercase role throw InvalidRoleNameException
         return new Role("").setRoleFromRawValue(role);
     }
 

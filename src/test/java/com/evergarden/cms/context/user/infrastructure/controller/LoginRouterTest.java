@@ -8,6 +8,7 @@ import com.evergarden.cms.context.user.application.service.GenerateGuestTokenSer
 import com.evergarden.cms.context.user.application.service.GenerateTokenService;
 import com.evergarden.cms.context.user.domain.entity.EncodedCredential;
 import com.evergarden.cms.context.user.domain.entity.Guest;
+import com.evergarden.cms.context.user.domain.entity.Profile;
 import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.Token;
 import com.evergarden.cms.context.user.domain.entity.User;
@@ -98,6 +99,8 @@ class LoginRouterTest {
 
         ArrayList<SimpleGrantedAuthority> authorities = new ArrayList<>();
         authorities.add(new SimpleGrantedAuthority(new Role("test_admin").getRole()));
+        ArrayList<Role> roles = new ArrayList<>();
+        roles.add(new Role("test_admin"));
 
         User user = new User();
         user.setEmail("batou@mail.com");
@@ -105,14 +108,15 @@ class LoginRouterTest {
         user.setLastname("ranger");
         user.setPseudo("batou");
         user.setActivated(true);
-        user.addRole(new Role("test_admin"));
+        user.setProfile(Profile.builder().roles(roles).build());
         user.setEncodedCredential(encoder.getEncodedCredential());
 
         BDDMockito.given(userRepository.findByEmail("batou@mail.com"))
             .willReturn(Mono.just(user));
 
         BDDMockito.given(generateTokenService.generateToken(unAuthUser))
-            .willReturn(Mono.just(jwtHelper.generateToken("batou@mail.com", authorities,"1")));
+            .willReturn(Mono.just(jwtHelper.generateToken("batou@mail.com", authorities,"1",
+                Profile.builder().build()))); //TODO to improve
 
         client.post()
             .uri(env.getProperty("v1") + "/login")
@@ -132,7 +136,8 @@ class LoginRouterTest {
         ArrayList<SimpleGrantedAuthority> roles = new ArrayList<>();
         roles.add(new SimpleGrantedAuthority(new Role("guest").getRole()));
 
-        Token token = jwtHelper.generateToken("batou@mail.com", roles, 1L, "");
+        // TODO to improve
+        Token token = jwtHelper.generateToken("batou@mail.com", roles, 1L, "", Profile.builder().build());
 
         BDDMockito.given(generateGuestTokenService.generateGuestToken(guest))
             .willReturn(Mono.just(Guest.builder().subject("batou@mail.com").token(token.getToken()).build()));

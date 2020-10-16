@@ -10,10 +10,14 @@ import com.evergarden.cms.context.user.application.service.GenerateGuestTokenSer
 import com.evergarden.cms.context.user.application.service.GenerateTokenService;
 import com.evergarden.cms.context.user.application.service.UpdatePasswordService;
 import com.evergarden.cms.context.user.domain.entity.Avatar;
+import com.evergarden.cms.context.user.domain.entity.Profile;
 import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.Token;
+import com.evergarden.cms.context.user.infrastructure.controller.input.ProfileRequest;
+import com.evergarden.cms.context.user.infrastructure.controller.input.ProfileSearch;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnSaveUser;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
+import com.evergarden.cms.context.user.infrastructure.controller.output.ProfileResponse;
 import com.evergarden.cms.context.user.infrastructure.controller.output.UserResponse;
 import com.evergarden.cms.context.user.infrastructure.persistence.RoleRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.UserRepository;
@@ -117,7 +121,7 @@ public class UserRouterTest {
             .lastname("Ranger")
             .pseudo("Batou")
             .id("1")
-            .roles(roles)
+            .profile(ProfileResponse.builder().name("admin").build())
             .avatarUrl("avatar/uri")
             .activated(true)
             .build();
@@ -139,7 +143,7 @@ public class UserRouterTest {
                 assertEquals("1", userR.getId());
                 assertEquals("avatar/uri", userR.getAvatarUrl());
                 assertTrue(userR.isActivated());
-                assertNotNull(userR.getRoles());
+                assertNotNull(userR.getProfile());
             });
     }
 
@@ -156,7 +160,7 @@ public class UserRouterTest {
             .lastname("Ranger")
             .pseudo("Batou")
             .activated(true)
-            .roles(roles)
+            .profile(ProfileSearch.builder().name("admin").build())
             .password(encoder.getEncodedCredential().getEncodedPassword())
             .build();
 
@@ -166,7 +170,7 @@ public class UserRouterTest {
             .lastname("Ranger")
             .pseudo("Batou")
             .id("1")
-            .roles(roles)
+            .profile(ProfileResponse.builder().name("admin").build())
             .avatarUrl("avatar/uri")
             .activated(true)
             .build();
@@ -186,7 +190,7 @@ public class UserRouterTest {
                 assertEquals("Ranger", user.getLastname());
                 assertEquals("Batou", user.getPseudo());
                 assertEquals("1", user.getId());
-                assertEquals(roles, user.getRoles());
+                assertEquals("admin", user.getProfile().getName());
             });
     }
 
@@ -208,7 +212,7 @@ public class UserRouterTest {
             .pseudo("Batou")
             .avatarUrl("avatar/uri")
             .avatar(Avatar.builder().relativeUri("uri").build())
-            .roles(roles)
+            .profile(ProfileSearch.builder().name("admin").build())
             .build();
 
         UserResponse userResponse = UserResponse.builder()
@@ -217,7 +221,7 @@ public class UserRouterTest {
             .lastname("Ranger")
             .pseudo("Batou")
             .id("1")
-            .roles(roles)
+            .profile(ProfileResponse.builder().name("admin").build())
             .avatarUrl("avatar/uri")
             .activated(true)
             .build();
@@ -250,7 +254,7 @@ public class UserRouterTest {
         u1.setLastname("Ranger");
         u1.setPseudo("Batou");
         u1.setActivated(true);
-        u1.addRole(new Role("admin").setId("1"));
+        u1.setProfile(ProfileResponse.builder().name("admin").build());
 
         UserResponse u2 = new UserResponse();
         u2.setId("2");
@@ -259,7 +263,7 @@ public class UserRouterTest {
         u2.setLastname("dino");
         u2.setPseudo("denver");
         u2.setActivated(true);
-        u2.addRole(new Role("writer").setId("2"));
+        u2.setProfile(ProfileResponse.builder().name("writer").build());
 
         UserResponse u3 = new UserResponse();
         u3.setId("3");
@@ -268,7 +272,7 @@ public class UserRouterTest {
         u3.setLastname("kisanagi");
         u3.setPseudo("moto");
         u3.setActivated(true);
-        u3.addRole(new Role("major").setId("3"));
+        u3.setProfile(ProfileResponse.builder().name("major").build());
 
         BDDMockito.given(crudUserService.showUser())
             .willReturn(Flux.just(u1, u2, u3));
@@ -283,8 +287,8 @@ public class UserRouterTest {
 
                 assertEquals("batou@mail.com", ur1.getEmail());
                 assertEquals("1", ur1.getId());
-                assertNotNull(ur1.getRoles());
-                assertEquals(1, ur1.getRoles().toArray().length);
+                assertNotNull(ur1.getProfile());
+                assertEquals("admin", ur1.getProfile().getName());
                 assertEquals("Batou", ur1.getPseudo());
                 assertEquals("Ranger", ur1.getLastname());
                 assertEquals("Batou", ur1.getFirstname());

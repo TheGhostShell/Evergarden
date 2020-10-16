@@ -4,6 +4,7 @@ import com.evergarden.cms.IntegrationCmsApplicationTests;
 import com.evergarden.cms.app.config.security.EvergardenAuthenticationManager;
 import com.evergarden.cms.app.config.security.JwtHelper;
 import com.evergarden.cms.app.config.security.SecurityContextRepository;
+import com.evergarden.cms.context.user.domain.entity.Profile;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +53,8 @@ class SecurityContextRepositoryTest extends IntegrationCmsApplicationTests {
         ArrayList<SimpleGrantedAuthority> roles   = new ArrayList<>();
         roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId").getToken();
+        // TODO to improve profile
+        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId", Profile.builder().build()).getToken();
 
         ServerHttpRequest mockRequest = mock(ServerHttpRequest.class);
         HttpHeaders       headers     = mock(HttpHeaders.class);

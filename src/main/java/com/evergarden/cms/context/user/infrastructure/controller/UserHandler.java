@@ -70,7 +70,7 @@ public class UserHandler {
 
     // TODO refactor and use private method as create()
     // TODO use id from token for more security is the right behavior
-    Mono<ServerResponse> update(ServerRequest request) {
+    public Mono<ServerResponse> update(ServerRequest request) {
         return request.body(BodyExtractors.toMono(UpdatedUser.class))
             .flatMap(updatedUser -> cRUDUserService.updateUser(updatedUser))
             .flatMap(userResponse -> ServerResponse.ok().body(Mono.just(userResponse), UserResponse.class))
@@ -79,7 +79,7 @@ public class UserHandler {
     }
 
     // TODO implement
-    Mono<ServerResponse> updatePassword(ServerRequest serverRequest) {
+    public Mono<ServerResponse> updatePassword(ServerRequest serverRequest) {
         TokenDecrypted token = jwtHelper.fromServerRequest(serverRequest);
         return serverRequest.body(BodyExtractors.toMono(PasswordRequest.class))
             .flatMap(passwordRequest -> passwordService.updatePassword(passwordRequest, token.getUserId()))
