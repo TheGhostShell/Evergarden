@@ -13,6 +13,7 @@ import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.Token;
 import com.evergarden.cms.context.user.domain.entity.User;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnAuthUser;
+import com.evergarden.cms.context.user.infrastructure.persistence.ProfileRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.RoleRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,6 +60,9 @@ class LoginRouterTest {
 
     @MockBean
     private RoleRepository roleRepository;
+
+    @MockBean
+    private ProfileRepository profileRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -108,7 +112,7 @@ class LoginRouterTest {
         user.setLastname("ranger");
         user.setPseudo("batou");
         user.setActivated(true);
-        user.setProfile(Profile.builder().roles(roles).build());
+        user.setProfile(Profile.builder().name("admin").roles(roles).build());
         user.setEncodedCredential(encoder.getEncodedCredential());
 
         BDDMockito.given(userRepository.findByEmail("batou@mail.com"))
@@ -116,7 +120,7 @@ class LoginRouterTest {
 
         BDDMockito.given(generateTokenService.generateToken(unAuthUser))
             .willReturn(Mono.just(jwtHelper.generateToken("batou@mail.com", authorities,"1",
-                Profile.builder().build()))); //TODO to improve
+                Profile.builder().name("admin").build()))); //TODO to improve
 
         client.post()
             .uri(env.getProperty("v1") + "/login")
@@ -137,7 +141,8 @@ class LoginRouterTest {
         roles.add(new SimpleGrantedAuthority(new Role("guest").getRole()));
 
         // TODO to improve
-        Token token = jwtHelper.generateToken("batou@mail.com", roles, 1L, "", Profile.builder().build());
+        Token token = jwtHelper.generateToken("batou@mail.com", roles, 1L, "", Profile.builder()
+            .name("guest").build());
 
         BDDMockito.given(generateGuestTokenService.generateGuestToken(guest))
             .willReturn(Mono.just(Guest.builder().subject("batou@mail.com").token(token.getToken()).build()));

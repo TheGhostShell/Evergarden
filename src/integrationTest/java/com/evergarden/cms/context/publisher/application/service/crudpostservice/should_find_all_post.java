@@ -25,7 +25,7 @@ public class should_find_all_post extends IntegrationCmsApplicationTests {
 
         Post freshPost2 = Post.builder()
             .title("Nice title")
-            .authorId("7x34vioLEt7xc34")
+            .authorId("7x34vioLEt7xc36")
             .body("I'm a detective novel author")
             .build();
 

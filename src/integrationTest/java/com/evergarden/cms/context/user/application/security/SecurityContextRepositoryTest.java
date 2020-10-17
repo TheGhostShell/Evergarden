@@ -54,7 +54,9 @@ class SecurityContextRepositoryTest extends IntegrationCmsApplicationTests {
         roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
         // TODO to improve profile
-        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId", Profile.builder().build()).getToken();
+        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId", Profile.builder()
+            .name("fakeProfile")
+            .build()).getToken();
 
         ServerHttpRequest mockRequest = mock(ServerHttpRequest.class);
         HttpHeaders       headers     = mock(HttpHeaders.class);

@@ -10,7 +10,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UpdatedUserTest {
-    // Check assigned roles
+    // TODO Check assigned roles
 
     @Test
     void createInstanceAllParamConstructor() {
@@ -39,7 +39,7 @@ class UpdatedUserTest {
         assertEquals("Batou", updatedUser.getPseudo());
         assertEquals(avatar, updatedUser.getAvatar());
         assertTrue(updatedUser.isActivated());
-        assertEquals(ProfileSearch.builder().name("admin").build(), updatedUser.getProfile());
+        assertEquals("admin", updatedUser.getProfile().getName());
     }
 
     @Test

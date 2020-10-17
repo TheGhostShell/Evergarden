@@ -22,7 +22,7 @@ public class should_save_new_post extends IntegrationCmsApplicationTests {
     public void should_save_new_post_in_mongodb() {
         Post post = Post.builder()
             .title("Nice title")
-            .authorId("Violet")
+            .authorId("7x34vioLEt7xc34")
             .body("I'm a writer")
             .build();
 

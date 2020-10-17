@@ -13,7 +13,9 @@ import com.evergarden.cms.context.user.domain.entity.TokenDecrypted;
 import com.evergarden.cms.context.user.domain.entity.User;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ReactiveHttpInputMessage;
 import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.BodyExtractor;
 import org.springframework.web.reactive.function.BodyExtractors;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.server.ServerRequest;
@@ -51,9 +53,11 @@ public class PostHandler {
                 postToSave.setAuthorId(token.getUserId());
                 postToSave.setCreatedAt(LocalDateTime.now());
 
+                Mono<Post> postMono = crudPostService.create(postToSave);
+
                 // Todo missing tags
                 Mono<PostSummaryResponse> post =
-                    crudPostService.create(postToSave)
+                    postMono
                         .flatMap(this::toPostSummary);
 
                 return ServerResponse.ok().body(post, PostSummaryResponse.class);

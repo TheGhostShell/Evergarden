@@ -38,7 +38,11 @@ class EvergardenAuthenticationManagerTest extends IntegrationCmsApplicationTests
         ArrayList<SimpleGrantedAuthority> roles = new ArrayList<>();
         roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
         //TODO to improve profile
-        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId", Profile.builder().build()).getToken();
+        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId",
+            Profile.builder()
+                .name("fakeProfile")
+                .build())
+            .getToken();
         Authentication authentication = new UsernamePasswordAuthenticationToken("batou@mail.com", token);
         EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper);
 

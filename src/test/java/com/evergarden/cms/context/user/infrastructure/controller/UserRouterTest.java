@@ -19,6 +19,7 @@ import com.evergarden.cms.context.user.infrastructure.controller.input.UnSaveUse
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
 import com.evergarden.cms.context.user.infrastructure.controller.output.ProfileResponse;
 import com.evergarden.cms.context.user.infrastructure.controller.output.UserResponse;
+import com.evergarden.cms.context.user.infrastructure.persistence.ProfileRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.RoleRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -68,6 +69,9 @@ public class UserRouterTest {
 
     @MockBean
     private RoleRepository roleRepository;
+
+    @MockBean
+    private ProfileRepository profileRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -226,7 +230,7 @@ public class UserRouterTest {
             .activated(true)
             .build();
 
-        BDDMockito.given(crudUserService.updateUser(updatedUser))
+        BDDMockito.given(crudUserService.updateUser(BDDMockito.any(UpdatedUser.class)))
             .willReturn(Mono.just(userResponse));
 
         client.put()

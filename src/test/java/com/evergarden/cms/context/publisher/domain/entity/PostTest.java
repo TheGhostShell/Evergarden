@@ -17,7 +17,7 @@ class PostTest {
 
 		assertNull( post.getId());
 		assertEquals("title", post.getTitle());
-		assertEquals("author", post.getAuthorId());
+		assertEquals("authorId", post.getAuthorId());
 		assertEquals("body post", post.getBody());
 
 		post.setId("postId");
