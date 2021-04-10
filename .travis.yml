@@ -3,11 +3,10 @@ addons:
     organization: "theghostshell"
     token: $SONAR_TOKEN
 
-dist: xenial
+dist: trusty
 language: java
 jdk:
 - openjdk8
-- openjdk11
 jobs:
   include:
     - script:
