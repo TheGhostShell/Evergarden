@@ -13,49 +13,47 @@ import reactor.core.publisher.Mono;
 import java.util.List;
 
 /**
- * An authentication manager intended to authenticate a JWT exchange
- * JWT tokens contain all information within the token itself
- * so an authentication manager is not necessary but we provide this
- * implementation to follow a standard.
- * Invalid tokens are filtered one previous step
+ * An authentication manager intended to authenticate a JWT exchange JWT tokens contain all
+ * information within the token itself so an authentication manager is not necessary but we provide
+ * this implementation to follow a standard. Invalid tokens are filtered one previous step
  */
 @Component
 @Slf4j
 public class EvergardenAuthenticationManager implements ReactiveAuthenticationManager {
 
-    private JwtHelper jwtHelper;
+  private final JwtHelper jwtHelper;
 
-    @Autowired
-    public EvergardenAuthenticationManager(JwtHelper jwtHelper) {
-        this.jwtHelper = jwtHelper;
+  @Autowired
+  public EvergardenAuthenticationManager(JwtHelper jwtHelper) {
+    this.jwtHelper = jwtHelper;
+  }
+
+  /**
+   * Successfully authenticate an Authentication object
+   *
+   * @param authentication A valid authentication object
+   * @return if authentication is successful an {@link Authentication} is returned. If
+   *     authentication cannot be determined, an empty Mono is returned. TODO If authentication
+   *     fails, a Mono error is returned.
+   */
+  @Override
+  public Mono<Authentication> authenticate(Authentication authentication) {
+
+    String authToken = authentication.getCredentials().toString();
+    boolean isAuth = jwtHelper.verifyToken(authToken);
+
+    // https://stackoverflow.com/questions/47958622/spring-security-webflux-reactive-exception-handling
+    if (!isAuth) {
+      return Mono.empty();
     }
 
-    /**
-     * Successfully authenticate an Authentication object
-     *
-     * @param authentication A valid authentication object
-     * @return if authentication is successful an {@link Authentication} is returned.
-     * If authentication cannot be determined, an empty Mono is returned.
-     * TODO If authentication fails, a Mono error is returned.
-     */
-    @Override
-    public Mono<Authentication> authenticate(Authentication authentication) {
+    List<SimpleGrantedAuthority> roles = jwtHelper.getRolesFromToken(authToken);
+    String email = authentication.getPrincipal().toString();
 
-        String  authToken = authentication.getCredentials().toString();
-        boolean isAuth    = jwtHelper.verifyToken(authToken);
+    log.debug("Try to authenticate {}", email);
 
-        // see https://stackoverflow.com/questions/47958622/spring-security-webflux-reactive-exception-handling
-        if (!isAuth) {
-            return Mono.empty();
-        }
+    Authentication authenticated = new UsernamePasswordAuthenticationToken(email, authToken, roles);
 
-        List<SimpleGrantedAuthority> roles = jwtHelper.getRolesFromToken(authToken);
-        String                       email = jwtHelper.getEmailFromToken(authToken);
-
-        log.debug("Try to authenticate {}", email);
-
-        Authentication authenticated = new UsernamePasswordAuthenticationToken(email, authToken, roles);
-
-        return Mono.just(authenticated);
-    }
+    return Mono.just(authenticated);
+  }
 }

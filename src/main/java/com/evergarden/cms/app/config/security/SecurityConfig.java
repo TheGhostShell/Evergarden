@@ -10,21 +10,22 @@ import org.springframework.security.web.server.SecurityWebFilterChain;
 @Configuration
 public class SecurityConfig {
 
-    private EvergardenAuthenticationManager authenticationManager;
-    private SecurityContextRepository securityContextRepository;
-    private Environment env;
+  private final EvergardenAuthenticationManager authenticationManager;
+  private final SecurityContextRepository       securityContextRepository;
+  private final Environment                     env;
 
-    @Autowired
-    public SecurityConfig(EvergardenAuthenticationManager authenticationManager,
-                          SecurityContextRepository securityContextRepository,
-                          Environment env) {
-        this.authenticationManager = authenticationManager;
-        this.securityContextRepository = securityContextRepository;
-        this.env = env;
-    }
+  @Autowired
+  public SecurityConfig(
+      EvergardenAuthenticationManager authenticationManager,
+      SecurityContextRepository securityContextRepository,
+      Environment env) {
+    this.authenticationManager = authenticationManager;
+    this.securityContextRepository = securityContextRepository;
+    this.env = env;
+  }
 
-    @Bean
-    public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
+  @Bean
+  public SecurityWebFilterChain securityWebFilterChain(ServerHttpSecurity http) {
 
         http
             .authorizeExchange().pathMatchers(env.getProperty("v1s") + "/**").hasRole("ADMIN")
@@ -42,6 +43,6 @@ public class SecurityConfig {
             .pathMatchers("/**")
             .permitAll();
 
-        return http.build();
-    }
+    return http.build();
+  }
 }

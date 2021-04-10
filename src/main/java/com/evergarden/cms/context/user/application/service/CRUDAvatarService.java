@@ -10,26 +10,28 @@ import reactor.core.publisher.Mono;
 @Service
 public class CRUDAvatarService {
 
-    private JwtHelper      jwtHelper;
-    private UserRepository userRepository;
+  private JwtHelper jwtHelper;
+  private UserRepository userRepository;
 
-    public CRUDAvatarService(JwtHelper jwtHelper, UserRepository userRepository) {
-        this.jwtHelper = jwtHelper;
-        this.userRepository = userRepository;
-    }
+  public CRUDAvatarService(JwtHelper jwtHelper, UserRepository userRepository) {
+    this.jwtHelper = jwtHelper;
+    this.userRepository = userRepository;
+  }
 
-    public Mono<Void> saveAvatarForUser(Token token, Avatar avatar) {
-        String id = jwtHelper.getIdFromToken(token.getToken());
-        return userRepository.findById(id)
-            .map(user -> {
-                user.setAvatar(avatar);
-                userRepository.save(user).subscribe();
-                return user;
+  public Mono<Void> saveAvatarForUser(Token token, Avatar avatar) {
+    String id = jwtHelper.getIdFromToken(token.getTokenString());
+    return userRepository
+        .findById(id)
+        .map(
+            user -> {
+              user.setAvatar(avatar);
+              userRepository.save(user).subscribe();
+              return user;
             })
-            .flatMap(user -> Mono.empty());
-    }
+        .flatMap(user -> Mono.empty());
+  }
 
-    public Mono<Void> saveAvatarForUser(String token, Avatar avatar) {
-        return saveAvatarForUser(jwtHelper.sanitizeHeaderToken(token), avatar);
-    }
+  public Mono<Void> saveAvatarForUser(String token, Avatar avatar) {
+    return saveAvatarForUser(jwtHelper.sanitizeHeaderToken(token), avatar);
+  }
 }

@@ -6,7 +6,6 @@ import com.evergarden.cms.context.user.domain.entity.Profile;
 import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.RoleEnum;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Mono;
@@ -53,7 +52,7 @@ public class GenerateGuestTokenService {
                         return createProfileAndRole(Profile.builder().name("GUEST").roles(roles).build());
                     })
                     .doOnNext(profile -> log.debug("Founded profile " + profile.getName()))
-                    .map(profile -> jwtHelper.generateToken(finalSubject, authorities, 1L, "", profile).getToken())
+                    .map(profile -> jwtHelper.generateToken(finalSubject, authorities, 1L, "", profile).getTokenString())
                     .doOnNext(token -> log.debug("New token generated " + token))
                     .map(token -> {
                         guest1.setToken(token);

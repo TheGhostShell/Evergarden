@@ -20,55 +20,63 @@ import java.util.ArrayList;
 @Service
 public class GenerateTokenService {
 
-    private UserRepository userRepository;
-    private Environment    env;
-    private Logger logger;
-    private JwtHelper jwtHelper;
-    private Cache<String, Token> tokenCache;
+  private UserRepository userRepository;
+  private Environment env;
+  private Logger logger;
+  private JwtHelper jwtHelper;
+  private Cache<String, Token> tokenCache;
 
-    @Autowired
-    public GenerateTokenService(
-        UserRepository userRepository,
-        Environment env,
-        Logger logger,
-        JwtHelper jwtHelper,
-        Cache<String, Token> tokenCache) {
-        this.userRepository = userRepository;
-        this.env = env;
-        this.logger = logger;
-        this.jwtHelper = jwtHelper;
-        this.tokenCache = tokenCache;
-    }
+  @Autowired
+  public GenerateTokenService(
+      UserRepository userRepository,
+      Environment env,
+      Logger logger,
+      JwtHelper jwtHelper,
+      Cache<String, Token> tokenCache) {
+    this.userRepository = userRepository;
+    this.env = env;
+    this.logger = logger;
+    this.jwtHelper = jwtHelper;
+    this.tokenCache = tokenCache;
+  }
 
-    public Mono<Token> generateToken(UnAuthUser unAuthUser) {
-        return Mono.just(unAuthUser)
-            .flatMap(unAuthU -> userRepository.findByEmail(unAuthU.getEmail()))
-            .flatMap(user -> {
+  public Mono<Token> generateToken(UnAuthUser unAuthUser) {
+    return Mono.just(unAuthUser)
+        .flatMap(unAuthU -> userRepository.findByEmail(unAuthU.getEmail()))
+        .flatMap(
+            user -> {
+              EncodedCredential encodedCredential =
+                  new EncodedCredential(user.getSalt(), user.getPassword());
+              EvergardenEncoder encoder = new EvergardenEncoder(env, encodedCredential);
 
-                EncodedCredential encodedCredential = new EncodedCredential(user.getSalt(), user.getPassword());
-                EvergardenEncoder encoder = new EvergardenEncoder(env, encodedCredential);
+              boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
+              logger.debug("Is password valid for user " + user.getEmail() + " " + isValidPass);
 
-                boolean isValidPass = encoder.matches(unAuthUser.getPassword(), user.getPassword());
-                logger.debug("Is password valid for user " + user.getEmail() + " " +isValidPass);
+              if (isValidPass) {
+                ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
+                user.getProfile()
+                    .getRoles()
+                    .forEach(
+                        role -> {
+                          authorities.add(new SimpleGrantedAuthority(role.getRole()));
+                        });
 
-                if (isValidPass) {
-                    ArrayList<SimpleGrantedAuthority> authorities = new ArrayList();
-                    user.getProfile().getRoles().forEach(role -> {
-                        authorities.add(new SimpleGrantedAuthority(role.getRole()));
-                    });
+                logger.debug("Try to generate token");
 
-                    logger.debug("Try to generate token");
-                    Token token = jwtHelper.generateToken(user.getEmail(), authorities, user.getId(), user.getProfile());
-                    logger.debug("Token is generated with this value " + token.getToken());
+                // Token is cached for 6 hours
+                Token token =
+                    jwtHelper.generateToken(
+                        user.getEmail(), authorities, user.getId(), user.getProfile());
+                logger.debug("Token is generated with this value " + token.getTokenString());
 
-                    return Mono.just(token);
-                }
-                // TODO generate token if pass is valid and maybe save it in cache
-                return Mono.error(new InvalidCredentialException(unAuthUser.getEmail()));
+                return Mono.just(token);
+              }
+
+              return Mono.error(new InvalidCredentialException(unAuthUser.getEmail()));
             });
-    }
+  }
 
-    public Boolean removeTokenFromCache(String id) {
-        return tokenCache.remove(id);
-    }
+  public Boolean removeTokenFromCache(String id) {
+    return tokenCache.remove(id);
+  }
 }

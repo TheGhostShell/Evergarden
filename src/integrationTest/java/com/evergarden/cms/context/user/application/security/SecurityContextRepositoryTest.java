@@ -31,53 +31,53 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 class SecurityContextRepositoryTest extends IntegrationCmsApplicationTests {
 
-    @Autowired
-    JwtHelper jwtHelper;
+  @Autowired JwtHelper jwtHelper;
 
-    @Test
-    void save() {
-        EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper);
-        SecurityContextRepository context = new SecurityContextRepository(manager, jwtHelper);
+  @Test
+  void save() {
+    EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper);
+    SecurityContextRepository context = new SecurityContextRepository(manager, jwtHelper);
 
-        ServerWebExchange mockServer  = mock(ServerWebExchange.class);
-        SecurityContext   mockContext = mock(SecurityContext.class);
+    ServerWebExchange mockServer = mock(ServerWebExchange.class);
+    SecurityContext mockContext = mock(SecurityContext.class);
 
-        assertThrows(UnsupportedOperationException.class, () -> context.save(mockServer, mockContext));
-    }
+    assertThrows(UnsupportedOperationException.class, () -> context.save(mockServer, mockContext));
+  }
 
-    @Test
-    void load() {
+  @Test
+  void load() {
 
-        EvergardenAuthenticationManager   manager = new EvergardenAuthenticationManager(jwtHelper);
-        SecurityContextRepository         context = new SecurityContextRepository(manager, jwtHelper);
-        ArrayList<SimpleGrantedAuthority> roles   = new ArrayList<>();
-        roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
+    EvergardenAuthenticationManager manager = new EvergardenAuthenticationManager(jwtHelper);
+    SecurityContextRepository context = new SecurityContextRepository(manager, jwtHelper);
+    ArrayList<SimpleGrantedAuthority> roles = new ArrayList<>();
+    roles.add(new SimpleGrantedAuthority("ROLE_ADMIN"));
 
-        // TODO to improve profile
-        String token = jwtHelper.generateToken("batou@mail.com", roles, "userId", Profile.builder()
-            .name("fakeProfile")
-            .build()).getToken();
+    // TODO to improve profile
+    String token =
+        jwtHelper
+            .generateToken(
+                "batou@mail.com", roles, "userId", Profile.builder().name("fakeProfile").build())
+            .getTokenString();
 
-        ServerHttpRequest mockRequest = mock(ServerHttpRequest.class);
-        HttpHeaders       headers     = mock(HttpHeaders.class);
-        ServerWebExchange mockServer  = mock(ServerWebExchange.class);
+    ServerHttpRequest mockRequest = mock(ServerHttpRequest.class);
+    HttpHeaders headers = mock(HttpHeaders.class);
+    ServerWebExchange mockServer = mock(ServerWebExchange.class);
 
-        when(mockServer.getRequest()).thenReturn(mockRequest);
-        when(mockRequest.getHeaders()).thenReturn(headers);
-        when(headers.getFirst(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + token);
+    when(mockServer.getRequest()).thenReturn(mockRequest);
+    when(mockRequest.getHeaders()).thenReturn(headers);
+    when(headers.getFirst(HttpHeaders.AUTHORIZATION)).thenReturn("Bearer " + token);
 
-        Authentication      userToken = new UsernamePasswordAuthenticationToken("batou@mail.com", token, roles);
-        SecurityContextImpl sci       = new SecurityContextImpl(userToken);
+    Authentication userToken =
+        new UsernamePasswordAuthenticationToken("batou@mail.com", token, roles);
 
-        StepVerifier.create(context.load(mockServer))
-            .expectNextMatches(securityContext -> {
-                assertEquals(sci, securityContext);
-                return true;
+    SecurityContextImpl sci = new SecurityContextImpl(userToken);
+
+    StepVerifier.create(context.load(mockServer))
+        .expectNextMatches(
+            securityContext -> {
+              assertEquals(sci, securityContext);
+              return true;
             })
-            .verifyComplete();
-
-        when(headers.getFirst(HttpHeaders.AUTHORIZATION)).thenReturn(token);
-        StepVerifier.create(context.load(mockServer))
-            .verifyComplete();
-    }
+        .verifyComplete();
+  }
 }

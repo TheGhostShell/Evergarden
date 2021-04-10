@@ -13,6 +13,7 @@ import com.evergarden.cms.context.user.domain.entity.Role;
 import com.evergarden.cms.context.user.domain.entity.Token;
 import com.evergarden.cms.context.user.domain.entity.User;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UnAuthUser;
+import com.evergarden.cms.context.user.infrastructure.controller.output.LoginResponse;
 import com.evergarden.cms.context.user.infrastructure.persistence.ProfileRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.RoleRepository;
 import com.evergarden.cms.context.user.infrastructure.persistence.UserRepository;
@@ -127,9 +128,9 @@ class LoginRouterTest {
             .bodyValue(unAuthUser)
             .exchange()
             .expectStatus().isOk()
-            .expectBody(Token.class)
+            .expectBody(LoginResponse.class)
             .consumeWith(tokenEntityExchangeResult -> {
-                Token token = tokenEntityExchangeResult.getResponseBody();
+                LoginResponse token = tokenEntityExchangeResult.getResponseBody();
                 assertTrue(jwtHelper.verifyToken(token.getToken()));
             });
     }
@@ -145,7 +146,7 @@ class LoginRouterTest {
             .name("guest").build());
 
         BDDMockito.given(generateGuestTokenService.generateGuestToken(guest))
-            .willReturn(Mono.just(Guest.builder().subject("batou@mail.com").token(token.getToken()).build()));
+            .willReturn(Mono.just(Guest.builder().subject("batou@mail.com").token(token.getTokenString()).build()));
 
         client.post()
             .uri(env.getProperty("v1") + "/guest")
