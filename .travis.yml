@@ -3,18 +3,22 @@ addons:
     organization: "theghostshell"
     token: $SONAR_TOKEN
 
-dist: trusty
+dist: xenial
 language: java
-jdk:
-- openjdk8
+
 jobs:
   include:
-    - script:
+    - language: java
+      jdk: openjdk11
+      script:
       - "./gradlew assemble"
       - "./gradlew check"
       - "./gradlew codeCoverageReport"
       - "./gradlew jacocoTestReport"
-    - script:
+
+    - language: java
+      jdk: openjdk11
+      script:
       - jdk_switcher use openjdk11
       - "sonar-scanner -X"
       - "./gradlew sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=Evergarden"
