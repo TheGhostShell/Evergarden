@@ -19,7 +19,6 @@ jobs:
     - language: java
       jdk: openjdk11
       script:
-      - jdk_switcher use openjdk11
       - "sonar-scanner -X"
       - "./gradlew sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=Evergarden"
 
