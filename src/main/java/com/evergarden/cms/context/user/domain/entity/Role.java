@@ -20,7 +20,6 @@ import java.util.List;
 @NoArgsConstructor
 @Document
 @Builder
-@AllArgsConstructor
 public class Role {
 
     @Id
@@ -31,6 +30,10 @@ public class Role {
     private String role;
 
     public Role(String role) {
+        setRole(role);
+    }
+    public Role(String id, String role) {
+        this.id = id;
         setRole(role);
     }
 

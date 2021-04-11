@@ -57,8 +57,6 @@ public class UserRouterTest {
 
     private Logger logger = LoggerFactory.getLogger(this.getClass());
 
-    private UserHandler userHandler;
-
     private RouterFunction router;
 
     @MockBean
@@ -107,14 +105,14 @@ public class UserRouterTest {
         // TODO refactor LoginHandler constructor parameter to simplify reduce number argument
         encoder = new EvergardenEncoder(env);
         jwtHelper = new JwtHelper(new JwtRequest(env.getProperty("jwt.secret")), tokenCache);
-        userHandler = new UserHandler(crudUserService, avatarFolderHelper, jwtHelper, updatePasswordService);
+        UserHandler userHandler = new UserHandler(crudUserService, avatarFolderHelper, jwtHelper, updatePasswordService);
         router = (new UserRouter()).userRoute(userHandler, env);
         client = WebTestClient.bindToRouterFunction(router).build();
     }
 
 
     @Test
-    void read() {
+    void should_fetch_user_by_id_http() {
         Collection<Role> roles = new ArrayList<>();
         Role             r1    = new Role().setRole("user").setId("1");
         roles.add(r1);
@@ -152,7 +150,7 @@ public class UserRouterTest {
     }
 
     @Test
-    void create() {
+    void should_create_user_http() {
         ArrayList<Role> roles = new ArrayList<>();
         roles.add(new Role().setRole("ROLE_COFFEE_MAKER"));
 
@@ -200,7 +198,7 @@ public class UserRouterTest {
 
     // TODO some save/update method don't need to return the new modified value
     @Test
-    void update() {
+    void should_update_user_http() {
         encoder.encode("pass");
 
         Collection<Role> roles = new ArrayList<>();
@@ -250,7 +248,7 @@ public class UserRouterTest {
     }
 
     @Test
-    void show() {
+    void should_fetch_all_user_http() {
         UserResponse u1 = new UserResponse();
         u1.setId("1");
         u1.setEmail("batou@mail.com");

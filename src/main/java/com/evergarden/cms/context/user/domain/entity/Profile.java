@@ -3,6 +3,7 @@ package com.evergarden.cms.context.user.domain.entity;
 import com.evergarden.cms.context.user.domain.exception.InvalidProfileException;
 import com.mongodb.lang.NonNull;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
@@ -18,6 +19,7 @@ import java.util.List;
 @NoArgsConstructor
 @Builder
 @Getter
+@EqualsAndHashCode
 public class Profile {
 
     @Id
