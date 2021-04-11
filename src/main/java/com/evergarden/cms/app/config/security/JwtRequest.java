@@ -7,5 +7,5 @@ import lombok.Getter;
 public class JwtRequest {
 
     @Getter
-    private String jwtSecret;
+    private final String jwtSecret;
 }

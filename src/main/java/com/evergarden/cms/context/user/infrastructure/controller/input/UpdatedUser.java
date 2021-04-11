@@ -15,13 +15,13 @@ import java.util.Collection;
 @Builder
 public class UpdatedUser {
 
-    private String id;
-    private boolean activated;
-    private String email;
-    private String firstname;
-    private String lastname;
-    private String pseudo;
-    private String avatarUrl;
-    private Avatar avatar;
-    private Collection<Role> roles;
+    private String        id;
+    private boolean       activated;
+    private String        email;
+    private String        firstname;
+    private String        lastname;
+    private String        pseudo;
+    private String        avatarUrl;
+    private Avatar        avatar;
+    private ProfileSearch profile;
 }

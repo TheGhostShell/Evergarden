@@ -3,6 +3,7 @@ package com.evergarden.cms.context.publisher.application.service;
 import com.evergarden.cms.context.publisher.domain.entity.Post;
 import com.evergarden.cms.context.publisher.domain.exception.RessourceNotFoundException;
 import com.evergarden.cms.context.publisher.infrastructure.persistence.PostRepository;
+import lombok.NonNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
@@ -30,7 +31,8 @@ public class CRUDPostService {
         return postRepository.findAll();
     }
 
-    public Mono<Post> updatePost(Post post){
+    public Mono<Post> updatePost(@NonNull Post post){
+        // TODO its really updated with new authorId and date field UpdatedAt
         return postRepository.findById(post.getId())
             .switchIfEmpty(Mono.error(new RessourceNotFoundException(post.getId())))
             .flatMap(unchangedPost -> postRepository.save(post));

@@ -1,5 +1,6 @@
 package com.evergarden.cms.context.user.domain.entity;
 
+import com.evergarden.cms.context.user.infrastructure.controller.input.ProfileSearch;
 import com.evergarden.cms.context.user.infrastructure.controller.input.UpdatedUser;
 import org.junit.jupiter.api.Test;
 
@@ -9,7 +10,7 @@ import java.util.Collection;
 import static org.junit.jupiter.api.Assertions.*;
 
 class UpdatedUserTest {
-    // Check assigned roles
+    // TODO Check assigned roles
 
     @Test
     void createInstanceAllParamConstructor() {
@@ -28,7 +29,7 @@ class UpdatedUserTest {
             "Batou",
             "avatarUrl",
             avatar,
-            roles
+            ProfileSearch.builder().name("admin").build()
         );
 
         assertEquals("id", updatedUser.getId());
@@ -38,7 +39,7 @@ class UpdatedUserTest {
         assertEquals("Batou", updatedUser.getPseudo());
         assertEquals(avatar, updatedUser.getAvatar());
         assertTrue(updatedUser.isActivated());
-        assertEquals(roles, updatedUser.getRoles());
+        assertEquals("admin", updatedUser.getProfile().getName());
     }
 
     @Test
@@ -46,6 +47,8 @@ class UpdatedUserTest {
         Collection<Role> roles = new ArrayList<>();
         roles.add(new Role("ADMIN"));
         Avatar avatar = new Avatar();
+
+        ProfileSearch profileSearch = ProfileSearch.builder().name("admin").build();
 
         UpdatedUser updatedUser = new UpdatedUser();
 
@@ -55,7 +58,7 @@ class UpdatedUserTest {
         updatedUser.setPseudo("Batou");
         updatedUser.setActivated(true);
         updatedUser.setId("id");
-        updatedUser.setRoles(roles);
+        updatedUser.setProfile(profileSearch);
         updatedUser.setAvatar(avatar);
 
         assertEquals("id", updatedUser.getId());
@@ -65,7 +68,7 @@ class UpdatedUserTest {
         assertEquals("Batou", updatedUser.getPseudo());
         assertEquals(avatar, updatedUser.getAvatar());
         assertTrue(updatedUser.isActivated());
-        assertEquals(roles, updatedUser.getRoles());
+        assertEquals(profileSearch, updatedUser.getProfile());
     }
 
 }

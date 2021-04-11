@@ -18,13 +18,13 @@ public class should_findById_existing_post extends IntegrationCmsApplicationTest
     public void should_findById_new_post_in_mongodb() {
         Post unSavePost = Post.builder()
             .title("Nice title")
-            .author("Violet")
+            .authorId("7x34vioLEt7xc34")
             .body("I'm a writer")
             .build();
 
         StepVerifier.create(crudPostService.create(unSavePost).flatMap(post -> crudPostService.findById(post.getId())))
             .expectNextMatches(savedPost -> {
-                Assertions.assertEquals("Violet", savedPost.getAuthor());
+                Assertions.assertEquals("7x34vioLEt7xc34", savedPost.getAuthorId());
                 Assertions.assertEquals("I'm a writer", savedPost.getBody());
                 Assertions.assertEquals("Nice title", savedPost.getTitle());
                 Assertions.assertNotNull(savedPost.getId());

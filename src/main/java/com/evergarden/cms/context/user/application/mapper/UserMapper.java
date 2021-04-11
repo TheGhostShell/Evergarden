@@ -7,7 +7,6 @@ import com.evergarden.cms.context.user.infrastructure.controller.output.UserResp
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.NullValuePropertyMappingStrategy;
-import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
 @Mapper
@@ -26,6 +25,10 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "avatar", ignore = true)
     @Mapping(target = "encodedCredential", ignore = true)
+    @Mapping(
+        source = "unSaveUser.profile",
+        target = "profile"
+    )
     User unSaveUserToUser(UnSaveUser unSaveUser);
     
     @Mapping(target = "encodedCredential", ignore = true)

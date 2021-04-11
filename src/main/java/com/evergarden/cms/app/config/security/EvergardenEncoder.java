@@ -19,102 +19,94 @@ import java.util.Base64;
 @Slf4j
 public class EvergardenEncoder implements PasswordEncoder {
 
-    private Environment env;
-    private EncodedCredential encodedCredential;
+  private Environment env;
+  private EncodedCredential encodedCredential;
 
-    @Autowired
-    public EvergardenEncoder(Environment env) {
-        this.env = env;
+  @Autowired
+  public EvergardenEncoder(Environment env) {
+    this.env = env;
+  }
+
+  public EvergardenEncoder(@NotNull Environment env, EncodedCredential encodedCredential) {
+    this.env = env;
+    this.encodedCredential = encodedCredential;
+  }
+
+  @Override
+  public String encode(CharSequence rawPassword) {
+
+    byte[] salt;
+    String staticSalt = env.getProperty("encode.secret");
+    int iteration = Integer.parseInt(env.getProperty("encode.iteration"));
+    int keyLength = Integer.parseInt(env.getProperty("encode.keylength"));
+
+    try {
+      salt = getSaltByte();
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      salt = staticSalt.getBytes();
     }
 
-    public EvergardenEncoder(@NotNull Environment env, EncodedCredential encodedCredential) {
-        this.env = env;
-        this.encodedCredential = encodedCredential;
+    try {
+      SecretKeyFactory secretKeyFactory =
+          SecretKeyFactory.getInstance(env.getProperty("encryption.algo"));
+
+      PBEKeySpec spec =
+          new PBEKeySpec(rawPassword.toString().toCharArray(), salt, iteration, keyLength);
+
+      byte[] encoded = secretKeyFactory.generateSecret(spec).getEncoded();
+
+      encodedCredential =
+          new EncodedCredential(convToString(salt), Base64.getEncoder().encodeToString(encoded));
+
+      log.debug("Generated salt : " + convToString(salt));
+
+      return Base64.getEncoder().encodeToString(encoded);
+
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      return null;
     }
+  }
 
-    @Override
-    public String encode(CharSequence rawPassword) {
+  @Override
+  public boolean matches(CharSequence rawPassword, String encodedPassword) {
 
-        byte[] salt;
-        String staticSalt = env.getProperty("encode.secret");
-        int    iteration  = Integer.parseInt(env.getProperty("encode.iteration"));
-        int    keyLength  = Integer.parseInt(env.getProperty("encode.keylength"));
+    try {
+      int iteration = Integer.parseInt(env.getProperty("encode.iteration"));
+      int keyLength = Integer.parseInt(env.getProperty("encode.keylength"));
+      byte[] saltByte = Base64.getDecoder().decode(encodedCredential.getSalt());
+      SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
 
-        try {
-            salt = getSaltByte();
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            salt = staticSalt.getBytes();
-        }
+      PBEKeySpec spec =
+          new PBEKeySpec(rawPassword.toString().toCharArray(), saltByte, iteration, keyLength);
 
-        try {
-            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance(env.getProperty("encryption.algo"));
+      byte[] encoded = secretKeyFactory.generateSecret(spec).getEncoded();
 
-            PBEKeySpec spec = new PBEKeySpec(
-                rawPassword.toString().toCharArray(),
-                salt,
-                iteration,
-                keyLength
-            );
+      String expectedEncodedPass = Base64.getEncoder().encodeToString(encoded);
 
-            byte[] encoded = secretKeyFactory.generateSecret(spec).getEncoded();
+      return expectedEncodedPass.equals(encodedPassword);
 
-            encodedCredential = new EncodedCredential(convToString(salt), Base64.getEncoder().encodeToString(encoded));
-
-            log.debug("Generated salt : " + convToString(salt));
-
-            return Base64.getEncoder().encodeToString(encoded);
-
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return null;
-        }
+    } catch (Exception e) {
+      return false;
     }
+  }
 
-    @Override
-    public boolean matches(CharSequence rawPassword, String encodedPassword) {
+  private byte[] getSaltByte() throws NoSuchAlgorithmException {
+    SecureRandom secure = SecureRandom.getInstance(env.getProperty("secure.random.algo"));
 
-        try {
-            int              iteration        = Integer.parseInt(env.getProperty("encode.iteration"));
-            int              keyLength        = Integer.parseInt(env.getProperty("encode.keylength"));
-            byte[]           saltByte         = Base64.getDecoder().decode(encodedCredential.getSalt());
-            SecretKeyFactory secretKeyFactory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512");
+    byte[] salt = new byte[16];
 
-            PBEKeySpec spec = new PBEKeySpec(
-                rawPassword.toString().toCharArray(),
-                saltByte,
-                iteration,
-                keyLength
-            );
+    secure.nextBytes(salt);
 
-            byte[] encoded = secretKeyFactory.generateSecret(spec).getEncoded();
+    return salt;
+  }
 
-            String expectedEncodedPass = Base64.getEncoder().encodeToString(encoded);
+  private String convToString(byte[] salt) {
+    return Base64.getEncoder().encodeToString(salt);
+  }
 
-            return expectedEncodedPass.equals(encodedPassword);
-
-        } catch (Exception e) {
-            return false;
-        }
-    }
-
-    private byte[] getSaltByte() throws NoSuchAlgorithmException {
-
-        SecureRandom secure = SecureRandom.getInstance(env.getProperty("secure.random.algo"));
-
-        byte[] salt = new byte[16];
-
-        secure.nextBytes(salt);
-
-        return salt;
-    }
-
-    private String convToString(byte[] salt) {
-
-        return Base64.getEncoder().encodeToString(salt);
-    }
-
-    public EncodedCredential getEncodedCredential() {
-        return encodedCredential;
-    }
+  public EncodedCredential getEncodedCredential() {
+    return encodedCredential;
+  }
 }

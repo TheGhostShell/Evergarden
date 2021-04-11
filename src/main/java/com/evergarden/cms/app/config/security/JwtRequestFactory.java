@@ -8,15 +8,15 @@ import org.springframework.core.env.Environment;
 @Configuration
 public class JwtRequestFactory {
 
-    private Environment env;
+  private Environment env;
 
-    @Autowired
-    public JwtRequestFactory(Environment env) {
-        this.env = env;
-    }
+  @Autowired
+  public JwtRequestFactory(Environment env) {
+    this.env = env;
+  }
 
-    @Bean
-    public JwtRequest create() {
-        return new JwtRequest(env.getProperty("jwt.secret"));
-    }
+  @Bean
+  public JwtRequest create() {
+    return new JwtRequest(env.getProperty("jwt.secret"));
+  }
 }

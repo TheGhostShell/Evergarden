@@ -161,7 +161,9 @@ dependencies {
     testCompile('org.junit.jupiter:junit-jupiter:5.4.0')
 
     // testContainer acceptance test
-    testImplementation(group: 'org.testcontainers', name: 'testcontainers', version: '1.12.4')
+    testImplementation(group: 'org.testcontainers', name: 'testcontainers', version: '1.15.0-rc2')
+    testImplementation group: 'org.testcontainers', name: 'junit-jupiter', version: '1.14.3'
+
 
     testCompile group: 'io.rest-assured', name: 'rest-assured', version: '4.1.2'
     testCompile group: 'io.rest-assured', name: 'rest-assured-all', version: '4.1.2'

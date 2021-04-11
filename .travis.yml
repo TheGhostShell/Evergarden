@@ -5,14 +5,22 @@ addons:
 
 dist: xenial
 language: java
-jdk:
-- openjdk8
-script:
-- "./gradlew assemble"
-- "./gradlew check"
-- "./gradlew codeCoverageReport"
-- "./gradlew jacocoTestReport"
-- "sonar-scanner -X"
-- "./gradlew sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=Evergarden"
+
+jobs:
+  include:
+    - language: java
+      jdk: openjdk8
+      script:
+      - "./gradlew assemble"
+      - "./gradlew check"
+      - "./gradlew codeCoverageReport"
+      - "./gradlew jacocoTestReport"
+
+    - language: java
+      jdk: openjdk11
+      script:
+      - "sonar-scanner -X"
+      - "./gradlew sonarqube -Dsonar.login=$SONAR_TOKEN -Dsonar.projectKey=Evergarden"
+
 after_success:
 - bash <(curl -s https://codecov.io/bash) -f "*.xml" -s "./build"

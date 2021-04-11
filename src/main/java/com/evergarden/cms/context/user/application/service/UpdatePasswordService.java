@@ -43,6 +43,6 @@ public class UpdatePasswordService {
 
                 return Mono.error(new PasswordConstraintViolationException());
             })
-           .flatMap(user -> crudUserService.update(user).map(user1 -> true));
+           .flatMap(user -> crudUserService.updateOrSave(user).map(user1 -> true));
     }
 }

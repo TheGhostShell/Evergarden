@@ -10,17 +10,17 @@ import javax.cache.Cache;
 @Configuration
 public class JwtHelperFactory {
 
-    private JwtRequest jwtRequest;
-    private Cache<String, Token> tokenCache;
+  private final JwtRequest jwtRequest;
+  private final Cache<String, Token> tokenCache;
 
-    @Autowired
-    public JwtHelperFactory(JwtRequest jwtRequest, Cache<String, Token> tokenCache) {
-        this.jwtRequest = jwtRequest;
-        this.tokenCache = tokenCache;
-    }
+  @Autowired
+  public JwtHelperFactory(JwtRequest jwtRequest, Cache<String, Token> tokenCache) {
+    this.jwtRequest = jwtRequest;
+    this.tokenCache = tokenCache;
+  }
 
-    @Bean
-    public JwtHelper jwtHelperInstance() {
-        return new JwtHelper(jwtRequest, tokenCache);
-    }
+  @Bean
+  public JwtHelper jwtHelperInstance() {
+    return new JwtHelper(jwtRequest, tokenCache);
+  }
 }

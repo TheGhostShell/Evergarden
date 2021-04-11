@@ -1,6 +1,7 @@
 package com.evergarden.cms.app.config.caching;
 
 import com.evergarden.cms.context.user.domain.entity.Token;
+import com.evergarden.cms.context.user.domain.entity.User;
 import org.ehcache.jsr107.EhcacheCachingProvider;
 import org.springframework.cache.CacheManager;
 import org.springframework.cache.annotation.CachingConfigurerSupport;
@@ -8,6 +9,7 @@ import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.jcache.JCacheCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import reactor.core.publisher.Mono;
 
 import javax.cache.Cache;
 import javax.cache.Caching;
@@ -40,4 +42,14 @@ public class CacheConfig extends CachingConfigurerSupport {
             .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.MINUTES, 359)));
         return  ehcacheManager().createCache("tokenCache", configuration);
     }
+
+    @Bean
+    public Cache<String, User> userCache() {
+        MutableConfiguration<String, User>  configuration = new MutableConfiguration<String, User>()
+            .setTypes(String.class, User.class)
+            .setStoreByValue(false)
+            .setExpiryPolicyFactory(CreatedExpiryPolicy.factoryOf(new Duration(TimeUnit.MINUTES, 5)));
+        return  ehcacheManager().createCache("userCache", configuration);
+    }
 }
+
